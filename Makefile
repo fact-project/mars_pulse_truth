@@ -77,7 +77,8 @@ SUBDIRS := mbase \
           mjtrain \
           mmovie \
           mtools \
-          mmuon
+          mmuon \
+          #mpulsetruth
 
 LIBNOVA_PATH := `which libnovaconfig`
 
