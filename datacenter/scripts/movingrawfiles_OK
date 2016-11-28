@@ -1,0 +1,107 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2004 <mailto:dorner@astro.uni-wuerzburg.de>
+#   Author(s): Stefan Ruegamer 02/2007 <mailto:snruegam@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2007
+#
+#
+# ========================================================================
+#
+# This script is moving the rawfiles from the directory
+# /magic/datacenter/fromtape/rawdata to the structure
+# /magic/data/rawfiles/YYYY/MM/DD
+# 
+# Before running this script via cronjob, a check has to be included
+# which logs in to La Palma and checks if the corresponding link in the
+# Wuerbzurg transfer folder has already been deleted (else the file will
+# be transferred again after moving)
+# 
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=movingrawfiles_OK
+
+set -C
+umask 0002
+
+# check whether script is already running
+lockfile=$lockpath/lock-$program.txt
+checklock 
+
+# change permission for files
+ssh tape@dc07 chmod -R g+w /magic/datacenter/fromtape/rawdata/* 
+ssh lapalma@dc09 chmod -R g+w /magic/datacenter/fromlapalma/RAW*/ 
+# output for chmod with -v or -c (only changes)
+
+printprocesslog "INFO moving directories from fromlapalma to fromtape"
+#find directories which have to be copied
+dirs=`ls /magic/datacenter/fromlapalma/RAW/*/*.OK | sed -e 's/.OK//g'`
+if [ ! "$dirs" == "" ]
+then
+   # change permission for this directories
+   ssh lapalma@dc09 chmod -R g+w $dirs 
+   # move directories to the tapedirectory
+   dates=`find /magic/datacenter/fromlapalma/RAW/*200* -type d | cut -d/ -f6`
+   for date in ${dates[@]}
+   do
+	ssh lapalma@dc09 mkdir /magic/datacenter/fromlapalma/RAWchk/$date 
+      	makedir /magic/datacenter/fromtape/rawdata/$date 
+        
+   	OKs=`ls /magic/datacenter/fromlapalma/RAW/$date/*.OK`
+      	for OK in ${OKs[@]}
+        do
+		ssh lapalma@dc09 mv -v $OK /magic/datacenter/fromlapalma/RAWchk/$date/ 
+                files=`echo $OK | sed -e 's/.OK//g'`
+		mv -v $files /magic/datacenter/fromtape/rawdata/$date/ 
+	done
+   done
+fi
+
+rmdir -v /magic/datacenter/fromlapalma/RAW/*200* 
+
+# find rawfiles
+rawfiles=`find /magic/datacenter/fromtape/rawdata/ -name '*.*'`
+
+if [ "$rawfiles" == "" ]
+then
+   printprocesslog "INFO no files to move -> exit" 
+   finish 
+fi
+
+printprocesslog "INFO moving rawfiles to $datapath/rawfiles"
+for rawfile in $rawfiles
+do
+# workaround for rawfiles with wrong timing
+#   newrawfile=`echo $rawfile | sed -e 's/center\/fromtape\/rawdata/\/rawfiles-wrong-timing/g' -e 's/_/\//1' -e 's/_/\//1'`
+   newrawfile=`echo $rawfile | sed -e 's/center\/fromtape\/rawdata/\/rawfiles/g' -e 's/_/\//1' -e 's/_/\//1'`
+   newdir=`dirname $newrawfile`
+   makedir $newdir 
+   
+   mv -v $rawfile $newrawfile 
+done
+
+rmdir -v /magic/datacenter/fromtape/rawdata/* 
+
+printprocesslog "INFO launching filesondisk"
+$scriptspath/filesondisk&
+
+finish 
+

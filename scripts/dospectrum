@@ -1,0 +1,245 @@
+#!/bin/sh
+# 
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  06/2007 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2007
+#
+#
+# ========================================================================
+#
+##############################################################################
+#
+# This script is: 
+# - writing rc-files with different sets of cuts 
+#   the set of cuts can be steered with the variables 
+#   $par3step, $par3numminus, $par3num and
+#   $par1step, $par1numminus, $par1num
+#     par*step     step width for changing the parameter * 
+#                  (suggested value: 0.005)
+#     par*numminus number of steps going to smaller values of the parameter * 
+#                  (starting value in your ganymed.rc file) 
+#     par*num      number of steps for changing the parameter * 
+#     par3: Cut1.Param3 from the ganymed.rc file 
+#     par1: Cut1.Param1 from the ganymed.rc file 
+# - writing a condor dag file for spectrum study
+#   With submitting this dag file with condor_submit_dag to condor from your
+#   Mars directroy you are running ganymed and sponde for all different rc 
+#   files. The condor dag man is taking care of the order of the jobs, 
+#   i.e. that sponde is started just when ganymed has been finished.
+# 
+# To start several spondes please set the arrays $spondes.
+# It is also possible to start new spondes without rerunning ganymed and/or 
+# the other spondes. To do so, please set the variables $doganymed and 
+# $spondedones accordingly
+#
+# Remark: You have to submit the condor dag file from your Mars directory.
+# 
+# For more detailed information read the comments directly before
+# each variable.
+#
+##############################################################################
+#
+
+#
+# instructions and setup of the script
+# please set the variables according to your analysis
+#
+
+# path for you analysis
+path=/home/dorner/final_analysis
+# path where your condor dagfile is stored and where you need
+# the files processds.submit and processsponde.submit
+#condorpath=$path/condor
+# standard condor path in your Mars directory
+condorpath=condor
+# path to store your resourcefiles
+# you should have there the ganymed.rc, which you want to use 
+# and your sponde.rc files 
+rcpath=$path/resources
+ganymedrc=$rcpath/ganymed_wobble_set5_final.rc
+# outpath for your spectrum results
+# a directory for each set of cuts will be created there and
+# the ganymed and sponde output will be stored in these directories
+specpath=$path/results/spectrumSet5
+# name of your dataset
+# it has to be stored as dataset$dataset.txt in the directory
+# $path/datasets
+dataset="20070001"
+# this is the name of the condor-dag file, which you have to submit 
+# with condor_submit_dag from your Mars directory
+dagfile=$condorpath/spectrumSet5.dag
+# here you define whether ganymed still has to be done
+# if yes, set the variable $doganymed to "yes"
+#doganymed="yes"
+doganymed="no"
+# sponde.rc files have to be in the directory $rcpath 
+# they need to have the naming sponde1.rc, sponde2.rc, sponde3.rc 
+# (numbers in the following array)
+# the sponde.root files will be named in the same way (sponde(num).root)
+spondes=(     1       2  3  4 12 13 14 15 )
+# in this array you define whether the sponde is already done
+spondedones=( "done" "" "" "" "" "" "" "" )
+
+# this is the mc dataset, which has been created with the script
+# preparemc, make sure to use the correct path
+mcdataset=$path/mc/mcdataset-for-sponde.txt
+
+# values for par3
+par3step=0.01
+par3numminus=9
+par3num=11
+# values for par1
+par1step=0.005
+par1numminus=1 
+par1num=7 
+
+#
+# end of setup
+#-----------------------------------------------------------------------------
+# beginning of script
+# 
+
+# some checks
+# checking if the given files and paths are existing
+if ! [ -e $mcdataset ]
+then
+   echo "Your mc dataset file $mcdataset does not exist."
+   exit
+fi
+if ! [ -e $specpath ]
+then
+   echo "Your output path $specpath does not exist."
+   exit
+fi
+if ! [ -e $path/datasets/dataset$dataset.txt ]
+then
+   echo "Your dataset file $path/datasets/dataset$dataset.txt does not exist."
+   exit
+fi
+if ! [ -e $ganymedrc ]
+then
+   echo "Your ganymed rc file $ganymedrc does not exist."
+   exit
+fi
+for (( l=0 ; l < ${#spondes[@]} ; l++ ))
+do 
+   if ! [ -e $rcpath/sponde${spondes[$l]}.rc ]
+   then
+      echo "Your sponde rc file $rcpath/sponde${spondes[$l]}.rc does not exist."
+      exit
+   fi
+done
+
+# get the parameters
+par3=`cat $ganymedrc | grep 'Cut1.Param3' | cut -d: -f2`
+par1=`cat $ganymedrc | grep 'Cut1.Param1' | cut -d: -f2`
+echo "parameters: "
+echo "  par3= $par3"
+echo "  par1= $par1"
+echo ""
+
+# calculate the parameters with which you start
+start3=`echo $par3 - \( $par3numminus*$par3step \) | bc `
+start1=`echo $par1 - \( $par1numminus*$par1step \) | bc `
+echo "start: "
+echo "  par1: $start1 "
+echo "  par3: $start3"
+echo ""
+
+
+# function to print the lines for ganymed to the dag file
+function printganydagentry()
+{
+   if [ "$doganymed" = "yes" ]
+   then
+      echo "JOB  ds"$dataset"gany"$name" "$condorpath"/processds.submit"
+   else
+      echo "JOB  ds"$dataset"gany"$name" "$condorpath"/processds.submit DONE"
+   fi
+   echo "VARS ds"$dataset"gany"$name" path=\"$path\""
+   echo "VARS ds"$dataset"gany"$name" out=\"$outpath\""
+   echo "VARS ds"$dataset"gany"$name" ds=\"$dataset\""
+   echo "VARS ds"$dataset"gany"$name" num=\"$dataset\""
+   echo "VARS ds"$dataset"gany"$name" rc=\"$rcfile\""
+   echo ""
+}
+
+# function to print the lines for sponde to the dag file
+function printspecdagentry()
+{
+   sponderc=$rcpath/sponde_wobble$1.rc
+   if [ "$2" = "done" ]
+   then
+      echo "JOB  ds"$dataset"spec"$1"_"$name" "$condorpath"/processsponde.submit DONE"
+   else
+      echo "JOB  ds"$dataset"spec"$1"_"$name" "$condorpath"/processsponde.submit"
+   fi
+   echo "VARS ds"$dataset"spec"$1"_"$name" path=\""$path"\""
+   echo "VARS ds"$dataset"spec"$1"_"$name" out=\""$outpath"\""
+   echo "VARS ds"$dataset"spec"$1"_"$name" rc=\""$sponderc"\""
+   echo "VARS ds"$dataset"spec"$1"_"$name" spondenum=\""$1"\""
+   echo "VARS ds"$dataset"spec"$1"_"$name" mcds=\""$mcdataset"\""
+   echo "VARS ds"$dataset"spec"$1"_"$name" num=\""$dataset"\""
+   echo ""
+   echo "PARENT ds"$dataset"gany"$name" CHILD ds"$dataset"spec"$1"_"$name 
+   echo ""
+}
+
+echo "writing dag file $dagfile for dataset $dataset"
+echo "# dag file for dataset $dataset" > $dagfile
+echo "" >> $dagfile
+val1=$start1
+val3=$start3
+count=0
+for (( i=0 ; i < $par3num ; i++ ))
+do 
+   for (( j=0 ; j < $par1num ; j++ ))
+   do 
+      name=${val1}_${val3}
+      outpath=$specpath/ganyspec$name
+      rcfile=$outpath/ganymed_${name}_onoff.rc
+      if ! [ -d $outpath ]
+      then 
+         mkdir -v $outpath
+      fi
+      cat $ganymedrc | sed -e s/"${par1}"/"   ${val1}"/ -e s/"${par3}"/"  ${val3}"/ > $rcfile
+      val1=`echo $val1 + $par1step | bc`
+      echo " writing dag entry for set of cuts par1: $val1, par3: $val3"
+      echo "# ganymed and sponde for dataset $dataset with cuts $name" >> $dagfile
+      echo "" >> $dagfile
+      printganydagentry  >> $dagfile
+      for (( k=0 ; k < ${#spondes[@]} ; k++ ))
+      do 
+         printspecdagentry ${spondes[$k]} ${spondedones[$k]} >> $dagfile
+      done
+      echo "" >> $dagfile
+      count=`echo $count + 1 | bc`
+   done
+   val3=`echo $val3 + $par3step | bc`
+   val1=$start1
+done
+
+echo ""
+echo "finished writing condor dag file "$dagfile
+echo "in total $count different sets of cuts are used"
+echo ""
+echo "you can submit it now with \"condor_submit_dag -f -maxidle 7 $dagfile\" from your Mars directory"
+echo ""
+

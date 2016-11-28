@@ -1,0 +1,30 @@
+#
+#  ----->>>   root libraries
+#
+
+ROOTLIBS   := $(shell root-config --libs) -lASImage -lMinuit -lHistPainter -lThread
+ROOTGLIBS  := $(shell root-config --glibs) -lASImage -lMinuit -lHistPainter -lThread
+ROOTCFLAGS := $(shell root-config --cflags)
+
+SVN_REVISION := -DREVISION=\"$(shell svnversion -n .)\"
+
+#
+#  compiler flags
+#
+
+#
+# You can use this flags to further costumize compilation:
+#   export MARSDEFINES="-DHAVE_DARKBACKGROUND -DHAVE_XPM"
+#   export MARSFLAGS=
+#   export MARSLIBS="-lX11 -lXpm -L/usr/X11R6/lib"
+#
+OSTYPE   = $(shell uname -s | tr '[:upper:]' '[:lower:]')
+
+DEFINES	 := -DMARSVER=\"\<cvs\>\" -DPACKAGE_VERSION=\"2.4\" -D__MARS__ $(MARSDEFINES) -DHAVE_ZLIB -DPACKAGE_NAME=\"MARS\ CheObs\" ${SVN_REVISION}
+
+CXXFLAGS = $(ROOTCFLAGS) $(INCLUDES) $(OPTIM) $(DEBUG) $(ARCHDEF) $(DEFINES)
+CFLAGS   = $(CXXFLAGS) $(MARSFLAGS)
+FFLAGS   = $(CXXFLAGS)
+
+HEADERS  = $(subst .cxx,.hxx,$(subst .cc,.h,$(SRCFILES)))
+OBJS     = $(subst .cxx,.o,  $(subst .cc,.o,$(SRCFILES))) $(CINT)Cint.o

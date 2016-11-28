@@ -1,0 +1,194 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2004 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2007
+#
+#
+# ========================================================================
+#
+# This script launches the datacheck for all runs, which are not yet 
+# checked
+#
+# Get todo file
+# Then for each run the following steps are done: 
+#  - filldotraw.C
+#  - sinope (once for data and once for calibration events)
+#  - fillsinope
+#  - reset ExclusionsDone, so that the result from the datacheck can be 
+#    taken into account when doexclusions is running the next time
+# If this was successful, the status is inserted into the database using 
+# the function setstatus.
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+echo "This script has not been adapted to the new file structure (MAGIC II) and new logging. "
+echo "Only the usage of getodo has been adapted, but not tested."
+echo "Please adapt it before using it."
+exit
+
+program=datacheck
+column=fDataCheckDone
+
+set -C
+
+scriptlog=$runlogpath/$program-$datetime.log
+date >> $scriptlog 2>&1
+
+# get run # 
+gettodo "1" >> $scriptlog 2>&1
+run=${primaries[0]}
+telnum=${primaries[1]}
+filenum=${primaries[2]}
+
+# lock sequ
+lockfile=$lockpath/lock-$table-$column-$run.txt
+checklock >> $scriptlog 2>&1
+
+cd $mars
+
+echo "do $program for run "$run >> $scriptlog 2>&1
+printprocesslog "INFO do $program for run $run"
+no=`printf %08d $run | cut -c 0-2`
+no2=`printf %08d $run`
+query="SELECT DATE_FORMAT(ADDDATE(fRunStart, INTERVAL +13 HOUR), '%Y/%m/%d') FROM RunData where fRunNumber="$run
+date=`sendquery`
+rawfile=`find /magic/data/rawfiles/$date -name *${run}_[D,P,C,S,N]_*.raw -o -name *${run}_[DPCSN]_*.raw.gz`
+echo "rawfile: "$rawfile >> $scriptlog 2>&1
+# for sinope the date is needed in the format YYYY-MM-DD
+date2=`echo $date | sed -e 's/\//-/g'`
+
+#primvar=$no2
+setstatus "start" >> $scriptlog 2>&1
+
+# running filldotraw
+echo "doing filldotraw..." >> $scriptlog 2>&1
+filldotrawpath=$logpath/filldotraw/$date
+makedir $filldotrawpath >> $scriptlog 2>&1
+filldotrawlogfile=$filldotrawpath/filldotraw-$no2.log
+
+check1=`root -q -b $macrospath/filldotraw.C+\("\"$rawfile\""\,kFALSE\) | tee $filldotrawlogfile | intgrep`
+
+case $check1 in 
+   1)   echo " check1=$check1 -> everything ok -> go on with $program..." >> $scriptlog 2>&1
+        printprocesslog "INFO finished filldotraw.C sucessfully for $rawfile"
+        ;;
+   0)   echo " check1=$check1 -> no connection to db -> continue..." >> $scriptlog 2>&1 
+        printprocesslog "WARN connection to DB failed"
+        check="no"
+        setstatus "stop" >> $scriptlog 2>&1
+        continue ;;
+   *)   echo " check1=$check1 -> ERROR -> step has to be repeated" >> $scriptlog 2>&1
+        printprocesslog "ERROR filldotraw.C failed for $rawfile"
+        com=$Ffillraw
+        check=$check1
+        setstatus "stop" >> $scriptlog 2>&1
+        continue ;;
+esac
+
+# running sinope 
+printprocesslog "INFO running sinope for $run"
+sinopepath=$datapath/sinope/$date
+makedir $sinopepath >> $scriptlog 2>&1
+
+sins=( "-dat"  "-cal")
+for sin in ${sins[@]}
+do 
+   sinopefile=sinope$sin$no2
+   
+   echo "running sinope $sin..." >> $scriptlog 2>&1
+   ./sinope -b -q -v4 -f $sin --outf=$sinopefile --out=$sinopepath --log=$sinopepath/$sinopefile.log --html=$sinopepath/$sinopefile.html --run=$run --date=$date2  2>> $scriptlog > /dev/null
+   check2=$?
+   
+   case $check2 in 
+      0)   echo " check2=$check2 -> everything ok -> go on with $program..." >> $scriptlog 2>&1
+           ;;
+      *)   echo " check2=$check2 -> ERROR -> step has to be repeated" >> $scriptlog 2>&1
+           printprocesslog "ERROR sinope $sin failed for $rawfile"
+           com=$Fsinope
+#           comadd=
+           check=$check2
+           setstatus "stop" >> $scriptlog 2>&1
+           continue 2;;
+   esac
+   check2=1
+done
+
+# running fillsinope
+fillsinopepath=$logpath/fillsinope/$date
+makedir $fillsinopepath >> $scriptlog 2>&1
+fillsinopelogfile=$fillsinopepath/fillsinope-$no2.log
+
+echo "doing fillsinope..." >> $scriptlog 2>&1
+check3=`root -q -b $macrospath/fillsinope.C+\($run\,"\"$datapath\""\,kFALSE\) | tee $fillsinopelogfile | intgrep`
+
+case $check3 in 
+   1)   echo " check3=$check3 -> everything ok -> set status..." >> $scriptlog 2>&1
+        printprocesslog "INFO finished fillsinope.C sucessfully for run $run"
+        ;;
+   0)   echo " check3=$check3 -> no connection to db -> continue..." >> $scriptlog 2>&1 
+        printprocesslog "WARN connection to DB failed"
+        check="no"
+        setstatus "stop" >> $scriptlog 2>&1
+        continue ;;
+   *)   echo " check3=$check3 -> ERROR -> step has to be repeated" >> $scriptlog 2>&1
+        printprocesslog "ERROR fillsinope.C failed for run $run"
+        com=$Ffillsinope
+        check=$check3
+        setstatus "stop" >> $scriptlog 2>&1
+        continue ;;
+esac
+
+# resetting the status for exclusions
+echo "resetting the status for fExclusionsDone for date $date2" >> $scriptlog 2>&1
+printprocesslog "INFO resetting fExclusions done for $date2"
+resetlogpath=$logpath/resetexclusions/$date
+makedir $resetlogpath >> $scriptlog 2>&1
+resetlog=$resetlogpath/reset-exclusions-$no2-$date2.log
+
+check5=`root -q -b $macrospath/resetcolumn.C+\("\"fExclusionsDone\""\,"\"SequenceBuildStatus\""\,"\"$date2\""\,"\"$date2\""\,kFALSE\) | tee $resetlog | intgrep`
+case $check5 in
+   1)   echo " check5=$check5 -> everything ok, fExclusions have been reset " >> $scriptlog 2>&1
+        printprocesslog "INFO resetted fExclusions done for $date2 successfully"
+        ;;
+   0)   echo " check5=$check5 -> no connection to db -> continue..." >> $scriptlog 2>&1 
+        printprocesslog "WARN connection to DB failed"
+        check="no"
+        setstatus "stop" >> $scriptlog 2>&1
+        continue ;;
+   *)   echo " check5=$check5 -> ERROR -> step could not be resetted -> repeat step " >> $scriptlog 2>&1
+        printprocesslog "ERROR resetcolumn.C failed for date $date2"
+        com=$Fresetexcl
+        comadd=`echo $date2 | sed -e 's/-//g'`
+        check=$check5
+        setstatus "stop" >> $scriptlog 2>&1
+        continue ;;
+esac
+
+# set status
+statustime="Now()"
+failed="NULL"
+starttime="NULL"
+failedtime="NULL"
+setstatus "stop" >> $scriptlog 2>&1
+
+finish >> $scriptlog 2>&1
+

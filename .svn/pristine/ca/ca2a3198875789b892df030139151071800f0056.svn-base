@@ -1,0 +1,14 @@
+copy_to_spool = false
+Universe      = vanilla
+Executable    = $(path)/$(prog)
+Arguments     = $(args)
+Log           = condor-$(date).log
+output        = log-$(date).log
+error         = error-$(date).log
+notification  = Error
+environment   = AUTOMATIONSETUP=$(automationsetup)
+
+Initialdir = $(dir)
+
+Queue $(num)
+

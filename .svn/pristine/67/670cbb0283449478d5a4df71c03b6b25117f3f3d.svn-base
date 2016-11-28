@@ -1,0 +1,52 @@
+#!/bin/sh
+
+##############################################################################
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Thomas Bretz, 5/2006 <mailto:tbretz@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2006
+#
+#
+##############################################################################
+#
+# This script can be used to test merpping subsystem data
+# 
+##############################################################################
+
+# Add here a line which defines which files should be tested
+files=`find /magic/subsystemdata/cc/2006/05 -name CC_20[0-2][0-9]_[01][0-9]_[0-3][0-9]_*.rep | sort`
+
+#files=`find /magic/subsystemdata/cc/ -name CC_20[0-2][0-9]_[01][0-9]_[0-3][0-9]_*.rep`
+#files=`find /magic/subsystemdata/cc/2004/ -name 20[0-2][0-9][01][0-9][0-3][0-9]_*_S.rep`
+
+# Output the files which will be tested on top of the log-file
+echo "files: "$files > merpptest.log
+
+# Add empty line to log.file
+echo >> merpptest.log
+
+# Loop over all files
+for file in ${files[@]}
+do 
+   # Echo the file name to the console and log-file
+   echo $file               | tee -a merpptest.log
+ 
+   # Merpp into /dev/null and append the output to the log.file
+   merpp -f $file /dev/null | tee -a merpptest.log
+done
+

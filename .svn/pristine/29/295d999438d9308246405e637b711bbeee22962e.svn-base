@@ -1,0 +1,3523 @@
+                                                               -*-*- END -*-*-
+
+== <cvs> ==
+
+ ;general:
+
+   * On some systems (version of make?) the __LINUX__ definition was not set
+     when compiling. This lead to MTime(-1) not working properly. Fixed.
+
+   * The status display is now able to write a plain root file which means
+     that the MStatusArray container is omitted and the TCanvas are written
+     to the file directly. This allows to write files which are accessible
+     from a plain root (without MARS) if no MARS objects are contained
+     in the TCanvas'. In turn the reading of files which contains 
+     objects and TCanvas' but no MStatusArray object has been improved.
+
+   * MMcEvt.fPhi and MMcEvt.fTheta have been moved to its base class
+     MMcEvtBasic. Consequently, the direction of the primary shower
+     is not lost in the OriginalMC tree anymore
+
+   * Added a new class MJTrainImpact to estimate the impact parameter by use
+     of a random forest
+
+   * Changed MH::SetBinning and similar functions to take references instead
+     of pointers. Except for SetBinning(TH1&, const TH1&), which was renamed
+     to CopyBinning(const TH1&, TH1&) wrapper functions are provided so that
+     old macros should still work.
+     WARNING: These wrappers might be removed in future releases.
+
+   * A new class MJTrainCuts is available. It provides a way to graphically
+     analyse the cuts performed by a random forest. In addition the graphical
+     output can also be used to understand or find classical cuts. For more
+     details read the class description and look at macros/train/traincuts.C
+
+   * Implemented the pixel layout of the FACT camera into MGeomCamFACT
+
+   * Added a macro (macros/fact/fact_trigger.C) to display the FACT camera
+     and the trigger layout.
+
+ ;ceres:
+
+   * Allow for individual mirrors with parabolic shape (for details see
+     MReflector::ReadFile)
+
+   * As an additional output artificial star-files are written. They
+     contain star output compatible output based on the signal as
+     in the artificial callisto output files.
+
+   * The trigger channel which issued the trigger is now stored in
+     MRawEvtHeader::fNumTriggerLvl1
+
+   * The number of photons in the calibration signal is now distributed
+     by a possonian instead of a Gauss.
+
+   * implemented new file-naming scheme (corsika run-number is new
+     tranfered to the ceres output as file-number). Therefore a new option
+     has been implemented to set an artificial run-number:
+        ---run-number=12345
+
+   * The baseline, the baseline noise and the gain (multiplicator to the
+     pulse) are now accessible from the outside. The new values are:
+        MSimCamera.DefaultOffset
+        MSimCamera.DefaultNoise
+        MSimCamera.DefaultGain
+
+   * Added the FACT trigger layout: resmc/fact-trigger-sum.txt contains the
+     mapping of the regular patches, resmc/fact-trigger-all.txt the mapping
+     of all patches.
+
+   * Added reading of re-used corsika showers (only supported if MMCS is used)
+
+   * Added new mirror type MMirrorHex90 (MMirrorHex rotated by 90deg)
+
+ ;star:
+
+   * The time constraint in the image cleaning is now scaled with the
+     pixel distance. Consequently, the value given is not absolute in
+     ns anymore, but in ns/deg. This means that the values for MAGIC
+     have to be scaled by a factor of 10.
+
+   * Star now calculates new timing parameters, namely:
+
+   ** MHillasExt.fTimeSpread: 
+      This is the time spread (rms) around the mean of the arrival times.
+      It is calulated as 
+         <math>\sqrt{\sum{(t_i-<t>)^2}/n}</math>
+   ** MHillasExt.fTimeSpreadWeighted: 
+      This is the weighted time spread (rms) around the weighted mean of the arrival times.
+      It is calulated as 
+         <math>\frac{1}{\sum{w_i}}\sqrt{\sum{w_i(t_i-<wt>)^2}}}</math>
+   ** MHillasExt.fSlopeSpread: 
+      This is the time spread (rms) around the slope of the arrival times.
+      It is calulated as 
+         <math>\sqrt{\sum{(t_i-slope*(\cos\delta*x_i+\sin\delta*y_i)-<dt>)^2}/n}</math>
+   ** MHillasExt.fSlopeSpreadWeighted: 
+      This is the weighted time spread (rms) around the slope of the arrival times.
+      It is calulated as 
+         <math>\frac{1}{\sum{w_i}}\sqrt{\sum{w_i*(t_i-slope*(\cos\delta*x_i+\sin\delta*y_i)-<dt>)^2}</math>
+
+ ;trainenergy.C:
+
+   * The rsolution is not displayed anymore as resolution squared
+
+ ;automatic processing:
+
+   * jobmanger: 
+       - new algorithm
+       - implemented pbs as a third queueing system (for PhiDo)
+
+   * moved lock from file to database
+
+   * insertmc: script to insert montecarlo runs and sequences to the database
+     (to be used until webinterface is available)
+
+   * implemented possibility of having more than one processing site: One site
+     is the main site, where all output is collected and stored. The output 
+     from the other sites has to be copied there. 
+     So far used for FACT MC production in Dortmund (PhiDo). 
+
+   * runcorsika: removed STEPFC from inputcard as anyhow default of 1 was used 
+     instead of 0.1 
+
+   * processlog: new output level DEBUG
+
+   * changed database structure and joins in queries to allow for direct 
+     joining of tables with different primaries. This makes checkavail-script
+     unnecassary. 
+
+   * database: added new features to mcinfo.php (MC webinterface to display 
+     FACT MC)
+
+
+
+== Version 2.4 (2009/12/23) ==
+
+ ;general:
+
+   * Added a new palette "temp" to MH::SetPalette which should resample
+     a temperature
+
+   * Added consistency check for two consecutive runs
+
+   * Since ~1006246 (preliminary) the L1 signal (which is L1 after L2)
+     has been disconnected and the L1 (L1TPU) has directly been connected
+     to another bit in the trigger pattern. This has been fixed by an
+     update of the decoding. Both bits are now or'ed together.
+
+   * Added a new camera layout MGeomCamFact which is the "four rectangular
+     pixels ordered in a hexagonal geometry" layout
+
+   * All programs now store the command line as TNamed "CommandLine"
+
+   * the environment variable OSTYPE should now be obsolete. Instead
+     the output of "uname -s" converted to lower cases is used
+
+   * The Makefiles should now detect the OSTYPE automatically using
+     uname. This should make the setting of OSTYPE obsolete
+
+ ;showplot:
+
+   * If a file without a MStatusArray is opened all object (not just
+     canvases) found in the file are drawn. Note that this may result
+     in empty tabs.
+
+ ;ceres:
+
+   * The night sky noise is now scaled with the sensitive area and
+     is given in units per square centimeter
+
+   * The night-sky noise now also takes the cones transmission
+     into account
+
+   * The night sky noise can now be calculated from a night-sky
+     spctrum
+
+   * A transmission curve for the cones can now be given
+
+   * Added the possibility to add a cut after the image parameter
+     calculation (''Cut'')
+
+   * updated the PDE of the GAPDs with a more reliable curve from
+     the meeting page (linear extrapolate below 350nm)
+
+   * The impact distribution in the event distrbutions is now 
+     perpendicular to Alt/Az and the histogram is displayed in 1D
+
+   * The GAPD PDE has been updated
+
+   * PDEs and mirror reflectivities have been linearily extrapolated
+     to match the wavelegth range between 290nm and 900nm
+
+   * There is no default pulse shape anymoe it must be given in 
+     the resource file
+
+   * Fixed a bug which caused the aerosol coefficient to be incorrectly
+     initialized. The effect might be random but seems to be small.
+
+   * Now accepts sequence files as input
+
+   * creation of pedestal and calibration files is now steered by
+     --mode (see ceres help)
+
+   * Instead of initializing the whole G-APD chip (all cells) before 
+     each event (which is rather time consuming) a time evolution before
+     each event is now simulated which is enough to recovere every cell
+     to 99.999% of its response taking the background rate into account.
+     This is in total about a factor of ten faster and should not be
+     less accurate because under normal conditions the recovering cells
+     and the newly hitten cells will hardly be identical (due to
+     statistical reasons)
+
+   * improved the trigger algorithm which is now faster and allows easily 
+     for multiplicity triggers
+
+   * The PDC flag in the file name is now correctly written
+
+   * A "PreCut" has been added which can be used after reading the events
+     to select them even before any calculation is done.
+
+ ;merpp:
+
+   * The new drive reports which contain also the status of the starguider
+     are now implemented, but the starting date (17/05/09) is preliminary.
+
+ ;callisto:
+
+   * Fixed a bug which prevented MAGIC Monte Carlo file from being
+     calibrated (ceres files worked)
+
+   * updated (Muon) calibration constants of period 62, 63, 72-75
+
+ ;star:
+
+   * allow to run thru even if discriminator threshold are missing
+     (they are not used for analysis so far anyway)
+
+ ;ganymed:
+
+   * added new starguider calibration for sequences since 1000534
+
+ ;database:
+
+   * added possiblity to query/plot data from certain source (with 
+     regular expressions) in plotdb.php
+
+   * new feature in showplots*.php: on mouse-over additional information
+     on the sequence is displayed
+
+   * tables on database website have also 'Last' link now
+
+   * new version of builddatasets.php with more comfortable sequence 
+     selection
+   
+   * new features in builddatasets.php: 
+     - user management 
+     - 'Get Data Set File' button 
+     - 'Display Selected Sequences' button
+     - 'Display Not Selected Sequences' button
+     - 'Select all' buttons
+
+   * builddatasets.php: added possibility to update data sets in the 
+     database
+
+   * added limit for cloudiness for sequences in the tab 'Limits'
+
+ ;automation:
+
+   * jobmanager can be used more flexible now: via environnent variable
+     $AUTOMATIONSETUP more than one jobmanager per user can be started
+     using the same MARS version
+     Usage: export AUTOMATIONSETUP=mysetup ; /fullpath/jobmanager
+     and provide a file Mars/datacenter/scripts/setup.mysetup
+
+
+
+== Version 2.3 (2009/03/07) ==
+
+ ;SUGGESTION
+
+   * There is no need to re-run any data because no change took place which
+     could have an effect on the output. However, if you want a 
+     meaningful SrcPos plot for your MCs in sponde you must re-process
+     star for your MCs first.
+
+ ;REMARK
+
+   * File produced with this release containing a camera geometry (which 
+     are basically all files were produced as default) will not be readable
+     by older releases.
+
+ ;general
+
+   * fixed a few small bugs which could cause the display to crash in ganymed
+     and sponde
+
+   * in sequence file the date can now be omittet. In this case the
+     leading date with the underscore is missing in the expected filename
+
+   * the geometry class now also supports other geometries than just hexagons
+
+ ;automation
+
+   * added magnetic field Azimuth direction (ARRANG), currently
+     at ~ -7deg at La Palma
+
+ ;database
+
+   * plotdb.php: added default (sequences) for startup, added possibility
+     to set size of plot
+
+   * added a new table ''RunDataCheck'' which containes the rates after
+     image cleaning for every run which succeeded star. It can be 
+     plotted using ''plotrundb.C''
+
+ ;merpp
+
+   * added support for Arehucas Version >= 200812140
+
+   * added support for Arehucas Version >= 200809030
+
+ ;mars
+
+   * The display now also displays the trigger pattern
+
+   * The display can now display ceres reflector (_R_) files
+
+ ;ceres
+
+   * added a uniformly distributed one-bin time jitter for the start of the
+     digitization. Otherwise the first photon would be digitized always with
+     the same alignment to the bins
+
+   * Added a plot showing the production height of the photons
+
+   * Moved the particle id from the event header to the run header
+
+   * Added the possibility to simulate a psf on the camera plane (MSimPSF)
+
+   * Added a new plot ''SignalMax'' showing the maximum entry into the pixels
+
+   * Added many new options to control the tasks. For deatils see ''ceres.rc''
+
+   * Removed obsolete plots in pedestal and calibration mode
+
+   * Removed the non-NightSky photons from the plots where they are just
+     disturbing
+
+   * Added a trigger pattern to the output (Ped, Cal or Lvl1)
+
+   * The daq event number now represents the readout number
+
+   * The camera ''electronics'' can now be ''switched off''
+
+   * A new tab ''Info'' now display basic things like the reflector
+     layout
+
+   * Improved reading speed for corsika files
+
+   * Improved memory handling (if a large ampount of memory was needed
+     for a single event all further events were stored in the same 
+     memory and it was never freed, so the program took this memory
+     until the end)
+
+   * Converted the code from MMCS' reflector program to MSimAtmosphere
+     (instead of the tables build in for MAGIC Winter and Summer 
+     atmosphere we use the values written by Corsika fitted to the
+     tabulated atmosphere given as input)
+
+   * For caluclating the displayed image parameters in ceres a basic
+     image cleaning removing isolated pixels is now done.
+
+   * The magnetic field direction (ARRANG) is now taken into account
+
+   * Added plot for the energy threshold after trigger ''Threshold''
+
+   * Added plot for the effective collection area after trigger ''TrigArea''
+
+ ;star
+
+   * Now outputs MSrcPosCam for Monte Carlos in the Events tree.
+
+   * The definition of fConcCore has slightly changed. The numbers
+     might decrease a little bit (the effect should be rather small)
+
+ ;ganymed
+ 
+   * added pointing model 328198
+
+ ;sponde
+
+   * The SrcPos plot for your MCs was so far meaningless because it just
+     displayes the MSrcPosCam data from the input star-files. Unfortunately,
+     this containes was never written to the star-files yet.
+
+   * A new Tab 'OnTime' is available which is an effective on-time
+     fit as in star but for all data. This is mainly for manual cross-check
+     of the effective on-time
+
+   * In some circumstances it might be necessary to re-calculate the 
+     eff. on-time from the fit in the new tab, e.g. when a zenith distance
+     cut was made in ganymed. This can now be forced by ''--force-ontimefit''
+
+   * now reads the ''ganymed.rc'' from the ''ganymed.root'' and writes
+     it to its own output file (for convinience)
+
+
+
+== Version 2.2 (2009/01/30) ==
+
+ ;SUGGESTION
+
+   * This release doesn't contain a major change which is expected to
+     change your results. Nevertheless there are small changes to
+     the calibration which can effect at least the first few hundred
+     events in any (mainly MUX and even more SUM) sequence a little bit.
+     So it is recommended although not necessary to reset your sequences
+     in the database before further processing.
+
+ ;NEW
+
+   * A first implementation of a Monte Carlo simulation program
+     (ceres - Camera Electronics and REflector  Simulation) has been 
+     implemented. It can simulate a full telescope already including
+     a complete reflector simulation and a flexible trigger and readout
+     simulation. Currently, no perfect setup is implemented and
+     especially the output of the program (data structure) should
+     be considered alpha state. Also the user interface is not yet
+     ready.
+
+ ;general
+
+   * All command line options after -- are now interpreted as 
+     arguments (usually everything which doesn't start with a minus)
+     rather than options (usually everything which starts with a
+     minus). This allows to use file names starting with a -
+
+   * In all resource files you can now initialize the random number
+     generator. For details see: MJob::InitRandomNumberGenerator
+
+   * added a new program called ''readcorsika''. It's purpose is (in analogy
+     to readraw and readdaq) to read a Corsika output file (for now
+     only cherenkov output is supported) and print its contents in a 
+     human readable form. It can also write the contents of this file
+     into a root-file.
+
+   * The calculation of the maximum distance to the origin in a MGeomCam
+     has been improved (edges might be further away than the sides).
+     This is just a tiny change but it might change the appearance of
+     the radial profiles a little bit.
+
+   * The default binning of the center-of-gravity plot has slightly been 
+     increased
+
+ ;Database
+
+   * Added informations about the DC currents (fMinCurrents, fMedCurrents
+     and fMaxCurrents). The values are retrieved from the plots showing
+     the average DC currents of all pixels versus time.
+
+   * Websites with tables have now the opportunity to remove lines 
+     ('-' button at beginning of each line) and get all lines back 
+     ('+' at top of the column)
+
+   * Websites: added option to query only sequences containing sumtrigger 
+     events
+
+   * Websites: added option to group by date (year, month, night) for runs
+     and sequences and enabled that combining of different group-bys, 
+     e.g. status, date and source is possible
+
+ ;automatic analyis
+
+   * Rewritten producing plots in the web. 
+     New plots, namely the output of plotoptical.C (extinction curve from 
+     KVA), plotstat.C (status of the automatic analysis (percentage of 
+     processed, analysed data etc.)) and plotusage.C (statistics of the 
+     condor usage in the data center) has been are available now next to the 
+     plots of plotdb.C
+     Mean values from the plots (output of the macro) are provided in a 
+     txt file now. 
+     The creation of the plots for callisto, star and ganymed in the web is 
+     now steered via database. Consequently the plots are faster and 
+     reliable up-to-date. 
+     For all plots, a new layout is available facilitating the browsing 
+     through the plots and providing additional information on the 
+     displayed values. (tabs.php) These plots are linked from the DB 
+     websites and the wiki. 
+
+ ;statusdisplay
+
+   * The ''Loop'' entry in the menu bar now contains an option to pause
+     the loop and to process single events.
+
+ ;merpp
+
+   * Fixed merpping of raw-files (the runheader tree got the name RunHeader
+     instead of RunHeaders)
+
+   * Now allows to merpp files newer than 2008/09/03.
+
+   * Added fixes for wrong (wrong or double) run- and file-numbers
+     written by Arehucas. For deatils see MRawRunHeader::FixRunNumbers
+
+ ;callisto
+
+   * Extracting the pulse position for the pulse position check events
+     with sum trigger were denied. This decreased the statistics
+     extremely and therefor the resulting puse position was calculated
+     quite weak. Now sum events pass the calculation if and only if they
+     have also a level 1 trigger.
+
+   * the extraction of pedestal events and pulse position from the
+     first data events is now more automatic and makes sure that 
+     a more precise number of events is extracted independent of
+     the ratio with which pedestal events or events with signals
+     are contained in the data.
+
+   * Updated Muon calibration constants for all MUX data (teh changes were
+     all smaller than 5%)
+
+ ;star
+
+   * For the calculation of the effective on time all sum-triggered events
+     were skipped. Now all Level1-triggeres events will pass. This might
+     result in a slight inaccuracy of the effective on time.
+
+ ;ganymed
+
+   * If the source position is more than 1deg away from the camera
+     center an error is raised now.
+
+   * Hopefully fixed the bug ''ganymed crashes when resized''
+
+ ;sponde
+
+    * Fixed a problem which causes the fitted spectral slope to be displayed
+      incorrectly. If you use MJSpectrum::FormFlux in your macros make
+      sure that the parameter 0 of your fit is negative.
+
+    * Added a histogram showing the read source position of your MCs
+
+
+
+== Version 2.1.1 (2008/08/04) ==
+
+ ;Database
+
+   * Added the median number of photo electrons from the calibration
+     pulses to the db (fMedNumPheInner, fMedNumPheOuter) and the relative
+     error of their raw counts (fRelChargeRmsInner, fRelChargeRmsOuter)
+
+   * Added fTotOnTime, which is the on-time as given by the run-headers
+     (in contradiction to fAbsOnTime which comes from CC)
+
+   * Added new primaries for the new data structure (Magic II): for the 
+     tables dealing with sequences (SequenceBuild Status, Sequences, 
+     SequenceProcessStatus, Calibration, Star and DataSetSequenceProcessing) 
+     this is the telescope number (fTelescopeNumber) for the tables dealing 
+     with runs (RunData and RunProcessStatus) this is in addition the file 
+     number (fFileNumber)
+
+   * Added column fPriority to the status tables to be able to steer the order
+     in which the data is processed. As default the run, sequence and dataset
+     number are used. 
+
+ ;automatic analyis
+
+   * Adapted scripts to the new data structure: They can handle now different
+     telescopes (getting the information as usual from the database). 
+     The paths for Magic 2 are not yet implemented. 
+
+ ;general
+
+   * should work now with root 5.20/00 (please note that root 5.20/00
+     we encounter crahses in the status display which are ot yet
+     understood)
+
+   * Sequences and Datasets are now stored as "MDataSet" and "MSequence"
+     instead of the base name of the file. This makes them easier to 
+     access from the code
+
+   * Default Monte Carlo names in MSequence do not require the _E at
+     the end anymore
+
+   * where abrrevating a sequence file with a sequence number is possible
+     also "telescope:sequence" is now accepted, e.g.:
+        star 2:2000123 --out=output
+     see the programs' help for more details.
+
+   * sequences (MSequence or MSequenceSQL) can now directly be retrieved
+     from the database. See the constructors for more details.
+
+   * MReadTree now supports friends
+
+   * MReadTree can now read also files not written by MARS and store
+     the data encapsulated in emulated MParContainers
+
+   * added a new starguider calibration valid since 15.1.08
+
+ ;showplot
+
+   * showplot can now read more than one file at once. This is especially
+     inetersting if reading files containing pure canvases
+
+ ;merpp
+
+   * we merpp the dc currents now also from the camera reports (they have
+     just a lower rate than the current reports, 0.1Hz instead of 1Hz)
+
+   * In the automatic analysis we omit merpping of the currents from the 
+     caco files and use the lower rate camera reports from the cc files
+     instead
+
+   * merpp has been redisigned to allow merpping of the cc-reports
+     of a whole sequence. This allows to design a very simple analysis:
+        mkdir output
+        ./callisto 100776 --out=output
+        ./merpp 100776 output
+        ./star 100776 --ind=output --out=output
+     Instead of the sequence number also sequence files are accepted.
+
+   * Implemented a fix for run-numbers between 1001348 and 1001396 
+     which were incorrectly assigned by the cc.
+
+
+ ;callisto
+
+   * added a filter again which was was removed in the last release.
+     it removed the most brightest events. This should not change
+     any analysis result because these events are so bright that
+     they cannot be analysed anyway, but the bad-pixel plots doesn't
+     show outliers.
+
+   * updated muon calibration constants for the periods 51-57, 
+     58-63 and 67-
+
+ ;star
+
+   * The camera currents are now displayed with the rate of the camera
+     reports instead of the caco reports
+
+ ;ganymed
+
+   * if mc camera files are new enough (>=8) the source position in the
+     camera is now calculated from the stored telscope and shower
+     orientation (Note, that this might not be suitable in all cases
+     depending on the aim of the study. These case still needs
+     implementation)
+
+
+
+== Version 2.1 (2008/06/18) ==
+
+ ;Database
+
+   * introduced average temperature and wind speed from star-files
+
+   * introduced average values from Pyrometer (mainly Cloudiness)
+
+   * introduced the ratio of accepted calibration events in the
+     calibration run
+
+   * introduced the average rates of the different trigger pattern,
+     e.g. the rate of pedestal and calibration events, from the signal-file
+
+ ;general
+
+   * fixed GroupBy options in plot*.C macros
+
+   * only display KVA points (not the Tuorla points) in plotoptical.C
+
+   * all programs now allow to add resources to the ones from the resource
+     file or overwrite them from the command line. This can be done like this
+          ganymed --config=ganymed.rc --rc=Cut1.Param1:0.25 --rc=Cut1.Param3:5.5
+     if something seems to be wrong you can debug what the program is doing
+     using the option --debug-env=3
+
+   * increased the diversity of debug levels. That also means that with -v3
+     you get now less output, i.e. only the output which is important for
+     an analysis. To get more output which helps for debugging try 4, 5 and 6.
+
+   * fixed a problem in the task synchronizing the reading of the reports
+     and the data stream. The effect was that in some circumstances the last
+     events of some trees could have been skipped. Since this is only a
+     very tiny part of the data no severe effect to your analysis results 
+     is expected (an exception might be very short, i.e. singel runs, 
+     datasets).
+
+   * Dataset file now allow to include the sequence file directly within
+     the dataset file and also allow to exclude single runs from the dataset.
+     (for more details see Class reference of MDataSet)
+  
+   * Sequence files now allow for excluding runs from the analysis
+     (for more details see Class reference of MSequence)
+
+   * added code to process the sum-trigger flag
+
+   * the histogram classes MH3 and MHn now support profile histograms
+
+   * the histogram classes MH3 and MHn now support labels at the axis
+
+   * the Random Forest Train-classes (MJTRain*) now store the used datasets
+     in the output file
+
+   * the MFMagicCuts have a new option to allow a linear area cut (for
+     special studies)
+
+   * The liniking of the shared object is now done into a file defined
+     by 'mktemp'. This should be a local file system which accelerates
+     liniking a lot.
+
+   * The code has been prepared for compilation with root 5.18/00d
+
+   * The MHEnergyEst histogram now shows the distribution of 
+     (Eest-Emc)/Est and the distributions (Eest-Emc)/Eest vs. Eest
+     and (Eest-Emc)/Emc vs Emc.
+
+   * fixed mars (event display) for merpped raw-data and MC data
+
+   * adapted the synatx of sequence files to allow for the new run/file
+     scheme. For more details see class description of MSequence
+
+ ;showplot
+
+   * Added support for tiff files
+
+   * Added support for csv files (tables containing tab number, 
+     name and title)
+
+   * Tabs now can have a title which is displayed in the postscript file
+
+   * When multiple file are written at once (e.g. pngs from a display)
+     it is now possible to use the tab name and or tab number in the
+     file name. For details see showplos's help.
+
+ ;merpp
+
+   * Implemented cc file version 2008-02-20/0
+
+   * Implemented cc file version 2008-05-19/0
+
+   * With new options merpping can be restricted (in addition to the
+     run-number) also by telescope and file number. 
+        For details see "merpp --help"
+
+   * Implemented raw data format 11 (the most important change, except
+     from plenty of changes in the format definition, is the addition
+     of the file-number in the header) If nobody makes a mistake this
+     format should have the advantage that it is by definition forward
+     compatible, so old programs will be able to read newer formats.
+
+   * Added Pyrometer information to default output (stored in a new Tree
+     Pyrometer, needs a complete new merpp, i.e. new calibration)
+
+   * Merpping (also update) can now be restricted to one single report.
+     For example: 
+     If you want to update an old file with Pyrometer information call 
+        merpp --only=Pyrometer --update
+
+ ;callisto
+
+    * in the pedestal processing now at least 50 processed events are
+      required for succeeding.
+
+    * the signal and calib files now contain also the sequence information
+
+    * the two MPedestalCam in the calib file now have proper names
+      to distinguish them from each other (MPedestalCam, MPedestalExtracted)
+
+    * Both pedestal cams now contain the number of events processed
+
+    * In Mars V2.0 the extraction of the fundamental pedestal was broken, 
+      i.e. for the extraction of the calibration pulses basically the average
+      over all events of the first slice instead of all slices was used.
+      Since pedestal and calibration constants are continously recalculated
+      this only effected the very first events of every sequence.
+
+    * For the extraction of the position of the maximum sample now the
+      extraction range is set automatically to the extraction window,
+      before the whole accessible range was used.
+
+    * If the number of samples in the events and the number of samples
+      in the run-header disagrees now an error is raised (this can 
+      happen in not well simulated Monte Carlo files)
+
+    * In the case of MUX-data pedestal events with the lvl1 trigger flag
+      could survive into the pedestal calculation -- fixed.
+
+    * Tab "TrigPat" added showing the distribution of the trigger pattern
+      as found in the run-files (normalized with the run length)
+
+    * The selection of events from the trigger pattern has been improved.
+      If the trigger pattern is corrupted events won't pass anymore.
+
+    * Added a new command line option --dev-null to suppress output of
+      Y-files (this is useful for test cases)
+
+    * added a new tab "CalPos" showing the arrival time of extracted
+      interleaved calibration events
+
+    * Using the new --test switch you can now calibrate the calibration
+      file
+
+ ;star
+
+    * the star file now contains also the sequence information
+
+    * Added a new command line option --dev-null to suppress output of
+      I-files (this is useful for test cases)
+
+    * Tab "Rate" added showing the distribution of the trigger pattern
+      (should only be Trig (Lvl1/Lvl2) and Sum (Sum only)) as found in
+      the Y-files (normalized with the run length)
+
+    * The effective on-time calculation doesn't use events with only
+      sum-trigger anymore
+
+    * The data in the MHWeather tab has been reorganized. The never 
+      working solar radiation has been removed and the data from
+      the pyrometer (cloudiness, air and sky temperature) is 
+      displayed in addition.
+
+ ;ganymed/sponde
+
+    * Now data points are even shown correctly if they have error bars larger
+      than one sigma. Points with null or negative significances are omitted.
+
+    * DrawNicePlot now allows to set a projection range
+
+    * Updates pointing models. One is applied after the implementation
+      of the new LUTS in August, the other one is applied after the
+      next major change of the pointing model in October. Note that
+      these models are preliminary and give wrong results below Zd=65deg
+
+ ;sponde
+
+    * fixed resource files ('''Spectrum''' instead of '''MJSpectrum''')
+
+    * a new option "--force-runtime" is available. In case of very short
+      datasets (for light-curves) which are in the order of a few
+      minutes the calculated effective on-time is not very acurate because
+      it is quantizised in the order of a minute. Therefore you can switch
+      to using the real run-time instead (remakrt: this ignores any
+      dead-time!)
+
+    * a more analytical way is used to "fill" Monte Carlos into regions 
+      of impact parameters which have not been simulated because the
+      trigger efficiency is assumed to be 0.
+
+    * estimated sensitivity curves for hi and lo zenith angles are shown
+      scaled to the correct observation time and collection area
+                                           
+    * the Monte Carlo events after cuts are now written to the output file
+      if an output file given
+
+
+
+ *** Version 2.0 (2007/09/03)
+
+   - database: the position used for the pulse pos check was missing 
+     in the callisto output and could thus not be filled into the DB.
+     Also the old values seemed not exactly the PulsePos used for 
+     teh check.
+
+   - general: Resource file now allow an Include-Resource, i.e. you can
+     read a resource file with default settings, include it in your
+     resource file and overwrite the settings in your file. More than
+     one include file is allowed. Inclusions can be iterative.
+        Include: mydefaults.rc yourdefaults.rc
+     The resources in the first file have higher priority than the
+     second file.
+
+   - general: Now the output files (calib*.root, etc) also contain the
+     resource file (to check it open it in the TBrowser and choose Print()
+     from the context menu)
+
+   - general: Dataset files now allow to overwrite the default path
+     to search for sequence and data files. Note, that the program
+     option and individual resources will overwrite it. For example:
+        SequencePath: /magic/montecarlo/sequences
+        DataPath:     /magic/montecarlo/star
+
+   - general: Fixed a problem with variables in MDataPhrase. It seems
+     that only optimdisp (didn't work) was effected.
+
+   - general: Some improvements to the optim and train processing. For
+     example the ststud window now got a proper title.
+
+   - general: The "Status Display: " was removed from the window title
+     within an Eventloop.
+
+   - general: added a new flexible histogram-class (MHn) which can be used
+     for example in testing after optimizations or training to produce
+     user defined histograms.
+
+   - general: The Random Forest now allows attaching an evaluation
+     function which is applied to its output. This allows to train
+     on whatever you like (eg. train on log10(energy), but return
+     energy)
+
+   - general: The Random Forest training of energy (trainenergy.c) and
+     disp (traindisp.C) has been improved by more graphical output to
+     judge the result. 
+
+   - general: The training of energy (trainenergy.C) has been improved
+     a lot by training on a different quantity than energy. It gives
+     a result which is highly independant of the source spectrum
+     and shows lower bias than all other options.
+
+   - general: Dataset files are allowed to contain collections of
+     datasets. For more details see the class reference of MDataSet.
+
+   - general: The default WobbleMode in a datset file now (if not
+     overwritten) is "auto", i.e. wobble mode is set if the dataset
+     doesn't contain off-sequences.
+
+   - merpp: Merpp can read file format version 9 now. Please realize
+     that for file format version 9 the extraction range is different
+     and must be set to 0/49 instead of 15/64 in callisto_mux.rc until
+     the first and last 15 slices have been removed from all MUX data.
+
+   - mars: Similar to writing movies you can now select events which
+     should be displayed in your display. Therefore add the following
+     lines to your mars.rc:
+         MFEvtNumber.FileName: ganymed00223552.root
+         MFEvtNumber.Selector: ThetaSquared.fVal<0.04 && DataType.fVal>0.5
+     The input file can be a ganymed-file after (ganymed*.root) or
+     before (ganymed*-summary.root) file. For example to select all events
+     from your on sample after cuts (excluding the ThetaSq cut) use
+         MFEvtNumber.Selector: DataType.fVal>0.5
+     To show all events from your on-sample after quality cuts
+     use the summary file instead.
+
+   - mars: new ways to call mars are implemented. Instead
+     of calling
+         mars filename.root
+     you can now also use
+         mars sequence.txt
+     or
+         mars sequence.txt inputpath
+     or replace sequence.txt by the sequence number if the default
+     sequence file should be used.
+
+   - mars: The default size has been increased
+
+   - mars: There are two new heckboxes which allow to switch off
+     the calculated image parameters
+
+   - callisto: was broken for MCs... fixed.
+
+   - callisto: improved calculation of spline coefficients a lot. This
+     leads to a further improvement of the event rate calibrating MUX
+     data of about 15% (175evt/s instead of 150evt/s)
+
+   - callisto: finally the raw data we read is now real 16bit (with
+     10bit precision) for MUX data and not a stripped 8bit number
+     anymore. Due to scaling of the numbers (without precision loss
+     into an [0-256[ range, the final numbers for pedestal, pedestalrms
+     and extacted signal don't change. However, at all places where
+     raw data is directly accessed (eg. saturation and variation 
+     limits in the signal- and pedestal-extraction) the numbers
+     refer still to the data's 16bit range.
+
+   - callisto: The maximum arrival time difference used in the bad
+     pixel treatment is now in units of nanoseconds, which leads to 3.0ns
+     for both, old FADC and MUX-FADC, data.
+
+   - callisto: Be aware that callisto is now calibrating the arrival time
+     in nanoseconds rather than time slices. Also all following tasks
+     have been changed to assume ns units now. If you star data 
+     calibrated with an older version it might be necessary to adapt 
+     some timimng parameters (Muon Analysis and MFSoftwareTrigger)
+     to obtain optimal results. The plot in the PulsePos tab 
+     will now be in ns, too. This might also mean that the Muon
+     analysis in star might not work as perfect as expected as long
+     as old files read in.
+
+   - callisto: The calibration constants of earlier updates got lost
+     somehow. All constants have been updated.
+
+   - star: The PSF is now determined from the profile of the ArcWidth
+     instead of arcwidth/radius. The old way gave to much weight
+     to the bins with low statistics. The reference lines have been
+     updated.
+
+   - star: For speed reasons events suitable for the muon analysis 
+     are now also preselected by fConcCOG<0.1 which seems to be a very
+     good preselector for muons.
+
+   - star: is now calculating a new timing parameter the Slope along
+     the major and minor axis of the shower. Therefore a numerical
+     solution of a line-fit is used. To use MHillasExt.fSlopeLong
+     and MHillasExt.fSlopeTrans don't forget to multiply it with
+     the sign stored in MHillasSrc.fCosDeltaAlpha as usual.
+
+   - star: The parameters fInnerSize, fInnerLeakage1 and fInnerLeakage2
+     have been removed from MNewImagePar. They have never been good for
+     anything.
+
+   - star: Implemented a new recursive algorithm which is supposed to be
+     faster. Also implemented new cleaning oiptions, which are: 
+        + CleanLevel0:  
+          The cleaning level above single core pixels can be kept
+        + KeepIsolatedPixels:
+          Define whether single core pixels should be kept
+        + TimeLevel1:
+          The coincidence window in nanoseconds to single used neighbors
+        + TimeLevel2:
+          The coincidence window in nanoseconds to two used neighbors
+        + PostCleanType:
+          MOde in which a time dependent post cleaning should be applied
+           0: No post cleaning
+           1: Require for each used pixels at least one used neighbor
+              within a time-window of CleanLevel1
+           2: Require for each used pixels at least two used neighbor
+              within a time-window of CleanLevel2
+           3: Require first two and second one used neighbor
+              within a time-window of CleanLevel1 and fCleanLevel2 
+              respectively
+        + RecoverIsolatedPixels:
+          - recoveres isolated core pixels if they have a used neighbor
+
+   - mars/star: The new default cleaning is:
+      + CleanLevel1: 6.0
+      + CleanLevel2: 3.0
+      + CleanTime1:  1.75
+      + CleanTime2:  1.75
+      + PostCleanType: 3
+
+   - star/ganymed: The old spark-cuts have been replaced by new ones.
+     These new spark cuts have been cross checked with the sequences
+     84720 (before splitter), 101041 (after splitter) and 223539 (new
+     FADCs). In all cases they seperate pretty well, but of course not
+     perfect. Monte Carlos have suggested to tighten the cuts a little
+     bit further at low sizes. This has been done.
+
+   - ganymed: IMPORTANT - The spark cuts have been changed to match
+     all available data more or less well. This might mean that for 
+     YOUR data there are still sparks visible. 
+     Whenever you do an analysis you have to make sure that NO sparks
+     survive your cuts!
+
+   - ganymed: The old hadronness and size cuts have gotten new indices
+     (10, 11). The old indices 8 and 9 now mean an additional condition
+     for ghostbusting based on the formula (dist-c[9])*c[8]-slope.
+     If you want to switch off this cut just move the line far away enough,
+     e.g. by setting c[9] to -500. Please update your ganymed.rc files
+     accordingly!
+     The unit of c[9] is deg. It is the dist at which your cut will
+     cross the slope==0. The unit of the slope is ns/deg. So if
+     you readin files calibrated with an older Mars-version you
+     have to adapt the default value for c[9] to the FADCs:
+        - Multiply by two for the MUX    FADCs    (run number > 200.000)
+        - Multiply by 0.3 for the Siegen FADCs    (run number < 200.000)
+        - Multiply by  42 for the meaning of life (run number = 200.000)
+
+   - ganymed: The old Cut0 is now called CutQ and is calculated before
+     the source position is caluclated. If you need a quality cut
+     including source dependant data (be very carefull with this!)
+     you have to use Cut0 instead.
+
+   - ganymed: now properly supports three off regions in wobble mode.
+     It will be the default from now on in ganymed_wobble.rc. To change
+     the number of off-regions use
+         NumOffSourcePositions: 1
+     in your ganymed.rc. Also by default no off-theta cut will be done
+     anymore so that you will get a background level higher than the
+     signal level in your ThetaSq plot for ThetaSq>0.2.
+     Due to this be carefull changing the scaling mode away from 
+     "None". You will underestimate your signal if your scale interval
+     is not properly set.
+     (Rem: ThetaSqN is no longer needed)
+
+   - ganymed: is now storing the events of all (on- and off-)
+     source positions even in the case of more than one off-source
+     position. This should allow sponde to work properly and the
+     energy estimation is done correctly in all cases (without any
+     "nearest position" trick)
+
+   - ganymed: From 85340 (19.3.2006) on a real starguider calibration
+     with a real pointing model for the starguider is done, calibrated
+     with more than thousand tpoints taken from this date on.
+
+   - ganymed: was broken for Wobble-MCs... fixed.
+
+   - ganymed: The default cuts (MFMagicCuts) and the disp-parametrization
+     has changed. Note that your old ganymed.rc will be incompatible
+     with the new algorithms! Please check the ganymed.rc files and
+     the class description of MFMagicCuts for more information.
+     It is recommended at the moment to use identical Disp-Parametrizations
+     for on/off- and wobble-mode. If cuts are optimized only
+     the Area-Cut (parameters 2,3,4) and the theta-sq cut (parameter 1)
+     should be optimized. All other values should be kept as they are.
+     If you want to do an anylsis without timing a parameters, you can
+     switch off the timing cuts by seeting parameter 7 to a very small
+     value (eg. -99). To remove the slope parameter from the disp
+     paremtrization set parameter 8 to 0.
+
+   - ganymed: The distribution of observation time versus zenith
+     angle is now shown for off- AND on-data.
+
+   - ganymed: The contents of the source position plot are no longer
+     averaged, thus a lot of (fake) events between the two wobble 
+     positions have disappeared.
+
+   - ganymed: There is a new tab "CutT" it contains the VsSize plots
+     with the CutT, whihc is defined in ganymed.rc, applied. It
+     is resonable to use your theta-cut for it, to see if there is
+     something strange (sparks!) in your signal-region.
+
+   - ganymed: To choose a dataset from a collection in a dataset file
+     use the new command line option "--dataset=12345"
+
+   - optim, sponde: should now properly support three off-regions.
+     Just produce your ganymed summary files with three off-regions.
+     optim and sponde will automatically get all off events from
+     all off-regions from this file. Please do not forget to
+     set the scaling in optimwobble.C properly:
+        fit.SetScaleUser(1./3);
+     it is not yet read in automatically (will follow soon).
+     In the case of fixed Scale you can also use
+        cuts.SetThetaCut(MFMagicCuts::kOn);
+     no off-cut needed.
+     Be carefull in case of three off-regions when switching on
+     scale mode. Make sure that the scale interval is set correctly.
+
+   - sponde: sponde.rc and sponde_onoff.rc are now idetical
+
+   - sponde: the resouce files have been rewritten with a lot of
+     comments and a well working parametrization for an energy estimator
+
+   - sponde: In the estimated energy versus monte carlo energy plot the
+     contents where exchanged.... fixed.
+
+   - sponde: the so called "accurate"-mode has been removed. It didn't
+     give any improvement in accuracy, only decreased execution speed.
+
+   - sponde: the so called "simple"-mode has been removed. It didn't
+     give any improvement in simple.
+
+   - sponde: the so called "refill"-mode has been removed. It was anyhow
+     not implemented.
+
+   - sponde: now checks whether the theta distribution of your on-data
+     and the theta-distribution of your Monte Carlo sample (after
+     weighting) fits. If it doesn't fit properly (eg. the Monte Carlo
+     sample is incomplete) execution is stopped. Execution can be forced
+     using the new option --force-theta. Use this option with care!
+
+   - sponde: Proper collection areas can now be constructed also from
+     Monte Carlo samples generated with different maximum impact
+     parameters. Note that in previous version you neither got 
+     a warning or failure, nor was there any obvious sign that the
+     collection area was overestimated due to usage of files with 
+     different maximum impact parameters.
+
+   - sponde: If MC files with different lower energy limits are used
+     the primary MC spectrum is artificially completed down to the
+     lowest energy used at all. WARNING: that this gives correct 
+     collection areas ONLY if none of the events in this region would
+     survive your cuts at all.
+
+   - sponde: the output file now contains more information about
+     the spectrum (eg. the full 2D collection area histogram).
+     Note, that this information can only be written to the file
+     if it is stored automatically via command line argument.
+     If you only store the status display from within the display
+     the information is lost.
+
+   - sponde: added a new tab "Disp". It shows the residual of the disp
+     (Disp-Dist) versus several parameters and it is meant to judge the
+     quality of the disp estimator. In the ideal case the residual is zero
+     and doesn't depend on any variable. The tab is displayed after
+     CutQ and Cut0.
+
+   - sponde: added a new tab "Energy". It shows the residual of the
+     energy (lg(estimated energy)-lg(monte carlo energy)) versus
+     several parameters and it is meant to judge the quality of the
+     energy estimator. In the ideal case the residual is zero
+     and doesn't depend on any variable. In reality even a good estimator
+     can show residuals versus Monte Carlo energy. The tab is displayed
+     after all cuts.
+
+   - sponde: added a new tab "EventDist" showing the unweighted real
+     absolute number of events of your sample after cuts. This tells
+     you how many events with this energy you had in your MC files.
+     The same information you get from the error bars of the weighted
+     histograms, but this is less intuitive.
+
+   - sponde: The spectrum plots now show the crab- and 1553-spectrum
+     for comparison. It is not meant to show these curves in
+     publications, they are only for production.
+
+   - sponde: The OriginalMC tree with the events produced by corsika 
+     is now processed only once
+
+   - sponde: Finally fixed most annoying bug, which has effected the
+     last bin of the collection area. It was the problem that binnings
+     of root histograms are from 1 to n (included) but there was a C-like
+     loop in sponde from 0 to n (excluded). Now the loop also includes
+     correctly under- and overflow-bins. The worse thing with this is,
+     that for the events in the highest bin not only the bin-content
+     was wrong, but also the weights applied to these events, which could
+     in pricipal effect also other parts of the distribution (eg. due
+     to energy estimation). Fortunately it effected only a few events
+     in most cases.
+
+
+
+ *** Version 1.2 (2007/05/14)
+
+   - database: The database now has two new values Unsuitable50 and
+     Unsuitable01. They express the number of pixels which are
+     unsuitable for more than 50%, respectively more than 1%, of
+     all calibrated event. It is a more accurate number than the
+     previously used numbers, because they only take the first
+     calibration (ignoring the interleaved calibrations) into account.
+
+   - database: The database now has two other new values UnsuitableMax and
+     DeadMax. They express the maximum number of pixels which were
+     unsuitable, respectively dead, during the sequence. Because
+     of high pedestal rms (cars passing) a few events with very high
+     numbers of unsuitable pixels can happen. Not to suffer from this
+     effect we don't take the highest 0.1% of the numbers into account.
+
+   - general: fixed a bug which caused callisto and star to stop working
+     properly because the callisto output was currupted
+
+   - general: a script called scripts/makemovie has been added which
+     simplified the process of producing several movies from a single
+     sequence with different setup.
+
+   - callisto: Some more code cleanup. Started to remove old obsolete
+     code from cvs.
+
+   - callisto: The extraction of the pedestal with the extractor was
+     not random. It seems that extracting at one position is still biased
+     (for example in the first or last slices we could still suffer from
+     switching noise) Now it is completely random.
+
+   - callisto: In MPedCalcPedRun (which is the pedestal extraction from
+     pedestal files) individual pixels could be skipped due to high
+     variations. This was already the case for the pedestal extraction
+     from the lo-gains since the beginning and properly handled
+     there, but was introduced in the extraction from the pedestal files
+     a while ago. To calculate the average value it was still divided
+     by the number of events procesed not by the number of summands
+     really summed. This let to a pedestal which was a tiny amount too
+     small (for a few piels in the order of 0.1%). This led to an slightly
+     positive offset of the randomly extracted pedestal for a few pixels.
+     I doubt that this has a big effect on the result, because the effect
+     on the individual numbers is quite small. Due to this it is suggested
+     that you rerun your calibration to make sure you are without any
+     avoidable bias.
+
+   - callisto: the ArrTimeRmsLimit is now is a check of the deviation from
+     the median rms of the absolute arrival time and expressed in significance
+     levels. This replaces the old meaning of an abolute upper limit. An
+     absolute upper limit doesn't make much sense, because in our data 
+     all arrival times are shifted at the same time (in fact it might be
+     a shift of the artificial trigger w.r.t. to the light flash).
+
+   - callisto: Added a new tab "BadPixTm" which shows the time evolution
+     of the number of unsuitable pixels over the whole sequence. This
+     is usefull mainly to judge if an intermediate calibration had
+     problems.
+
+   - callisto: Added a new tab "DeadPixTm" which shows the time evolution
+     of the number of dead pixels over the whole sequence. Dead pixels 
+     in this context are unmapped pixels, i.e. pixels which could not
+     be interpolated, and thus are ignored in the further analysis.
+
+   - callisto: It is now possible to use the position of the maximum
+     of the spline as arrival time instead of the leading edge even
+     when using the integral for the signal. Therefor set the extraction
+     type to kIntegralRel ("IntegralRelative") and the relative height
+     ("HeightTm") to -1:
+       MJPedestalC1.ExtractSignal.ExtractionType: IntegralRelative
+       MJPedestalC1.ExtractSignal.HeightTm: -1
+
+
+
+
+ *** Version  1.1 (2007/04/27)
+
+   - general: The new class MGeomCamDwarf contains the camera geometry
+     for our prefered Dwarf camera and can be used to create general
+     geometries of roundish or hexagonal cameras.
+
+   - mars: The default cleaning is now abolute 8.5/4.0.
+
+   - mars: The resource file mars.rc now contains examples for MUX data
+
+   - merpp: Implemented file format version 8 (MUX FADC data). The 16-bit
+     data containing only 10-bit information is still cooked down to
+     8-bit, by cutting away the lowest 8-bit.
+
+   - merpp: When reading raw data the data is now stored in a single
+     array. The lo-gain array is obsolete. The interface stays the same.
+
+   - callisto: To process the new MUX data use the resource file
+        callisto_mux.rc
+
+   - callisto: The -root and -raw options to read merpped raw data have
+     been removed
+
+   - callisto: If the -mc option is given the sequence-name can now be
+     replaced by the MC sequence number
+
+   - callisto: If the sequence file contains "MonteCarlo: Yes" the
+     -mc option can now be omitted
+
+   - callisto: Started further simplification by removing obsolete
+     dependancies on MCalibIntensity*Cams.
+
+   - callisto: removed unsused intensity calibration from MJCalibration
+     for further simplification
+
+   - callisto: for simplification removed references to
+     MBadPixelsIntensityCam, MCalibrationIntensityQECam, 
+     MCalibrationIntensityRelTimeCam, MCalibrationIntensityTestCam, 
+     MCalibrationIntensityChargeCam, and MCalibrationIntensityBlindCam
+     (this should at minimum change nothing at all, and at maximum
+      improve thing if these containers where somewhere not handled
+      properly)
+
+   - callisto: Added the option to write an event movie. Please use
+     this option with care (huge files) but exessively to understand
+     our events. For further documentation please refer to the
+     IACT wiki
+     (currently at http://www.astro.uni.wuerzburg.de/mediawiki-1.9.0)
+
+   - callisto: Improved binning for the pulse position check histogram
+
+   - callisto: The code calculating the pulse position checknow takes
+     the pedestal into account
+
+   - callisto: The arrival time is now stored with full precision this
+     helps to get rid of artefacts in histograms. For the signal this
+     is not necessray because it is displayed in log-scale anyhow
+
+   - callisto: Fixed a problem with internal exclusions. Pixels which
+     have once been marked as unsuitable didn't get the necessary
+     histograms filled anymore to be rechecked with each interleaved
+     calibration.
+
+   - callisto: The relative arrival time resolution (the rms of the
+     relative arrival time offset) is now checked against its
+     median and the median deviation, instead of the average 
+     plus an absolute offset.
+
+   - callisto: The relative arrival time offset is now calculated
+     w.r.t. its median not w.r.t. to an artificial reference pixel.
+
+   - callisto: The relative time calibration now marks pixels with
+     outlaying offset as unsuitable
+
+   - callisto: The interleaved relative time calibration has been switched
+     on. The advantage is that pixels which are marked as outliers
+     now can recover. An improvement over time is not expected, because
+     the relative time calibration seems stable.
+
+   - ganymed: If the dataset file containes "MonteCarlo: Yes" the "-mc"
+     option can now be omitted.
+
+   - ganymed: If either the dataset file containes "MonteCarlo: Yes" 
+     or the option "-mc" is specified as default the monte carlo datacenter
+     paths (/magic/montecarlo/...) are used if not overwritten in the
+     dataset file.
+
+   - ganymed: The output files now contain run- and event-number for all
+     events, accessible as RunNumber.fVal and EvtNumber.fVal
+
+   - ganymed: Added a plot showing the source position in the camera also
+     for wobble mode
+
+   - ganymed: In addition to the existing task which can be setup to
+     be executed after Cut1 a final task called "EstimateEnergy"
+     has been added, executed before writing the final output
+     (ganymed00000000.root). The task setup in all three cases
+     can be choosen individually. (For all three(!) cases you 
+     can for example choose MRanForestCalc. For examples see all
+     sponde*.rc and all ganymed*rc)
+
+   - ganymed: If a container "MEstimatedEnergy" is found in the 
+     parameter list (eg. because it was setup by MEstimateEnergy)
+     it will be written to the output file.
+
+
+
+ *** Version  1.0 (2007/02/16)
+
+   - database: Website to plot values from the database has been added. 
+
+   - database: The rate of spark events as found by star is now kept
+     and the rate after cleaning is now with spark events subtracted
+
+   - general: The changes to the interpretation of phrases lead to
+     a problem with the access of MHMatrix objects (eg. "M[0]")... fixed.
+
+   - general: Added example files how you can create your own calendar
+      (eg. as christmas present) with Mars. Just run
+           root macros/tutorials/calendar.C
+
+   - general: Added a possibility to display grouped data in the plotdb.C
+     macro (and similar macros). This allows to plot hourly, nightly,
+     weekly, monthly and yearly averages. 
+     For more details see the plotall function of the macro
+
+   - general: fixed the error display of the camera display. It showed
+     wrong results.
+
+   - general: fixed a memory leak when reading many MStatusDisplays
+
+   - general: added a macro (macros/tutorials/mirrordelay.C) plotting the delay
+     between a spherical and a parabolic mirror
+
+   - callisto: We have a new pulse position check which takes the properties
+     of the extractor automatically into account. So no need to set 
+     ExtractWinLeft/Right anymore. Again a check for pulses too much to the
+     left is done. If possible the lo-gain extraction start and hi-gain
+     extraction end is changed accordingly. If no proper extraction range
+     can be set (hi-gain too much to the left) an error is raised.
+
+   - callisto: New swapped pixels have been found and corrected
+
+   - callisto: Redone the signal extraction this includes:
+     + Unified the algorithms to extract the pedestal for all pedestal
+       extractions done
+     + Unification of hi- and lo-gain into one array
+     + Unification of hi- and lo-gain extraction for Spline and
+       Digital Filter (means now exactly the same algorithm is used,
+       not a copy-and-pasted one)
+     + Store pedestal subtracted data in a common place
+     + Improved extraction algorithms. If the algorithms search a 
+       maximum but don't find one they don't return the maximum anymore
+     + Improved the extraction such that a information for signal
+       and time which is consistent is returned
+     + replaced the numerical spline with a (not slower) analytical
+       solution
+     + Lowered the saturation limit from 250 to 245 to make sure that
+       we are far away in all pixels from problems with the clock-noise
+     + The start of the lo-gain extraction is calculated from the hi-gain
+       arrival time. In case of saturation an estimation is used.
+     + the hi-gain window was extended to slice 16. This allows extraction
+       of very late pulses in single pixels or of huge hadron showers.
+     + Now uses the lo-gain extraction range for pedestal extraction,
+       not the hi-gain range in the lo-gain
+
+   - callisto: New hi-/lo-gain calibration constants have been produced
+     for all periods from the statistic of the whole period. They are
+     now used automatically depending on the periods. The old constants
+     where deviation in avarega about 2%-3%. The constants are very
+     stable from period to period (<<1%) except for exchanged channels.
+     In a few cases the constants used so far were off by 1%-2% (maybe
+     temperature effects?)
+
+   - callisto: To gain obsolete space we do not write the 
+     MPedestalFundamental anymore. Also calibration and bad pixel
+     treatment is not done for it anymore because it has never been used.
+
+   - callisto: Fixed a bug in the seuqence handling which caused the
+     light condition to be ignored
+
+   - star: Added two new tabs "Sparkless" and "Sparks" these tabs show
+     basically the same as "Cleaned" but the distribution devided into
+     the events fullfilling a spark cut or being rejected by it.
+     This cut can be changed from star.rc (see example inside) by
+     the "SparkCut" directive
+
+   - star: Star displays now the average individual pixel-rate (IPR) versus
+     time and the average discriminator threshold (DT) of all pixels.
+
+   - optim: fixed a problem with the optim-macros which was due to a bug
+     in the new phrase parsing
+
+   - ganymed: To get a nice FalseSource plot (instead of the all-information
+     debug plot displayed as a standard plot) use the context menu
+     somewhere between the two upper plots, click on "DrawNicePlot"
+     and enjoy the result. (It is the same context menu which contains
+     the other options)
+     PLEASE ALWAYS USE THIS PLOT FOR ANY KIND OF PRESENTATION!
+
+   - ganymed/optim/train: The cut program, trainings- and optimization
+     macros could run with less files found than expected from the
+     sequence-files. No the execution is stopped in this case.
+
+   - ganymed: now stores the dataset in the output file with all information
+     contained (as sequence number, sequence path, data path) so that the
+     used dataset file can be recreated complete from the output
+
+   - sponde: now also allows the uasge of random forest
+
+   - sponde: added a plot showing the cut efficiency
+
+   - sponde: Using root versions < 5.13/04 still resulted in wrong binomial
+     errors (eg. effecting the collection area) because the errors of the
+     two histograms were swapped in the calculation, which makes a difference
+     in the case the histograms contains weighted events. Aditionally the
+     totalarea was incorrectly taken into account, which results in too small
+     errors, which makes a difference at low statistics were the errors
+     or the collection area dominate.
+
+
+
+ *** Version  0.10.3 (2006/10/23)
+
+   - database: Implemented ObservationMode flag in websites.
+
+   - database: For sequences there is now also the stoptime available on the
+     websites. 
+
+   - database: Removed ManuallyChanged flag from sequence-info websites, 
+     as it is not needed anymore with the new sequence building algorithm.
+
+   - general: MRolke.[cc,h]: Modification of TRolke from root_v5.12.00b.
+     Class for calculation of confidence intervals (upper limits). 
+     Use model 3 or 4 for upper limit calculation for MAGIC observations.
+     Please read the class instruction of TRolke for more information.
+
+   - general: The programs now return 0xfe if the requested resource file
+     doesn't exist.
+
+   - general: Errors comming from root itself are now not output to
+     stderr anymore but to our default (colored) log-stream.
+
+   - general: Changed the interface to TFormula such that now everything
+     is parsed by TFormula, which should allow to use phrases even
+     without paranthesis correctly parsed.
+
+   - callisto: replaced the AdHoc number of effective integration slices
+     in the digital filter  by an average of the correct number, averaged
+     over all possible set of weights. This also gives correct numbers
+     for the lo-gains which were totally wrong before.
+
+   - callisto: drastically reduced memory consumption by not storing
+     all intermediate calibration results in memory anymore (we might
+     write them into a file in the future)
+
+   - ganymed: To get a nice Theta-Sq plot (instead of the all-information
+     debug plot displayed as a standard plot) use the context menu
+     somewhere between the two upper plots, click on "DrawNicePlot"
+     and enjoy the result. (It is the same context menu which contains
+     the "DrawAll" option)
+     PLEASE ALWAYS USE THIS PLOT FOR ANY KIND OF PRESENTATION!
+
+
+
+ *** Version  0.10.2 (2006/10/15)
+
+   - general: changed the building of the sequence files such, that
+     the source-/project name in case of wobble-sources is not the
+     source/project of the first data run anymore but the new generalized
+     wobble source/project
+
+   - general: Added some functions to MAstro to calculate sun and
+     moon properties
+
+   - general: Added two new macros (starvisday.C and starvisyear.C)
+     which allow to plot the visibility of several stars in one day
+     or of one star along one year
+
+
+
+ *** Version  0.10.1 (2006/10/11)
+
+   - general: HTML logging output was distorted... fixed.
+
+   - general: Changed the writing of the sequencefiles such that only
+     as many pedestal files as giving at least 1000 pedestal events which
+     are nearby the first calibration run are used as pedestal runs
+
+   - sponde: In the calculation of the collection area(s) and the 
+     distribution for MOnte Carlo and estimated energy the error
+     calculation was wrong because root didn't take the errors
+     properly into account... fixed.
+
+
+
+ *** Version  0.10 (2006/10/10)
+
+   - general: all executables now check consistency of the root version
+     installed with the root version used for compilation. The return
+     code in this case is 255.
+
+   - general: The algorithm to build seqeunces has been redesigned
+     completly. It is now more flexible in terms of a resource file
+     resources/sequences.rc which can be used to partly overwrite
+     the default algorithm and defined the important part of the
+     algorithm. It also takes correctly into account several ways
+     of taking wobble-data. Currently the new algorithm doesn't take
+     the number of pedestal events anymore into account (so a sequence
+     could have much less than 1000 pedestal events and data runs are
+     no-more used instead)
+
+   - general: a lot of small changes to make the code compatible with
+     root 5.12/00 and gcc 4.1
+
+   - general: Fixed some warnings thrown if more warnings are switched
+     on in the compiler
+
+   - general: Added a function to MMath which returns the Median of
+     the distribution abs(y[i]-median) but at 68:32 division instead 
+     of 50:50, which is somehow the median counterpart of the rms.
+
+   - general: MAstroCatalog allows now to read calatog files (as bsc5)
+     even if they are compressed with gzip (recommended compression
+     is with "-1")
+
+   - showplot:
+     + batch mode creation of image files now works with root 5.12/00
+     + added support for writing bmp (though it never produces
+       bmp which can be read by programs like xv or gimp)
+     + added support for xml
+     + added new option to start the display with a different size, by
+        --display-width=nnn or --display-height=nnn
+     + added options to define the canvas size when the display is started
+        --canvas-width=nnn or --canvas-height=nnn
+       the option can also be used for batch-mode conversion
+     + added an option which automatically fits the display size to the
+       desktop-size: --auto-size
+
+   - merpp: didn't recognize files with the extension .raw.gz - fixed.
+
+   - merpp: allow the reports to have 1000ms due to a bug in the camera
+     program.
+
+   - callisto: New swapped pixels have been found and corrected. For
+     details see MRawRunHeader::FixAssignment()
+
+   - callisto: Callisto now raises an error if one of the input files could
+     not be opened.
+
+   - callisto: In some rare cases it could happen that in the signal
+     extraction of the digital filter the extractor returned nonsense
+     results due a wrong initializion of a variable (this happens in
+     cases in which the extracted signal is exactly zero or the
+     digital filter couldn't slide because of a too small extraction
+     window, which could happen in the lo-gain extraction)
+
+   - callisto: The lo-gains have been marked as valid in some cases 
+     when they got not extracted at all (deltsumlo=deltatimelo=0) because
+     the allowed extraction range (fLoGainLast-fLoGainFirst) was
+     smaller than the number of slices (fLoGainWindowSize) needed
+     by the lo-gain extractor
+
+   - callisto: Updated absolute calibration constants (muon calibration)
+
+   - callisto: fixed a bug which caused the hi-gain saturation not
+     to be handled properly in the spline (the position of the
+     saturation was calculated incorrectly)
+
+   - callisto: fixed a bug which gave weird results if hi- _and_
+     lo-gain could not be extracted properly. In some cases hi-
+     and lo-gain have not been extracted at all and the random result
+     got calibrated. In other cases the hi-gain was saturating and the
+     lo-gain has not been extracted. For this a completly arbitraty
+     scale factor was applied to the result from extracting the
+     charge of the saturating hi-gain.
+
+   - callisto: improves handling of extracted signal if lo- and/or
+     hi-gain could not be extracted properly. If no appropriate
+     calibration of either the signal or the arrival time is possible
+     the pixel is now markes as unsuitable instead of estimated.
+
+   - callisto: Fixed a problem in the spline extraction which gave
+     weird results if the signal was extracted from the first (and
+     highest) slice (as a workaround extraction from the first
+     slice has been forbidden)
+
+   - callisto: Fixed a bug regarding the use of the QE which doesn't
+     effect the result because the default is used anyhow.
+     (The bug was there since 14/07/2005)
+
+   - callisto: Changed the default for fgLoGainStartShift to -2.4
+
+   - callisto: Fixed a bug which caused all hi-/lo-gain calibration
+     factors to be always 10 for all pixels as soon as the first
+     calibration update has happend.
+
+   - callisto: Fixed the hi-/lo-gain offset for the Digital Filter. It
+     was off by more than one slice (which gives wrong values for
+     pixels which have saturated the hi-gain) This was a problem
+     mainly for timing studies, not so much for the automatic standard
+     analysis. Also the values for the Spline have been changed slightly:
+        + Digital Filter from 1.70 to 0.95
+        + Spline         from 1.39 to 1.30
+     The numbers were sorted out by an extensive test in the
+     test-database.
+
+   - callisto: Removed the tab showing the average calibrated arrival
+     time. It never gave useful information.
+
+   - callisto: Now tab "HiLoCal" which shows the ratio between hi- and
+     lo-gain pulse for data pulses if hi- and lo-gain have saturated
+     and both were extracted because the hi-gain was above the 
+     LoGainSwitch.
+
+   - callisto: Now tab "HiLoOff" which shows the offset between hi- and
+     lo-gain pulse position (after application of LoGainOffset, which
+     means in the ideal case it is 0) for data pulses if hi- and lo-gain
+     have saturated and both were extracted because the hi-gain was above
+     the LoGainSwitch.
+
+   - callisto: After extensive tests a new threshold level for determination
+     of the pulse position has been found at 50phe. This is due to the
+     fact that for lower pulses the arrival time changes its average
+     behaviour dramatically. It tends to the average of the extraction
+     range and starts sticking to non-floating point numbers (5, 6, 7, ...)
+
+   - callisto: Added two more plots to the calibration part. The average
+     extracted signal and the average extracted arrival time as
+     extracted by the signal extractor (This can help debugging problems
+     because it doesn't involve a fit)
+
+   - star: changed the fit for the effective on time such that initial
+     values are calculated automatically now instead of using build
+     in values. This makes the fit more indepedant of the underlaying
+     rates. With a test of ~350 sequences in the test database it could
+     be shown that the new fit gives the same result +/-1sek.
+     The highest deviation was +5s the lowest -10s. You can now control
+     the bahaviour with two resource values:
+        MHEffectiveOnTime.FistBin:   3
+        MHEffectiveOnTime.NumEvents: 12000
+     Use FirstBin=1 and NumEvents=120 to fit the effective on time
+     from the resulting gamma candidates
+
+   - star: The Center histogram in MHHillas is now by default displayed
+     with the colz draw-option
+
+   - ganymed: now produces valid error codes if failed
+
+   - ganymed: MFMagicCuts now supports a hadronness cut. Switch it on
+     with the option "hadronness" instead of "area" or "both" if
+     you want to use both cuts. The hadronness cut includes a fixed
+     cut in hadronness (index 8) and a fixed cut in size (index 9).
+
+   - ganymed: MFMagicCuts: fixed abug introduced 2005/7/14 which caused
+     the M3Long of the anti source to be not properly evaluated 
+     (actually is was evaluated as a unique random number) in case
+     of optimization with anti-theta cut switched on. This might have
+     lead to improper, but not necessarily wrong, optimization results.
+
+   - ganymed: ganymed_onoff.rc, ganymed_wobble.rc - updated with comments
+     how to use random forest
+
+   - ganymed: use the same spark cuts as in ganymed_wobble.rc as in
+     ganymed_onoff.rc. Seems to be unintentional that they were different.
+
+   - sponde: Since the introduction of the possibility to define a
+     normalization energy instead of using the integral the default
+     was not using the integral anymore but a normalization energy of
+     1GeV. It is now the integral again.
+
+   - sponde: Fixed a problem in the weighting which did not allow
+     a MC slope of -1.
+
+
+
+ *** Version  0.9.6 (2006/05/24)
+
+   - general: changed the binning of the azimuthal profile of the camera
+     such that it is aligned with the 60deg boundaries.
+     
+   - merpp: better handling of problems with the TH, TD part of the 
+     CC-REPORT for files older than 200507190 and 200412210 
+     respectively
+
+   - merpp: improved handling of RECEIVERS-COM-ERROR in CC-REPORT
+
+   - merpp: implementd latest changes in starguider reports (sinc 9th May)
+
+   - callisto: if an arrival time is extracted outside the fadc range is
+     was set to the boundary before. Now a random number is assigned
+     instead to avoid unfortunate coincidences of arrival times just
+     by this arbitrary value.
+
+   - callisto: added a new option to callisto.rc which allows
+     to set the maximum arrival time difference allowed for the 
+     badpixel algorithm to determin whether a pixels belongs to a shower:
+       MJCalibrateSignal.MBadPixelsTreat.MaxArrivalTimeDiff: 0.9
+
+   - callisto: changed the old value (0.5) for MaxArrivalTimeDiff 
+     to 0.9 as suggested by Stefan due to a recent study on the fraction
+     of pixels surviving the image cleaning
+
+   - callisto: switched off error in case of "pulse is too much to the left"
+
+   - callisto: The extraction window is not adapted anymore. This means that
+     the pulse is extracted from the full range. The draw-back is that the
+     background (pedestal) will become slightly higher. Switching on/off
+     the PulsePosCheck in the callisto.rc only effects filling the
+     histograms.
+     WARNING: If the pulse is too much to the left data is calibrated!
+     Check the PulsePosCheck-PulsePosition AND the Inhomogeneity parameter
+     in the database to make sure that your data is valid!
+
+   - star: Show also the number of stars correlated correctly by the
+     starguider
+
+   - ganymed: implemented a new class (MHThetaSqN) which allows to use more
+     than one off-source region in wobble-mode. To use it add the following to
+     your ganymed_wobble.rc:
+      + MJCut.NameHist: MHThetaSqN            (switch the new feature on)
+      + MHThetaSqN.NumOffSourcePos: 3         (define number of off-regions)
+      + MHThetaSqN.DoOffCut: Yes,No           (switch on/off the off-cut)
+      + Cut1.ThetaCut: None                 
+      + MHThetaSqN.SignificanceCutLevel: 2.0  (increase off-cut by 2.0/1.7)
+
+   - ganymed: in the case the latest report is older than a default (currently
+       one minute) and the current report will be skip the starguider
+       correction and calibration will be reset. The maximum age can be
+       setup from ganymed.rc by (minutes):
+         MPointingDevCalc.MaxAge: 1.5
+
+   - ganymed: A first implementation showing all size-bins for the theta-sq
+     resp. alpha-plots in a single tab automatically
+
+
+
+ *** Version  0.9.5.1 (2006/05/05)
+
+   - general: Added a new option "zdiff" to the Makefile which runs
+     "cvs diff" as "make diff" would do, but with compression
+
+   - general: accelerated MTFillMatrix (used for eample in all training
+     and optimization macros) by skipping some obsolete calles in the
+     eventloop the first and second loop could be accelerated by ~20%
+
+   - general: Added a missing feature in the MFilterList class which
+     prevented MFEnergySlope from working correctly in trainenergy.C
+
+   - general: Accelerated the random forest training and usage a bit
+
+   - merpp: Adapted to new raw data file format version 6
+
+   - merpp: fixed a problem with reading the starguider reports 
+     after 6.3.2006
+
+   - callisto: At some times six pixels had to be exchanged manually in the
+     data. If the pixels to be swaped are both not found, an error was raised
+     and calibration was stopped. Now it is assumed they are intentially not
+     mapped and the Error has been changed to a Warning.
+
+   - star: Added new image cleaning based on the arrival time of the shower.
+     The new cleaning can be accessed using the parameter "Time" instead of
+     the the old one (like "Absolute) in the star.rc-file.
+     Recommended parameters:
+      + MImgCleanStd.CleanLevel1:  8.2
+      + MImgCleanStd.CleanLevel2:  5
+      + MImgCleanStd.CleanRings:   2
+      + MImgCleanStd.KeepSinglePixels: No
+
+   - star: Simplified the calculation of the effective on time. By letting
+     the fit start in the third bin the result should become more stable.
+     The fit quality is now ignored for the theta-plot which is not used
+     in the analysis later. Still better pre-cut which, for example,
+     remove events triggered by car-light (rate changing on a short
+     time-scale) are missing.
+
+   - macros: optimonoff.C, optimwobble.C: implemented a new strategy
+     for optimization (kWeakSource) which is suggested by the Berlin
+     people for weak sources.
+
+   - macros: plotdb.C: 
+       + if no dataset and no time-interval is given only sequences with
+         an effective on-time above five minutes are plotted anymore
+       + added a new tab "RelTime" displaying the relative on-time
+         (effective on-time divided by the observation time)
+
+   - macros: optim*.C: by skipping some obsolete calles in the eventloop
+     the optimization became a lot faster
+
+   - ganymed: In the second loop the MHNewImagePar histograms disapeared.
+     To display them just delete the pads displayed on top.
+
+   - ganymed: fixed a bug which could cause strange behaviour in wobble
+     mode if no starguider information was available due to an incorrect
+     initialization of the starguider calibration
+
+   - ganymed: The scale region in the False Source Plot (MHDisp) can now
+     be changed from within the plot. It can also be setup from the
+     resource file using:
+       + MHDisp.fScaleMin: 0.325
+       + MHDisp.fScaleMax: 0.475
+
+   - ganymed, showplot: Fixed a problem with the fit to the off-data
+     (HistOff) which could cause a time lag or an inifinite loop.
+     The bug did not effect the results at all.
+
+   - sponde: Added a new tab showing the effective collection area after
+     trigger (including the software trigger)
+
+   - sponde: MMcSpectrumWeight has a new option which allows to define
+     the scaling factor not by the integral of the events but at
+     a defined energy:
+        e.g. MMcSpectrumWeight.NormEnergy: 200
+
+   - MTFillMatrix, sponde: by skipping some obsolete calles in the
+     eventloops the loop could be accelerated by ~20%
+
+
+
+ *** Version  0.9.5 (2006/03/13)
+
+   - macros: fixed a typo optimwoble.C (SetThetaCut instead SetAlphaCut)
+     and added the standard Disp-parametrization
+
+   - macros: added a new macro datacenter/macros/plotstat.C allowing
+     to plot statistics about the data processing
+
+   - macros: added a new macro to plot the muon correction coefficients
+     versus period (macros/plot/mucal.C)
+
+   - showplot: path inflation for ganymed files was broken
+
+   - callisto: Fixed an important bug. When the number of saturating pixels
+     were calculated the bad pixel information already available from the
+     calibration was ignored. This yields wrong values in case pixels
+     are broken and saturate all the time or randomly.
+
+   - callisto: Updated Muon calibration constants. Spline data now also uses
+     different values for different periods
+
+   - star: The time-evolution shown in the effective on-time plot now displays
+     the axis range (if there are no holes it should be similar to the
+     effective on-time)
+
+   - star: Added two new image parameters:
+       + MNewImagePar.fConcCOG: The ratio of the equivalent signals of
+         the three pixels next to the center of gravity and the size
+       + MNewImagePar.fConcCore: The ratio of the signals of all
+         pixels inside or touching the ellipse and the size
+
+   - ganymed: now stops in requested source isn't found in catalog file
+
+   - ganymed: Many improvements to the phi-plot in wobble mode:
+      + with a template the ideal background is displayed
+      + a possible camera inhomogeneity is taken into account
+      + the anti theta cut is better supported
+      + the phi cut is automatically calculated from the theta cut
+     See the examples in ganymed_wobble.rc for more details.
+
+   - ganymed: fixed plot for E^2*dN/dE. The spectrum was multiplied with two
+     times the bin-width instead of the absolute energy
+
+   - ganymed: New cuts for on/off and wobble mode
+
+   - ganymed: The smearing of the False Source plot has been increased 
+     to 0.06
+
+   - ganymed: The starguider calibration can now be changed from the 
+     resource file.
+      See the examples in ganymed*.rc for more details.
+
+   - ganymed: added a new option for on-/off-observations
+       MJCut.RandomSourcePosition
+     If switched on the distribution of observation time of the source
+     position in the camera is calculated from the on-data and randomly
+     applied with this distrbution to the off-data.
+
+   - ganymed: by skipping some obsolete calles in the eventloop the
+     first and second loop could be accelerated by ~20%
+
+   - ganymed: The default in ganymed_onoff.rc is now to determin the source
+     position in the off-data randomly according to its distribution in the
+     on-data.
+
+
+
+ *** Version  0.9.4.3 (2006/02/13)
+
+   - general: Fixed a bug in most of the programs which prevented the
+     compile date in the startup message to be displayed
+
+   - general: Simplified program calls. The following abbreviations 
+     are now possible:
+        showlog callisto 55599
+        showplot signal 55599
+        star 55599
+        callisto 55999
+        ganymed 2
+     In this cases the corrsponding root-, log-, sequence- or dataset-
+     filename is automatically compiled using the default datacenter
+     paths ("/magic/*")
+
+   - general: Fixed a long outstanding bug which made axis tick marks
+     disappear if MDataFormula was used (eg. abs(x))
+
+   - general: Updated MMath with new functions to calculate the results of
+     a exponential, logarithmic and powerlaw fits analytically.
+
+   - general: Updated some macros with comments:
+      + macros/optim/optimdisp.C
+      + macros/optim/optimenergy.C
+      + macros/optim/optimwobble.C:
+
+   - general: MTFillMatrix (the class to fill one or two MHMatrix from
+     files) now allows adding a pre-cut like in the optimization. E.g. this
+     is useful to perform g/h-separation cuts before training the random
+     forest.
+
+   - general: Between the rund 53300 and 68754 the pixels 553-558 were not 
+     correctly assigned in the raw data assignement table. A fix to correct 
+     the assignment tabel have been implemented.
+
+   - general: MAstroCatalog now allows rotating of the sky-grid and stars
+     by 90, 180 and 270 deg.
+
+   - general: the macro plotdb.C now allows to highlight sequences belonging
+     to a datset. For more details see the descritions in the macro.
+
+   - StatusDisplay: Fixed the algorithm to calculate the size ratio
+     of the display, it gave wrong results espacially for big sizes.
+     Now the embedded canvas should always have a ratio width/height=3/2.
+     The "Size" options have been updated with values fitting the 3/2 
+     size ratio.
+
+   - RanForest:
+      + Updated the random forest classes to support also the
+        regression method implemented by Thomas H.
+      + added new tutorial macro how to train the random forest
+        for energy estimation (macros/optim/rfenergyest.C)
+      + new classes to train the random forest (still in development)
+        mjtrain/MJTrainEnergy, mjtrain/MJTrainDisp, mjtrain/MJTrainSeparation
+      + new tutorial macros for random forest training in macros/train
+        trainenergy.C, traindisp.C, trainseparation.C
+
+   - mars: now allows to setup a cut in the resource file mars.rc to choose
+     the events to be displayed, eg:
+       Cut.Condition: {0} && {1}
+       Cut.0: MHillas.fSize>100
+       Cut.1: MHillas.fSize<900
+
+   - merpp: Made aware of the new .rep format 200510250. This includes
+     interpretation of the Receiver Board Temperatures (MCameraRecTemp),
+     the discriminator thresholds (MCameraTD) and the disciminator
+     delays (MCameraTD). All of them come with the CC report and are therefor
+     written to the CC tree.
+
+   - callisto: fixed a bug in the calculation of the arrival times in
+     the Digital Filter. They were all shifted by the same amount
+     fHiGainFirst. This caused an offset in the order of the position of
+     the left border of the extraction window in the times calculated
+     from high-gain and from low-gain. The bug effected only the absolute
+     arrival times. The bug was there since 30.1.2005.
+
+   - callisto: Changed the ExtractionWindow for the pulse position check
+     such that the camera inhomogeneity becomes as less as possible and
+     comparable to the pulso position check switched off. More details
+     on the study will be given at our result web-page.
+
+   - ganymed: ganymed.rc, ganymed_onoff.rc:
+     changed to new cuts trained with 1ES1218 and Crab-data
+     for maximum sigma*log10(excess)
+
+   - ganymed: In addition to the Hadronness calculator (CalcHadronness)
+     a new option was implemented to estimate Disp (CalcDisp)
+
+   - ganymed: Implemented two new options which allow
+     to overwrite the default path to search for the sequence files
+       --ins=/magic/sequences
+     and where to search for the image data
+       --ind=/magic/data/star
+
+   - ganymed: MSrcPosCorrect now allows overwriting of the misfocussing
+     dx/dy from the resource file by 
+       MSrcPosCorrect.Dx
+       MSrcPosCorrect.Dy
+
+   - ganymed: fixed reading the source catalog. Only as many chars
+     as the requested source name had were compared (If a source
+     "1ES1218" and "1ES1218+304" were in the catalog and "1ES1218+304"
+     were requested it could happen that the coordinates of
+     "1ES1218" were read) The source coordinates are now printed
+     in addition to its name to the logging output.
+
+   - ganymed: changed the background fit in the case of a ThetaSq function
+     from a polynomial to a exponential, this should give a big improvement
+     for on-only analysis'
+
+   - ganymed/sponde: Calculation of the error of single size-/energy-
+     bins now uses Li/Ma (5) instead of LiMa (17)
+
+   - sponde: Added a plot E^2*dN/dE
+
+   - sponde: The energy estimator plot should now show values like
+     they are commonly used.
+
+   - sponde: Now MMcSpectrumWeight also excepts formulas with two X
+     (a powerlaw with cutoff didn't work before)
+
+
+
+ *** Version  0.9.4.2 (2005/10/01)
+
+   - general: added new tutorial macro macros/tutorials/threshold.C:
+     how to calculate the threshold
+
+   - general: added a new game. Start it from the interpreter with
+        MagicJam j; (other games are: MineSweeper, MagicSnake, MagicDomino
+                     and MagicReversi)
+
+   - general: neighbor pixels in MGeoms are now sorted clockwise
+
+   - merpp: made aware of new format 20050829-0
+
+   - callisto: New scale factors from muon analysis, stored in new 
+     resource file resources/calibration.rc
+
+   - callisto: MBadPixelsCalc now raises an error instead of simply stopping
+     the eventloop if something went wrong. This is necessary for the
+     automatic processing
+
+   - callisto: Implemented a new treatment for the time information 
+     developed by S.Ruegamer, this should give much better response than
+     the old very primitive algorithm. This is especially important
+     for bad pixels due to bright stars as Ceta-Tauri (btw: the old
+     treatment was buggy! As neighbor pixels to interpolate the 
+     arrival times always the pixels 0 to 5 were taken)
+
+   - callisto: In addition to the new treatment of arrival times the
+     decision of the treatment whether a pixel contains shower
+     information or not is used to improve the signal interpolation
+     further. Previously interpolated pixels showed a non-zero signal
+     do the peak searching signal extractors. Having a signal pixel
+     beside raised the signal above the cleaning level. Thus the
+     pixel survived cleaning to often but with a too low mean signal.
+     By replacing empty pixels with a gaus (mean and rms from the
+     corresponding Area entries in MPedPhotCam) this effect can
+     be supressed.
+
+   - callisto: The status "unmapped" (for pixel which cannot be interpolated)
+     got lost when the events were stored by the calibration... fixed.
+     (This was no problem for normal image cleaning because the pixel 
+      content was artificially set to 0 not surviving standard cleaning
+      algorithm)
+
+   - callisto: Fixed a bug which caused the random and peak-search pedestal
+     extracted with an extractor to be exchanged for the first (roughly)
+     500 events (*Extractor and *ExtractorRndm). 
+     (They were simply exchanged in callisto.cc) This bug might have been
+     introduced in Mars 0.9.4 when the order of calculation of the two
+     types of pedestal in callisto got exchanged. The bug only effects
+     the first seconds of data of each sequence.
+
+   - star: Taking the arrival time of Muons into account the calculation
+     of the parameters could be made independant of the noise 
+     (pedestal rms). The dependance was due to the bias of the peak search
+     extractor. Now only a ZA dependamcy is left which is not yet fully
+     understood.
+
+   - ganymed: The sequences were still not sorted correctly in any case, 
+     because they were sorted by the full qualified path name. Now they
+     are sorted by their sequence number.
+
+   - ganymed: new values for the spark-event-cut
+
+   - sponde: required missing MEnergyEst from ganymed.root... fixed.
+
+
+
+ *** Version 0.9.4.1 (2005/08/18)
+
+   - callisto: fixed some problems with the calibration in case of
+     inteleaved events. Therefor the final and some intermediate
+     fits are skipped which would take place on partly filled #
+     histograms and gave wrong results or failed completely.
+
+   - callisto: If the intermediate finalization of the histograms
+     calculating the mean charge of the calibration signal fails
+     it is counted now and printed in PostProcess of MCalibCalcFromPast.
+
+   - ganymed: Fixed some bugs which caused problems in On-only mode.
+     Still the false source plot doesn't give reasonable results.
+
+
+
+ *** Version 0.9.4 (2005/08/05)
+
+   - general: Fixed the ZA binning. It did not correctly fit the
+     MC binning
+
+   - general: Added a class to correct for the missfocussing in
+     April (MSrcPosCorrect)
+
+   - general: Random Forest energy estimator should now work properly
+
+   - general: MHCamera now displays the profiles in deg instead of mm
+
+   - general: MH::SetPalette offers a lot of new palettes
+
+   - general: MHillas - the case of CorrXY==0 is now handled properly
+
+   - general: implemented the possibility to change the line and
+     marker style of a sky-grid drawn by MAstroCatalog
+
+   - general: Runs in sequences and datasets are now automatically 
+     ordered (it is assumed that the order of their filenames correctly
+     represents the order of observations) to ensure correct reading
+     of the subsystem data
+
+   - general: Runs cannot be added to a sequence twice anymore. Also
+     Sequences cannot be added twice anymore to a dataset.
+
+   - general: fixed a bug in MAstro::Deg2Hms reported by Abelardo. 
+              It gave wrong results by 1./2pi
+
+   - showplot: got a new option to start a root interpreter, too
+
+   - mars: now displays a rough estimate of Disp and the third moment
+
+   - mars: now displays the event time MTime if available
+
+   - mars: show muon parameters graphically
+
+   - mars: now the file to open can be given as commandline
+     argument
+
+   - merpp: Added support for new arehucas version >= 200507190
+     implementing values for three temperature sensors in the
+     counting house (MCameraAUX) and the name of the HV settings file
+     (MCameraHV).
+
+   - merrp: Also fixed some problems with wrong versions numbers stated
+     by arehucas and implemented some fixed for old versions (<200407070)
+
+   - callisto: MCalibrationHiLoCam can now be printed from its context
+     menu, eg in the TBrowser
+
+   - callisto: fixed logain offset (fgOffsetLoGain) from 1.7 to
+       - 1.39 (MExtractTimeAndChargeSpline) 
+       - 1.40 (MExtractTimeAndChargeDigitalFilter)
+     This is important mainly for timing studies.
+
+   - callisto: Changed limits in MHCalibrationChargeCalc from
+       - -100.125 to -98   (fgChargeHiGainFirst)
+       - 1899.875 to 1902. (fgChargeHiGainLast)
+       - -100.25  to -99   (fgChargeLoGainFirst)
+       - 899.75   to 901.  (fgChargeLoGainLast)
+     Introduced new limits:
+       - fgNumLoGainBlackoutLimit: 0.05
+       - fgLoGainBlackoutLimit: 3.5
+       - fgLoGainPickupLimit: 3.5
+
+   - callisto: The handling of automatic weights for the digital filter 
+     has been improved. There are now new calibration weights special
+     for Monte Carlo calibrations.
+
+   - callisto: Updated Muon scale with latest results (1% difference
+     for most data, 5% for Mar/Apr'05)
+
+   - callisto: use a new criterium to exclude bad pixels: If the high-gain
+     was saturated and the blackout-events in the low-gain exceed the 
+     fNumLoGainBlackoutLimit, the pixel is declared unsuitable.
+     This excludes those pixels which have a saturating high-gain 
+     channel, but the low-gain switch does not switch often enough 
+     to make the distribution reliable.
+
+   - callisto: fix a bug counting the number of saturated events. Up to now,
+     the number of saturated slices was counted (which is one for a not too
+     high number), but for some (pathological) pixels, many more slices
+     saturated and produced wrong limits.
+
+   - callisto: New options in in callisto.rc for MCalibrationRelTimeCalc:
+     + MCalibrationRelTimeCam.CheckFitResults: Yes
+     + MCalibrationRelTimeCam.CheckDeviatingBehavior: Yes
+     + MCalibrationRelTimeCam.CheckHistOverflow: Yes
+     + MCalibrationRelTimeCam.CheckOscillations: Yes
+
+   - callisto: introduce max. number of events for intercalibration, 
+     the rest gets skipped. Default: 4096
+     The calibration causes too many un-reliable pixels if more 
+     than about 5000 events are treated (@500 Hz) because of the
+     mode hopping of the VCSels. However, in the past, some 
+     calibration runs have been taken (erroneously) with more 
+     than 5000 events, especially the intensity scans where  
+     a good precision is needed.
+
+   - callisto: Set UseExtractorRes to kTRUE, will raise the number of 
+     photo-electrons for the spline extractor by 1-2% (correctly).
+
+   - callisto: The intercalibration is now done using a full f-factor
+     method instead of a simple update. This makes things slower but
+     more reliable in terms of gain-fluctuations and sudden VCSEL gain
+     changes.
+
+   - callisto: MPedestalY3 now uses the same extraction range as the data
+     as calculated by MPedestalY2
+
+   - callisto: A check of the fraction of allowed unsuitable (10%) and
+     unreliable (30%) pixels has been addded when the conversion is 
+     calculated from interleaved events
+
+   - star: fixed a bug which caused MEffectiveOnTime containers not to
+     be written. In the worst case they were skipped almost all, in the
+     best case they were all ok. It depends on how often the new value
+     was assigned just with an event which was skipped later by another
+     task
+
+   - star: new histograms MHPointing and MHRate
+
+   - star: New tab (Currents) displaying the time evolution of the mean 
+           DC currents
+
+   - star: New tab (MeanRms) displaying the time volution of the mean
+           Pedestal Rms
+
+   - star: Output now contains MReportStarguider
+
+   - star: Improved muon analysis. Due to the absense of a constant
+           for the gaus fit for arc width and the fact that the arcwidth
+           plot was a histogram instead of a profile the resulting psf
+           became pedestal rms dependant
+
+   - ganymed: added new plot (MHPhi) for wobble mode as described in
+     http://www.astro.uni-wuerzburg.de/results/ringmethod/
+
+   - ganymed: corrects now (correctly?) for the misspointing in 
+              May/April 05
+
+   - ganymed: Two new default templates for ganymed.rc are avilable:
+              ganymed_onoff.rc and ganymed_wobble.rc
+
+   - ganymed: The first version of MFMagicCuts has been released
+
+   - ganymed: the Conc1 plot was incorrectly scaled in MHVsSize
+
+   - ganymed, sponde: There are two new options to determin the number
+     of bins for the signal region (NumBinsSignal) and the number of
+     total bins (NumBinsTotal) in the MHThetaSq histogram
+
+   - ganymed: optimized palettes for MHDisp
+
+   - ganymed: Fixed an important bug when using ThetaSq as fit function:
+     The result for the sigma of the gauss(sqrt(x)) fit was a factor
+     sqrt(2) to large
+
+   - ganymed: The false source plot (MHDisp) is now based on Disp
+     and a background model determined in the first loop is
+     subtracted
+
+   - ganymed: MFMagicCuts are now available in the cvs. The correct
+     solution for the disp ambiguity problem is now calculated using
+     the third moment. The third moment cut therefor is skipped.
+
+   - ganymed: Output now contains "Disp [MParameterD]" which sign is
+     already determined by the third moment along the major axis and
+     so its actual sign is aligned along the major axis of the shower.
+
+   - ganymed: If starguider data is available it is taken into account
+     when calculating the source position. This is especially important
+     for wobble data at high zenith angles and culmination data.
+
+   - ganymed: If available the starguider data is taken into account as
+     good as it is possible without a starguider calibration. To switch
+     it off add
+        MPointingDevCalc.MaxAbsDev: -1
+     to your ganymed.rc
+
+   - sponde: the zenith angle distribution is now weighted instead of
+     choosen by default. This gurantees higher statistics in the highest
+     and lowest energy bins. To switch this behaviour off use...
+
+   - sponde: now automatically displays the energy threshold
+
+
+
+ *** Version 0.9.3 (2005/06/03)
+
+   - general: MMcEvt now derived from MMcEvtBasic which should 
+     have no influence on compatibility with older camera files
+
+   - general: Implemented a new option to MReadReports which allows
+     to force reading of the first event of some trees (eg. Drive-tree)
+     before any other tree.
+
+   - general: Made a fix to MPointingPosCalc which assumes that the
+     run-type is real-data if Process is called before ReInit, such
+     that also the very first Drive-events in a run are treated 
+     correctly.
+
+   - shoplot now displays the filename in the title bar of the window
+
+   - merpp: new options: --auto-time-start --auto-time-stop which
+     allow to cut updating with slow-control at the start- or 
+     (previousle --auto-time only allowed: and) stop-time of
+     the run stored in the runheader.
+
+   - callisto: changed default of fgFallTimeHiGain in 
+     MExtractTimeAndChargeSpline from 1.5 to 0.5. 0.5 was
+     already set as default in callisto_Dec04Jan05.rc
+
+   - callisto: the digital filter (MExtractTimeAndChargeDigitalFilter)
+     now changes the filename for new weights automatically for
+     cosmics, MC and for different calibration colors.
+
+   - callisto: a problem with the order of some code cause the
+     name of the weights file in MPedestalY2 to be ignored.
+     Wrongly the calibration_UV weights were used instead
+     of the cosmics weights set in callisto.rc.
+
+   - callisto: should allow ct1 pulser data when the color is
+     explicitly set also for pretty new runs
+
+   - callisto: a new option (MCalibrateData.ScaleFactor) allows
+     to introduce an additional scale factor (should be around 1)
+     to adapt for slight deviations in different extractors from
+     the MC calibration. For MC calibrations the scale factor
+     is fixed to 1
+
+   - callisto: MFCosmics should handle very high signals a bit
+     more accurate now
+
+   - callisto: when calculating the mean pedestal rms for different
+     pixel sizes or sectors also kUnsuitableEvt is now taken into
+     account - not only kUnsuitableRun
+
+   - callisto: '-raw' option is now the default
+   
+   - callisto: A dead pixel check has been implemented in MJPedestalC2.
+     This has the advantage that mean values in the calibration (eg
+     arrival times) are calculated more accuratly.
+
+   - callisto: In the resource file callisto_Dec04Jan05.rc
+     MJPedestalY2.ExtractWinRight has been reduced from 4.0 to 2.0
+
+   - callisto: new Hi-/Lo-Gain intercalibration constants
+     hilocalib_sp1.root and hilocalib_sp1_mc.root
+
+   - callisto: changed default for MJPedestalY2.MaxEvents
+     from 2000 to 5000 like in callisto_Dec04Jan05.txt
+
+   - callisto: in MCalibrationChargeCalc the limit fgPheErrLowerLimit
+     has changed from 9.0 to 6.0. This is necessary to exclude two very
+     ringing pixels in September which - when kept - destroy the image
+     cleaning around them (Markus G.)
+
+   - callisto: (!) The Muon analysis of all data taken so far has
+     suggested that different extractors give slightly different
+     absolute results after calibration, due to there different
+     handling of the calibration- and cosmics pulse shape. Although
+     the over all calibration seems to be a bit to pesimistic (or 
+     the MC seems to be a little bit - 3-5% - too much attenuated).
+     There for correction factors have been introduced which correct
+     the calibration constants by
+         0.956937799 for Digital Filter (callisto.rc)
+     and
+         0.904159132 for Spline (callisto_Dec04Jan05.rc)
+     calibration. The main advantage is, that both data types can
+     be easily analysed together and compared to the same MC sample.
+     The factors are choosen such, that the reference is now a 
+     Monte Carlo sample calibrated with Digital Filter (callisto.rc)
+
+   - star: fixed a bug which caused the first bin of the histograms
+     vs time to disapear in PostProcess. This gave wrong results
+     on the screen. The output and all following programs not
+     directly accessing the histograms haven't been affected
+
+   - star, ganymed: Made sure that always the first Drive-tree event
+     is read and Processed before the first data event was read.
+
+   - ganymed: implemented the possibility to replace the standard 
+     false source plot with a different one. For example: If
+     you want to use a Disp based FS plot use the resource:
+       NameHistFS: MHDisp
+     For details about the requirements of these plots look
+     at the corresponding classes
+
+   - MJOptimize: For On/Off and Wobble optimization MJOptimize
+     has been replaced by MJOptimizeCuts. To use MHThetaSq instead
+     of MHAlpha call MJOptimizeCuts("MHThetaSq"). Make sure in this
+     case MAlphaFitter is setup correctly. For On-Only optimization
+     MJOptimize has been Replaced by MJOptimizeCuts, too. Call
+     RunOn() instead of Run(). For energy estimation MJOptimize
+     has been replaced by MJOptimizeEnergy
+
+   - sponde: The input MC spectrum can now be weighted to fake a
+     different spectrum. This is done via MMcSpectrumWeight. For
+     more details see the class description and sponde.rc
+
+   - sponde: The paremeter comparsion plots are not scaled by
+     their entries anymore. Instead the MC plot is scaled by using
+     the result spectrum of the analysis. If the input MC spectrum
+     and the result spectrum has different slopes the absolut 
+     normalization is normally wrong.
+
+
+
+ *** Version 0.9.2 (2005/05/20)
+
+   - general: Changed the default paths for calibrated data and image
+     files. (The implemented access to these files doesn't yet exist)
+
+   - general: support for MRunIter has been removed from the job classes
+     (use the setter functions of MSeqeunce instead)
+
+   - general: ProcessFile has been renamed to Process in all job classes,
+     because ProcessFile is missleading
+
+   - general: The storage of the palette in MHCamera is now possible
+
+   - general: new bits describing unsuitable and unreliable pixels have
+     been introduced in MBadPixelsPix: kPreviouslyExcluded, 
+     kDeadPedestalRms, kFluctuatingArrivalTimes
+
+   - general: fixed reading of CC-REPORTS (weather data) for Arehucas file
+     versions newer than V200404070 
+
+   - general: support for cc file versions newer than V200504130. Added
+     support for active loads (MCameraActiveLoad) and central pixel
+     (MCameraCentralPixel)
+
+   - general: added new histograms for image parameters versus size
+     (MHVsSize)
+
+   - general: The eventloop now automatically calls PrintStatistics
+
+   - Status Display: Improved support for printing:
+     + A default can now be set in .rootrc (for more details see 
+       MStatusDisplay::PrintPS)
+     + A print dialog is opened so that printer and command line
+       can be canged
+
+   - showlog: improved such that it handles different verbosity levels
+     more accurate now. This mean you can suppress output when
+     using showlog.
+
+   - showplot: improved
+     + The new graphics formats have been implemented 
+       (pdf, svg, png, jpg and xpm)
+     + Implemented an interface for printing. Because you can change
+       the printing command from the command line you can use all
+       the nice postscript tool. To print a booklet for example call: 
+       showplot -b --print --print-cmd="cat %f" filename.root | lpr
+       showplot -b --print --print-cmd="psbook %f | psnup -2 | lpr" filename.root
+       showplot -b --null --print --print-cmd="psbook %f" filename.root > book.ps
+
+   - callisto: fixed a bug in the recognition of the calibration bit
+     pattern. Concerns only intensity calibration. (The strength of the 
+     intensity has been updated in some cases)
+
+   - callisto: add a filter against PIN Diode events when running over
+     calibration runs since some of the recent calibration runs have
+     been taken with Pin Diode.
+
+   - callisto: added support for the runs 39942, 39944, 44834, 39941,
+     39943, 44833 in the calibration (MCalibColorSet)
+
+   - callisto: MJCalibration.MHCalibrationChargeCam.ProbLimit has
+     been set to 1e-18 in callisto_Dec04_Jan05.rc
+
+   - callisto: in callisto_Dec04Jan05.rc: set value for 
+     MJPedestalY2.MaxEvents from 2000 to 5000 to get better 
+     statistics for the calculation of the mean pulse time 
+     of the cosmisc
+       
+   - callisto: the charge limit in the calibration has been raised 
+     from 2.5 to 4.5
+
+   - callisto: new setup read from callisto.rc
+     + MCalibCalcFromPast.fNumEventsDump
+     + MHCalibrationChargeCam.NumHiGainSaturationLimit
+     + MHCalibrationChargeCam.NumLoGainSaturationLimit
+
+   - callisto: MExtractTimeAndChargeSpline extractor:
+     + The integration ranges were shifted by 0.2 FADC slices to the right. 
+     + unreliable handling of floating point values caused different
+       results on different platform or with different compiler options:
+       The new algorithm is numerically exact and more accurate because
+       it doesn't calculate the integration position by multiple times
+       adding the step-size (which results in numerical uncertanties
+       exspecially if multiplied with large numbers)
+     + A lot of fixes have been introduced which effects integrating the
+       spline at the edges of the valid range. In this case any memory
+       was randomly accessed. This behaviour can be tested replacing
+       all MArrayF by TArrayF which perform a range check (but of course
+       they are a lot slower)
+     ! No result obtained with the Spline before can be trusted! Due to
+       random memory access it might by completely random!
+
+   - callisto: set new defaults in MExtractTimeAndChargeDigitalFilter:
+     + extraction range in the high gain to 4.
+     + weights file to cosmics_weights46.dat
+
+   - callisto:
+     + introduce the check for fluctuating arrival times.
+     + set charge limit to from 2.5 to 4.5
+     + introduce asymmetric exclusion due to "deviating number of phes":
+       Default: -9.0 +4.5
+     + make deviating number of phes unsuitable (see David's findings).
+
+   - callisto: fixed the display of unsuitable pixels. The old change
+     to a real profile in MHCamera broke it.
+
+   - callisto: The cosmics filter is used in MJCalibration now 
+     independant of the pulser color (formaly it was used only for 
+     CT1-pulser data). The threshold of number of max empty pixels 
+     has been raised from 2% to 5% in MJCalibration. The maximum
+     fraction of rejected event is 50% otherwise the calibration has
+     failed. The filter now ignores unsuitable pixels.
+     Setup the filter from callisto.rc using "ContCosmics"
+     (see MFCosmics::ReadEnv)
+
+   - callisto: changed default for fgOffsetFromLogain back
+     from -2.8 to -1.8 in digital filter. 
+
+   - callisto: for the common extractors 
+      + MExtractFixedWindow
+      * MExtractTimeAndChargeSlidingWindow
+      * MExtractTimeAndChargeSpline
+      * MExtractTimeAndChargeDigitalFilter
+     the hi- and lo-gain reolution is stored in fResolutionPerPheHiGain
+     and fResolutionPerPheLoGain
+
+   - callisto: Updated the hi-/lo-gain intercalibration constants
+     hilocalib_sp1.root, hilocalib_df46_mc.root, hilocalib_df4.root, 
+     hilocalib_df6.root
+
+   - callisto: The default lo-gain extraction window for the
+     MExtractTimeAndChargeSlidingWindow extractor has been increased 
+     from 6 to 8 to take the stretch of the pusle into account
+
+   - callisto (!!!): fixed an important bug in the setting of the 
+     incoming pedestal pointer to the signal extractor extracting
+     pedestals. This bug caused the pedestals not to be subtracted 
+     correctly in the calibration afterwards. The effect was about 10% 
+     too high conversion factors for the digital filter and the spline
+     and more than 40% for the sliding window. 
+     The bug existed since end of February! (Markus G.)
+
+   - star: added muon support to star. A new tab "MHMuonPar" is
+     displayed. The lower right plot is an estimate of the point spread
+     function. A reference value is displayed. To get the real PSF
+     you must compare with MC. The setup for the muon analysis
+     is done in star.rc. More informations can be found in
+     MHSingleMuon and MHCalibParCalc
+
+   - star: The weather data is now displayed in star
+
+   - star: MEventRateCalc handles the calculation of the event rate more
+     accurate now in case of the start of a new run inside a sequence
+
+   - ganymed: a bug in MSrcPosCalc has been fixed (The changes were taken
+     from a bugfix of Wolfgang to Loc0LocToCam; Wolfgang: the results are
+     changed only minimally
+
+   - ganymed: (MJCut and MJOptimize) now displayes the number of 
+     excess events versus size. The energy estimation is done in
+     MJSpectrum (sponde)
+
+   - ganymed: got support for using other variables than Alpha, eg. Theta.
+     Therefor you need a class deriving from MHAlpha which supports
+     this variable (one is already existing: MHTheta, which is now the
+     default in ganymed). It is setup through ganymed.rc
+
+   - added a full featured spectrum program (sponde) which reads
+     ganymed output and monte carlos and compiles a spectrum
+
+
+
+ *** Version 0.9.1 (2005/04/14)
+
+   - Fix bug on the arrival time reconstruction when using Digital
+     Filter (in some marginal cases (10%) times were reconstructed shifted
+     by 0.2 slices)
+
+   - all executables now return 2 where in previous versions -1 has
+     been returned (gave problems with shell-scripts)
+
+   - the Hi-/Lo-Gain intercalibration for monte carlo files is now
+     also done with a intercalibration input file
+
+   - a bug in the time fine adjustment of the digital filter has been fixed
+
+   - a lot of small fixes to calling TPad::Divide with a margin==0
+
+   - MStatusDisplay now shows the memory usage
+
+   - added a memory leak statistic after the eventloop
+
+   - MHadronness replaced by MParameterD
+
+   - MEnergyEst replaced by MParameterD
+
+   - wobble mode can now be switched on from the data-set
+
+   - switched on bad pixel detection for a pedestal level
+     which is more than 5 times the variance
+
+   - Fixed default paths to be correct for the new data center
+
+   - Fixed handling of drive data. The pointing position in now
+     copied to MPointingPos inside star for real and MC events
+
+   - made sure, that the sequences in a dataset are sorted by
+     their number to ensure the correct synchronization
+
+   - added all resource files necessary to handle spline extraction
+     of signal for the late 2004 and the early 2005 data
+
+   - update the reference lines for the december data
+
+   - changed default for fgHiGainFirst from 2 to 0 in spline extractor
+     This is important for the Dec. and Jan. data where the calibration
+     pulse position changes much.
+
+   - changed default for fgOffsetFromLogain from -1.8 to -2.8 in digital
+     filter. This corrects only an defective extraction of the MC at 
+     low-gain signals lower than 90 phes.
+
+   - fixed some slowdown in calibrating data with interleaved events from
+     Jan and Dec. As a workaround made the pretty palette the default. 
+     The inverse Deep Blue Sea has a bug which slows down long calibration
+     runs a lot.
+
+   - implemented new values from new starguider report as defined
+     in TDAS00-07 V7.1 (eg SkyBrighness)
+
+   - Fixed the formerly wrong unit of azimuth and zenith angle deviation
+     in starguider report (If you merpp the same reports with this version
+     you'll get the correct units (arcmin) but a different result
+     than with old versions (wrong units))
+
+   - Now the status display can also write PNG, JPEG and XPM (other file
+     formats are still unsupported by root)
+
+   - added a lot of scripts and macros in directory datacenter used
+     for automatic processing
+
+
+
+ *** Version 0.9 (2005/03/23)
+   
+   - Calibration is now done autmatically into photo-electrons like 
+     decided by the Collaboration Board
+ 
+   - Reference lines in the display can be read from resource file
+
+   - Interlaced calibration events can be handled by callisto 
+
+   - Hi-Gain vs. Lo-Gain calibration constants can be calculated
+     and applied in callisto.
+
+   - class MJCalibTest can be called by callisto
+
+   - callisto can now run with three data types: rawdata, rootdata, MC
+
+   - added two classes mreport/MReportStarguider.cc and 
+     mreport/MReportStarguider.h for implementing starguider-data
+     
+   - the output of merpp-update now contains starguider information:
+     MReportStarguider and MTimeStarguider
+   
+   - Fixed bug in MHHadronness.cc which made that the displayed Q-factor 
+     values were lower than they should. This was more visible for high
+     energy (Size) events.
+
+   - Made MExtractTimeAndChargeDigitalFilter the default for callisto
+
+   - added a new loop to callisto to support the correct extraction of 
+     the pedestal and pedestal rms through the signal extractor
+
+   - added class to perform fourier tranformation of a hexagonal structure
+     (MHexagonalFT)
+
+   - added class to perform fourier tranformation of a hexagonal structure
+     in a tasklist (MHexagonalFTCalc) example: hft.C
+
+   - added class to enhance the MCerPhotEvt from the Magic camera geometry
+     MGeomCamMagic to a enhanced geometry MGeomCamMagicXT having only
+     small pixels, example: extendcam.C
+
+   - added possibility to write data to memory (TTree) using MWriteRootFile
+
+   - added possibility to read a TTree stored only in memory by MReadTree
+
+   - new classes to deal with the interleaved calibration events:
+     MTriggerPattern, MTriggerPatternDecode and MFTriggerPattern
+
+   - implemented filters to callisto to skip calibration events
+
+   - changed callisto to calculate three kinds of pedestals and pedestal rms:
+     + fundamental pedestal (MPedPhotFundamental): extracted directly from
+       the slices by statistics                              
+     + pedestal from extractor (MPedPhotFromExtractor): extracted with the
+       signal extractor without randomization
+     + random pedestal from extractor (MPedPhotFromExtractorRndm): extracted
+       with the signal extractor with randomization (extraction window is 
+       randomly fixed)
+     The three kind of pedestal is not yet implemented (for speed reasons) as
+     long as nobody really needs it:
+     + pedestal from extractor with randomizatiuon (MPedPhotFromExtractorRndm): 
+       extracted with the signal extractor with randomization
+
+    - callisto now finds the pulse position in the data automatically
+
+    - implemented data reduction in calibrated data by reducing the precision
+      of the stored floating point values (pedestal, rms and signal) to
+      roughly 0.5%
+
+    - fixed showplot to make file format conversion (eg. converting a
+      status display stored in a root file into a postscript file) in
+      batch mode possible:
+      showplot -b --save-as-ps[=outfile.ps] infile.root
+
+    - Allow class names as part of filter rules, eg
+      (MFSupercuts) && (MHillas.fSize>100)
+
+    - fixed a lot of stuff to allow all programs to process MonteCarlo
+      camera files.
+
+    - enhanced possibility to debug reading of resource file
+
+    - MDataChain should handle priorities of operator more 
+      accurate now
+
+    - completely revised the container in which the signal is stored
+      MCerPhotEvt/Pix, MArrivalTime --> MSignalCam/Pix
+       * the new implementation is faster and
+       * needs less storage space
+
+    - FIRST version which can process Monte Carlos through the 
+      whole chain of programs (callisto, star, etc)
+
+    - implemented new image parameters for the border length of
+      the shower image (MNewImagePar2)
+
+    - implemented wobble-mode in ganymed
+
+    - new class (MJOptimize) taking care of all optimization processes
+
+
+
+ *** Version 0.8.6 (2004/10/05)
+
+   - New combined signal and time extractor 
+     MExtractTimeAndChargeDigitalFilter
+
+   - The Report for the trigger section in the CC run summary has been
+     updated, and now the IPRs (Individual Pixel Rates) are available.
+
+   - new macros for database interaction: filldotrun.C, filldotrbk.C
+
+   - added new program which can convert colored output which was redirected
+     into a file back into colored text (for example to display it with
+     more): showlog
+
+   - added new program to display an MStatusArray of plots (stored with
+     MStatusDisplay) from a file: showplot
+
+   - Added support for Sequences (MSequence). Sequences are blocks of run
+     files containing the same calibration and belonging to the same 
+     source
+
+   - Added a new task (MTaskEnv) which can be used in setup files to switch
+     between different tasks (for example to choose a signal extractor)
+
+   - Implemented automatic file splitting in MWriteRootFile
+
+   - After image cleaning an island index is assigned to all used pixels.
+     The index corresponds to the order of the islands in size.
+
+   - added a cleaning which takes signal height _and_ arrival time into
+     account: probability cleaning (for more details see MImgCleanStd)
+
+   - added a cleaning which takes takes the absolute number of photons
+     times the area ratio as cleaning level 
+     (for more details see MImgCleanStd)
+
+   - Changed calculation of image parameters such, that it can be done
+     for all used pixels or the pixels with a defined island index only
+
+   - implemented new image parameters displaying the number of islands,
+     saturated hi-gain and lo-gain pixels (MImagePar, MHImagePar)
+
+   - event display in executable changed to support also calibrated files
+     (done with MJCalibrateSignal)
+
+   - added program doing the calibration and the signal extraction
+     and signal calibration: callisto Most part of the setup is done
+     by a resource file: callisto.rc
+
+   - implemented support for pixels with negative IDs (Raw file format
+     version 4)
+
+   - implemented an new option in merpp (--auto-time) to get the time
+     range for cc and/or caco data from the run header of the raw data
+
+   - New star-program (star and MJStar). Taking calibrated data from
+     callisto/MJCalibrateSignal as input. The setup is done through
+     a resource file: star.rc
+
+   - Added possibility to setup the eventloop in the mars-executable
+     Camera Display by a resource file: mars.rc
+
+   - The the mars-executable Camera Display can now also read
+     calibrated data files written by callisto/MJCalibrateSignal
+
+   - Added a new class which can calculate the source position in
+     the camera from a pointing model known to be correct and
+     the pointing model used for observations (MSrcPosFromModel)
+
+   - added a new version of the class calculating the effective on-time
+     MHEffectiveOnTime. It unifies the old classes MHEffOnTime, 
+     MHEffOnTimeTime, MHEffOnTimeTheta, MHTimeDiff, MHTimeDiffTime and
+     MHTimeDiffTheta.
+
+   - added the possibility to count how often a signal is above (or 
+     below) a certain threshold in MHCamEvent and MHCamEventRot (this
+     can replace MHTriggerLvl0)
+
+   - added ore convinient ways to set the axis-titles of your histograms
+     in your macro to some MH-classes like: MH3, MHVsTime, MHSectorVsTime,
+     MHPixVsTime, MHVsTime, MHCamEvent and MHCamEventRot
+
+
+
+ *** Version 0.8.5 (2004/08/06)
+ 
+   - new Signal Extractors: MExtractFixedWindowSpline 
+     and MExtractAmplitudeSpline
+
+   - implementes interleave in merpp to be able to merpp parts of a file
+
+   - implemented force-functionality to merpp
+
+   - star display to display star catalogs (MAstroCatalog)
+
+   - star display to 'mirror' stars to the camera (MAstroCamera)
+
+   - implemented a new cleaning option which allows cleaning scaled with
+     the real ratio of the rms depending on the pixel size, not only the
+     square root of the pixelsize (MImgCleanStd, MCameraData)
+
+   - removed obsolete MBlind* classes
+
+   - Signal extractor taking the AB flag into account implemented (this makes
+     an odd number of slices for signal extraction possible
+     (MExtractSignalABcorr)
+
+   - implemented a class extracting the pedestal from the raw-data (events)
+     itself using empty lo-gain (MpedCalcFromLoGain)
+
+   - Added mean values to MPedPhotCam
+
+   - Added Makefile for Darwin (this OS is NOT officially supported!)
+
+
+
+ *** Version 0.8.4 (2004/04/19)
+
+   - new fast arrival time extractor using cubic splines: 
+     MExtractTimeFastSpline
+
+   - implementes multi-argument support in MDataChain
+     ("pow(a, b)")
+
+   - implemented double reference support in MDataChain
+     ("MCameraLV.fPowerSupplyA.fVoltagePos5V")
+
+   - added support in MF for expressiond like 
+     "MHillas.fWidth<2*<MHillas.fLength"
+
+   - MDataChain is now able to support variables like [0], [1], ...
+     which can be used in fit functions as parameters. The interface
+     is implemented through the new virtual function 
+     MParContainer::SetVariables
+
+   - added new class MArrivalTimeCam/MArrivalTimePix:
+     Storage containers to hold the ArrivalTime of the camera/pixel
+
+   - added new classes for the calibration of relative arrival times:
+     MCalibrationRelTimePix and MCalibrationRelTimeCam
+  
+   - added new classes to extract the signal of the blind pixel and the 
+     PIN Diode separately: MExtractBlindPixel and MExtractPINDiode
+
+   - added new classes for the bad-pixels treatment (MBadPixels*)
+     which are more powerfull than the old ones (MBlindPixel*)
+     and will replace them.
+
+   - added filter against cosmics: MFCosmics
+
+   - added new class MArrivalTimeCalc2:
+     Calculates the arrival time as the signal weighted mean of the time 
+     slices in the maximum window
+
+   - added a new macro call pointspreadfucntion.C that fits with a 2D 
+     gaussian the DC spot for an star. It gives you the RMS of
+     the PSF and the center of the star, very useful for misspointing 
+     studies.
+
+   - added support for multi-telescope camera files. Added classes 
+     MStereoCalc and MStereoPar, classes to calculate and store shower
+     parameters calculated from the data of two telescopes, for the MC
+     studies regarding the MAGIC clone.
+
+   - added MMcCalibrationCalc, MMcCalibrationUpdate, classes to obtain
+     MC data calibrated in photons instead of ADC counts.
+
+   - added three macros to show the calibration and analysis chain of 
+     MC data. The macro starmc.C does both calibration and analysis, producing
+     an output containing Hillas parameters for each event. The macro 
+     mccalibrate.C does just the calibration and writes out a file containing
+     pixel information in photons instead of FADC data. The macro starmc2.C
+     reads in such a file and produces an output with Hillas parameters.
+
+   - added MPedPhotCalc to compute pedestals in units of photons, see
+     macro pedphotcalc.C
+
+   - added all class to perform the calibration, see macro calibration.C
+
+   - added class MFFT to perform Fast Fourier Transforms
+
+   - added class MSimulatedAnnealing to perform simulated annealing 
+     minimizations
+
+   - added new macro bootcampstandardanalysis.C which holds the skeleton
+     of the analysis chain discussed in the december bootcamp. 
+
+   - added support for DAQ raw data file format V2
+
+   - implemented an arbitrary time stamp for the events from raw-data
+     files with file version<3. It is calculated from the run number, 
+     the date of start and the FADC clock tick from the first module
+
+   - implemented the correct decoding of the event time-stamp
+     coming from the DAQ for raw-data files with file-version>2
+
+   - added a new classes storing the pedestals in units of photons: 
+     MPedPhotPix, MPedPhotCam
+
+   - added support for DC current files from the camera control
+
+   - added support for start- and stop-time when merpping report files
+
+   - added MReportCC storing the weather data from the CC-REPORT
+
+   - added class to fill trainings and test matrices (MTFillMatrix)
+
+   - added a filter performing a software trigger (MFSoftwareTrigger)
+
+   - Added classes to perform parts of the standard analysis (Jobs):
+     + MJPedestals
+     + MJCalibration
+     + MJExtractSignal
+     Note: All of them are preliminary!
+
+   - Added Iterator to iterate over files giving only the run-number
+
+   - Added class (MHSectorVsTime) and example (sectorvstime.C) to plot
+     the evolution of a sector vs time
+
+
+
+ *** Version 0.8.3 (2003/12/05)
+
+   - adapted Random Forest classes to allow the use with MC
+     multi-telescope files which can be produced with the coming
+     camera version 0.7.
+
+   - added classes to read and interprete central control report files
+     (Directory: mreport, Base-Class: MReport, Reader: MReportFileRead, ...)
+
+   - enhanced merpp (the executable) to support .raw and .rep files.
+
+   - added classes for light calibration (MCalibration* and 
+     MHCalibration*) by Markus Gaug. Further work has to be and will
+     be done soon.
+
+   - Added a preliminary 'synchronizer' (MReadReports) which will 
+     replace MReadMarsFile as soon as it is finished.
+
+   - Added a tutorial macro demonstrating how report files are merpped
+     and how they can be read from the root file in the correct order
+     of time (readrep.C)
+
+   - Added a generalized histogram (similar to MH3) called MVsTime
+     which allows to plot variables (or rules - MDataChain - of
+     variables) vs time. For an example have a look at tempvstime.C.
+
+   - Changed the name of the event trees:
+       + Events    --> Events
+       + PedEvents --> Pedestals
+       + CalEvents --> Calibration
+
+  - changed name of MTime in the event trees from MRawEvtTime to MTime
+
+  - added displaying the sector indices to the mars event display
+
+  - Magic Online Analysis (MOnA) implemented in a first version
+    (see mona.cc, MOnlineDump and MOnlineDisplay)
+
+  - added classes to calculate event rate
+    (preliminary: MEventRateCalc, MEventRate)
+
+  - added new executable 'readdaq' to read *.raw files from the DAQ directly
+
+  - added classes dealing with the telescope pointing position (MPointing*)
+
+  - implemented the 'final' Mars time stamp based on some experiences with
+    the new 'Synchonizer'
+
+
+
+ *** Version 0.8.2 (2003/11/10)
+
+   - accelerated standard analysis by a factor of 6-8 ...
+     + doing precalculations in MGeomCam for the pixel area ratio
+     + creating a look up table for the single pixels in MCerPhotEvt
+
+   - added task to calculates weights in case you want to 'change'
+     the energy spectrum of a monte carlo file 
+     (MMcWeightEnergySpecCalc - Great work from Marcos Lopez Moya)
+
+   - added a new executable star which implements the
+     star.C macro as precompiled executable. Currently a flexible
+     setup is not possible, but a 'input card' setup will follow.
+
+   - Starting to implement Multi-Telescope-Support based on the 
+     upcomming camera version 0.7. The base for a general support
+     is implemented and the star-functionality is proven to work.
+
+   - Replaced Event-Display in and Camera-Display in the Mars GUI
+     executable by a more convinient display base on MStatusDisplay.
+
+   - fixed the algorithm for the blind pixel treatment (MBlindPixelCalc)
+
+
+
+ *** Version 0.8.1 (2003/10/20)
+   
+   - added signal subtraction for pure on data by means of fitting
+     the background in the off region or by performing a combined
+     signal/background fit. Provides necessary histograms for
+     obtaining energy spectra and a light curve.
+
+   - added classes to perform and study the selection of the 
+     2nd Level Trigger on MC data (example in triglvl2.C macro)
+
+   - added pedestal calculation
+
+   - implemented "democratic cleaning" (tail cut value proportional 
+     to pixel area) according to Wolfgang's suggestion.
+
+   - added Sigmabar treatment (calculation and basic histogramming)
+
+   - added basic routines to apply padding
+
+   - added first implementation of MARS-based source visibility plotter
+     (needs to be linked against slalib, preliminary version)
+
+   - enhanced functionality of data chains: random numbers, conversion
+     functions and access to MHMatrix objects
+   
+   - fixed some bugs in the CT1 Preproc file reader, which gave wrong
+     numbers under certain circumstances (runs with 0 events included)
+
+   - fixed a bug in the general filter MF (didn't work on some systems
+     at all)
+   
+   - fixed a bug in chaining files, which caused the analysis to crash or
+     ignore files
+
+   - implemented more geometry classes describing the parameters used
+     to simulate the PMT camera
+
+   - added new Monte Carlo classes containing the setup of the different
+     programs in the MC chain.
+
+   - added a (preliminary) general task to evaluate chi-square of a given
+     parameter in an eventloop.
+
+   - first implementation of a container describing the observatory
+     location (Long, Lat, etc)
+   
+   - added Random Forest - method for g/h-separation
+
+   - made compatible with the latest PRO version of root (3.04/02 and 3.05/07)
+     (this means, that it is compiling, but not yet fully tested)
+
+   - added a new status display which can show the present status
+     of histograms while an eventloop is running (MStatusDisplay,
+     an example can be found at status.C)
+
+   - reorganized directories:
+     classes describing the image              --> mimage
+     classes containing Monte Carlo Histograms --> mhistmc
+     classes for Random Forest method          --> mranforest
+
+   - added (event-)weights to fill histograms
+
+   - colors in logging output to screen
+
+   - changes to the Image Parameter declaration:
+       + moved fConc, fConc1 from MHillasSrc to MNewImagePar
+       + moved fNumUsedPix, fNumCorePix from MHillas to MNewImagePar
+       + MHillasExt now derives from MParContainer instead of MHillas
+     --> Files written with the old definition are more or less unreadable
+
+   - reading of reflector files
+
+   - display data from reflector files in the camera
+
+   - implemented currents (and display them in the camera)
+
+   - logarithmic scale in camera
+
+   - added class to iterate through directory contents (MDirIter)
+
+
+
+ *** Version 0.8 (2002/11/18)
+
+   - added all subdirectories as Include-Paths for ACLIC (s. rootlogon.C)
+
+   - corrected 48(!) wrong entries in the Next Neighbor table of the
+     Magic Camera (all in the inner part of the outer ring, mostly 
+     missing a single NN)
+
+   - Fixed a bug in the table describing the Next Neighbours of the
+     CT1 camera (a pixel 127 doesn't exist and the pixel 126 didn't
+     have any neighbour)
+
+   - changed trigrate.C: now it calculates the pure NSB triggers from
+     a camera file (generated with no showers), so there is no need
+     to introduce them by hand in the BgR array (for more details
+     please ask Abelardo)
+
+   - added MHHadronness (and MHadronness) as a general facility to evaluate
+     the quality of a gamma-hadron seperation method
+
+   - changed MWriteAsciiFile to accept rules (MDataChain)
+
+   - Calls to MWriteAsciiFile::AddContainer and MWriteAsciiFile::AddRule
+     must be replaced by calles to MWriteAsciiFile::AddColumn and
+     MWriteAsciiFile::AddColumns. Be carefull, the arguments have slightly
+     changed.
+
+   - Implemented generalized event-matrices (one row per event)
+     (MHMatrix)
+
+   - implemented the one dimensional composite probabilities
+     (MHCompProb, MCompProbCalc, comprob.C)
+
+   - implemented the Multidimensional Distances (Next Neighbours, Kernel)
+     (MMultiDimDistCalc, multidimdist.C, multidimdist2.C, MHMatrix)
+
+   - Added a camera display displaying the pixel numbers to the
+     event display gui.
+
+   - Added Monte Carlo Informations to event display gui
+
+   - Changed the camera display to display the pixel numbering
+   
+   - Added three buttons to the camera display to change the palette
+
+   - Added the number of used and core pixels after image cleaning
+     to MHillas
+
+   - Changed the algorithm used in MHillas according to TDAS 02-03
+
+   - Changed the Alpha range according to TDAS 02-03 to [-90°,90°]
+
+   - Changed the algorithm used in MHillasSrc according to TDAS 02-03
+
+   - Added fCosDeltaAlpha to MHillasSrc
+
+   - The numbers of photons used to calculate fConc and fConc1 in
+     MHillasExt are now scaled with the pixel size, so that one get
+     a four times smaller value for the bigger pixels in the outer ring.
+
+   - added new task to smooth the camera contents (MCameraSmooth)
+
+   - added possibility to use interpolated pixel values for blind pixels
+     instead of removing it completely from the analysis
+
+   - Implemented the possibility to save the whole eventloop with
+     its setup to a file. This information can be read and from
+     it you can (re)create a Macro. See MEvtLoop::Read, MEvtLoop::Write
+     and MEvtLoop::MakeMacro. If you find something not working, please
+     report - this stuff is still in a beta phase.
+
+   - MBlindPixelCalc set all Ceta-Tauri pixels to unused not only for the
+     file having crab starfield, but also for all following files - fixed
+
+   - MTaskList::PrintStatistics can now be instructud to print also the
+     title, too: use PrintStatistics(0, kTRUE)
+
+   - Changed the image cleaning so that pixels with to many 'used'
+     neighbors are left used (to get rid of 'holes' in events)
+
+   - Introduced more output to the camera displays
+
+   - Added an array of histograms (eg one hist per run), MHArray
+
+   - Added a _preliminary_ version of the reader for CT1 PreProc files
+     (MCT1ReadPreProc)
+
+   - Fixed the error calculation of MHMCollectionArea and MHMcIntRate
+     (thanks to Raquel)
+
+   - added the first energy estimator (MEnergyEstParam, estimate.C,
+     estfit.C) using a parametrization
+
+   - Added some new Monte Carlo paremeter containers used to store
+     setup information from the MC chain (MMcConfigRunHeader, 
+     MMcCorsikaRunHeader, MGeomPMT, MGeomMirror)
+
+
+
+ *** Version 0.7 (2002/04/30)
+ 
+   - added a bugfix to MCerPhotCalc. In older camera versions (<=40)
+     the pedestal mean value was saved incorrectly. For files from
+     this versions we substract 0.5 from the pedestal mean.
+     WARNING: This may effect your results, so don't wonder...
+
+   - First implementation of an algorithm using only triggered events
+     for the collection area calculation
+
+   - Ascii Output can now also be used for parameter containers which
+     doesn't overload MParCointainer::AsciiWrite
+
+   - The Ascii Output is now also capable of writing single data members
+     of one container
+
+   - You are now able to change the order of the values written to the
+     ascii file
+
+   - You can now specify a conversion factor for each data member written
+     to an ascii file. This may be usefull to change the units of the 
+     data member (eg. degrees instead of millimeters in case of the 
+     hillas parameters)
+
+   - Replaced old MHillas by a new structure which allows you to extend
+     the parameters stored in MHillas very easily:
+     see MHillas and MHillasExt
+
+   - Added classes to handle source dependancy of image parameters:
+     see MHillasSrc
+
+   - Added container (MBinning) to have a standard input for the binning
+     in different histograms (eg. the Energy bins should be the same in
+     all histograms)
+
+   - Changed Hillas histograms from mm to deg
+
+   - Added the flexible binning to the hillas histograms
+
+   - Added a filter for the alpha parameter (MFAlpha)
+
+   - It is now possible to write single data members of a class object to
+     an output stream instead of the whole container only
+
+   - Added a generalized filter for a data member:
+     MFDataMember filter("MHillas.fWidth", '<', 0.5);
+
+   - Added a generalized Filter parser for more difficult filter rules
+     MF filter("MHillas.fWidth<0.5 && MHillas.fLength>0.5");
+
+   - Added new Monte Carlo histograms:
+     MHMcEnergyImpact and MHMcEfficiency
+
+   - Added many new histograms needed for the flux calculation.
+
+   - Added a generalized histograms which can fill and show up to three
+     data members in either a one-, two- or three-dimensional histogram, eg:
+     MH3 mh3("MHillas.fWidth", "MHillas.fLength");
+
+   - Added:
+       * calculation of <Theta> as a function of Theta (MHThetabarTheta)
+       * calculation of <Theta> as a function of time (MHThetabarTime)
+     they are needed in the flux calculation in 
+     order to select for a given bin in Theta (or time) the appropriate 
+     effective collection area, which is assumed to be given as a function 
+     of Theta and the true energy
+
+   - Added calculation of the migration matrix in the energy 
+     (MHMcEnergyMigration):
+     the migration matrix describes the migration from the true (E_true)
+     to the estimated energy (E_est); it is needed to determine the
+     distribution of E_true from the measured distribution of E_est 
+     by unfolding
+
+   - changed the color palette in the camera display to DeapSea.
+
+
+
+ *** Version 0.6 (2002/01/15)
+
+   - Introduce the option of disable pixels (MBlindPixels and
+     MBlindPixelCalc) for the analysis (eg MHillasCalc) to be 
+     able to deal with Star Field NSB.
+
+   - Fixed a bug in the pedestals substraction
+
+   - Introduced verbosity levels
+
+   - Introduced a task (MReadMarsFile) which reads the RunHeader tree, too.
+
+   - Fixed several bugs in MFTriggerLvl1 which caused to filter not to
+     work correctly (thanks to Abelardo)
+
+   - Introduced correct treatment of the diffuse Night Sky Background 
+     and NSB (MMcPedestalNSB)
+
+   - Corrected treatment of the electronic noise (MMcPedestalCopy)
+
+   - Introduced MMcRunHeaders which contains monte carlo run informations
+
+   - Added a 'Print'-Task (MPrint) which calls the Print function
+     of a parameter container for each event
+
+   - Removed MHtml (was replaced by THtml of root 3.02) in dohtml.C
+
+   - changes to be more efficient with root 3.02/06
+
+   - root 3.02/06 fixes:
+     + the memory leak when reading MRawEvtData
+     + loosing more time than necessary to update the progress bar
+
+   - MWriteAsciiFile is now capable of writing more than one container
+     in a line. For example: To be able to write Monte Carlo and 
+     Hillas values (energy and alpha) in one line.
+
+
+
+ *** Version 0.5 (2001/11/06)
+
+   - Added new GUI functionality (Analysis)
+
+   - Added a camera display to be able to display events in the camera
+     together with the calculated hillas ellipse
+
+   - Added a 'Clone'-Task (MClone) which can clone a parameter container
+     object at any state of the analysis, so that the output are several
+     states
+
+   - Fixed a bug in the collection area error calculation 
+     (Thanks to Ciro and Abelardo)
+
+   - Fixed a bug which causes merpp to crash in some environments
+
+   - Implemented auto enabling scheme for Branches to speed up reading
+     a lot (see MReadTree and MTask)
+
+   - Fixed a bug in the Histogram classes which caused histograms to
+     be written to a file by MWriteRootFile without request
+
+   - changed the object I/O from the old stylish root I/O to the new
+     'auto evolution scheme' This was done only for classes which are not
+     yet used in Monte Carlo files, so that these files are still readable.
+
+   - Added support for a progress bar in MEvtLoop and MReadTree 
+     (see the Analysis Window in Mars for an example)
+
+   - Fixed a bug in the package creation which disturbed the conversion
+     between a mars version unpacked from a tar file and the repository.
+
+   - Changed the code to writer merpped (converted into root format)
+     raw files, to get faster (around 10%)
+
+
+
+ *** Version 0.4 (2001/09/20)
+
+    - This release is made to compile on a root version >= 3.00
+
+    - Fixed a bug which causes MReadTree to read the first file only
+
+    - Added a task to compute the trigger rate (MMcTriggerRateCalc)
+ 
+    - Added a task to write a container to an Ascii file (MWriteAsciiFile)
+
+    - Added a task to write several container to a root file (MWriteRootFile)
+    
+    - Added calculation of the Enegry Threshold (MMcThresholdCalc)
+    
+    - Added calculation of the collection area (MMcCollectionAreaCalc)
+    
+    - fixed some bugs in the Hillas calculation
+    
+    - added filters to be able to control the task execution dependent on
+      a parameter (for example: the number of level 1 triggers in a MC-file)
+
+
+
+ *** Version 0.3 (2001/04/23)
+	
+    - Many demo macros added    
+  
+    - MCT1ReadAscii is now able to handle more than one file (s. ::AddFile)
+    
+    - Hillas Calculation added
+    
+    - Standard image cleaning available
+    
+    - MReadTree is now able to handle more than one file
+      (Remark: of the same structure)
+    
+    - Now we are able to display events in a first version of the
+      Camera event display. To do this we must run the macro 
+      "macros/readCT1.C" to read data from CT1. 
+
+
+
+ *** Version 0.2 (2001/01/24)
+ 
+    - First Implementation of a Gui to read the raw data. Start the
+      gui with the command mars. 
+
+
+
+ *** Version 0.1 (2000/12/20)
+ 
+    - First official release 0.1
+    
+    - Changes:
+    
+       + changed calling style of MRawPixelIterator from do...while to 
+         while-loop

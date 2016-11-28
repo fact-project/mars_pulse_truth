@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Thomas Bretz">
+   <title>Magic Database</title>
+   <link rel="stylesheet" type="text/css" href="mars.css">
+   <style type="text/css">
+    <!--
+       select.Width
+         { width: 150px; }
+       input.Width 
+         { width: 102px; }
+     -->
+   </style>
+<script type="text/javascript" src="menu.js"></script>
+</head>
+
+<body onload="getdisplay();" background="background.gif" text="#000000" bgcolor="#000099" link="#1122FF" vlink="#8888FF" alink="#FF0000">
+&nbsp;
+
+<center><table class="Main" CELLPADDING="0">
+
+<tr>
+<td class="Edge"><img SRC="ecke.gif" ALT=""></td>
+<td class="Header">
+<font size='+1'><B>Magic Database</B></font><BR>
+<hr SIZE=1 NOSHADE WIDTH="80%">
+<A HREF="http://www.astro.uni-wuerzburg.de/wiki/Database_Websites">Home</A>&nbsp;
+<A HREF="http://www.astro.uni-wuerzburg.de/wiki/Database_Tutorial">Help</A>&nbsp;
+<A HREF="printtable.php?fTable=MarsVersion">Mars</A>&nbsp;
+<A HREF="plotdb.php">Plots</A>
+Info:&nbsp;
+<A HREF="runinfo-aio.php">Run</A>&nbsp;
+<A HREF="sequinfo-aio.php">Sequ</A>&nbsp;
+<A HREF="datasetinfo-aio.php">DataSets</A>&nbsp;
+<A HREF="queryrbk.php">Runbook</A>&nbsp;
+<BR>
+more:&nbsp;
+<!--
+<A HREF="ganymed.php">Results</A>&nbsp;
+<A HREF="sequence.php">Sequ</A>&nbsp;
+-->
+<A HREF="sources.php">Sources</A>&nbsp;
+<A HREF="statussbs.php">SequBuildStatus</A>&nbsp;
+<A HREF="builddatasets.php">BuildDataSets</A>
+<hr SIZE=1 NOSHADE WIDTH="80%">
+</td>
+</tr>
+
+<tr>
+<td COLSPAN="2" BGCOLOR="#FFFFFF">
+
+
+<center><table class="Inner" CELLPADDING=15>
+<tr  class="Block">
+<td>

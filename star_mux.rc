@@ -1,0 +1,101 @@
+# ==========================================================================
+#############################################################################
+# ==========================================================================
+#                              General
+# ==========================================================================
+#############################################################################
+# ==========================================================================
+
+# -------------------------------------------------------------------------
+# Use this if you want to setup the logging stream for the jobs
+# (overwrites command line options)
+# -------------------------------------------------------------------------
+#MLog.VerbosityLevel: 2
+#MLog.DebugLevel:     1
+#MLog.NoColors:       yes
+
+# ==========================================================================
+#############################################################################
+# ==========================================================================
+#                                   Star
+# ==========================================================================
+#############################################################################
+# ==========================================================================
+
+# -------------------------------------------------------------------------
+# Use this if you want to write the MJStar output somewhere
+# If you don't want it, it is written to the calibration output anyhow.
+# -------------------------------------------------------------------------
+#MJStar.PathOut: .
+#MJStar.PathIn: .
+
+# -------------------------------------------------------------------------
+# Configure MJStar
+# -------------------------------------------------------------------------
+#MJStar.MaxEvents: 10000
+#MJStar.Overwrite: yes,no
+
+# -------------------------------------------------------------------------
+# Use this if you want to change the parameters of the software trigger
+# -------------------------------------------------------------------------
+#FilterSwTrigger.Threshold:    5
+#FilterSwTrigger.NumNeighbors: 4
+#FilterSwTrigger.TimeWindow:   0.5
+
+# -------------------------------------------------------------------------
+# It seems that the MUX FADCs have s lightly higher dead time...
+# -------------------------------------------------------------------------
+MHEffectiveOnTime.FirstBin: 4
+
+# -------------------------------------------------------------------------
+# Setup the image cleaning here
+# -------------------------------------------------------------------------
+MImgCleanStd.CleanMethod:   absolute
+#MImgCleanStd.CleanLevel0:   6.0
+MImgCleanStd.CleanLevel1:   6.0
+MImgCleanStd.CleanLevel2:   3.0
+MImgCleanStd.TimeLevel1:    1.75
+MImgCleanStd.TimeLevel2:    1.75
+MImgCleanStd.PostCleanType: 3
+
+#MImgCleanStd.CleanRings: 3
+#MImgCleanStd.KeepIsolatedPixels: Yes
+#MImgCleanStd.RecoverIsolatedPixles: Yes
+
+# -------------------------------------------------------------------------
+# Setup the cut applied to the Sparkless tab
+# -------------------------------------------------------------------------
+
+# This is the simple default
+#SparkCut.Condition: log10(MNewImagePar.fConc1) < (-0.371)*log10(MHillas.fSize) + 0.596
+
+# This is the more complicated cut from ganymed.rc
+#SparkCut.Condition: ({0} || {1}) && {2}
+#SparkCut.0: MImagePar.fNumSatPixelsHG < 1
+#SparkCut.1: MHillas.GetArea*(MGeomCam.fConvMm2Deg^2) > (0.003*MImagePar.fNumSatPixelsHG) + 0.0325
+#SparkCut.2: log10(MNewImagePar.fConc1) < (-0.371)*log10(MHillas.fSize) + 0.596
+
+# -------------------------------------------------------------------------
+# setup the image parameter calculation here
+# -------------------------------------------------------------------------
+#MHillasCalc.IdxIsland: 0
+
+# -------------------------------------------------------------------------
+# Setup or switch off the muon analysis here
+# -------------------------------------------------------------------------
+#MJStar.MuonAnalysis: On
+
+#MMuonSetup.Margin:            0.2
+#MMuonSetup.ThresholdArcPhi:   30
+#MMuonSetup.ThresholdArcWidth: 2
+
+#BinningRadius.Raw:            20  0.5  1.5
+#BinningArcWidth.Raw:          60  0.0  0.3
+#BinningRingBroadening.Raw:    20  0.5  1.5
+#BinningSizeVsArcRadius.Raw:   20  0.5  1.5
+#BinningsArcPhi.Raw:           20 -180  180
+#BinningsMuonWidth.Raw:        28  0.3  1.7
+
+#MuonPreCut.Condition:   MHillas.fSize>150
+#MuonSearcCut.Condition: (MMuonSearchPar.fRadius>180) && (MMuonSearchPar.fRadius<400) && (MMuonSearchPar.fDeviation<45)
+#MuonFinalCut.Condition: (MMuonCalibPar.fArcPhi>190)  && (MMuonSearchPar.fDeviation<35) && (MMuonCalibPar.fArcWidth<0.20) && (MMuonCalibPar.fArcWidth>0.04)

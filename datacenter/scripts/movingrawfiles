@@ -1,0 +1,89 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2004 <mailto:dorner@astro.uni-wuerzburg.de>
+#   Author(s): Stefan Ruegamer 02/2007 <mailto:snruegam@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2008
+#
+#
+# ========================================================================
+#
+# This script is moving the rawfiles from the directory
+# /magic/datacenter/fromtape/rawdata to the structure
+# /magic/data/rawfiles/YYYY/MM/DD
+# 
+# As the data transfer is at the moment not working via .finished files,
+# you have to use the script movingrawfiles_OK for moving these data
+# 
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=movingrawfiles
+
+set -C
+umask 0002
+
+# check whether script is already running
+lockfile=$lockpath/lock-$program.txt
+checklock 
+
+# change permission for files
+ssh tape@dc07 chmod -R g+w /magic/datacenter/fromtape/rawdata/* 
+
+# find rawfiles belonging to tape (don't move files not yet md5-sum checked)
+rawfiles=`find /magic/{datacenter,data/rawfiles}/fromtape/???data/ -regextype posix-egrep -regex '.*/20[01][0-9]{5}_(M[12]_)?[0-9]{8}(\.[0-9]{3})?_.*.raw(.gz)?$' -type f -user tape`
+
+if [ "$rawfiles" == "" ]
+then
+   printprocesslog "INFO no files to move -> exit" 
+   finish 
+fi
+
+# move rawfiles
+printprocesslog "INFO moving rawfiles to $datapath/rawfiles"
+for rawfile in $rawfiles
+do
+# workaround for rawfiles with wrong timing
+#   newrawfile=`echo $rawfile | sed -e 's/center\/fromtape\/rawdata/\/rawfiles-wrong-timing/g' -e 's/_/\//1' -e 's/_/\//1'`
+   path=`dirname $rawfile | cut -d/ -f3`
+   if [ "$path" == "datacenter" ]
+   then
+      subpath=`dirname $rawfile | cut -d/ -f5`
+      newrawfile=`echo $rawfile | sed -e 's/center\/fromtape\/'${subpath}'/\/rawfiles/g' -e 's/_/\//1' -e 's/_/\//1'`
+   elif [ "$path" == "data" ]
+   then
+      newrawfile=`echo $rawfile | sed -e 's/\/fromtape\/muxdata//g' -e 's/_/\//1' -e 's/_/\//1'`
+   else
+      printprocesslog "ERROR moving rawfile $rawfile failed"
+      continue
+   fi
+   
+   newdir=`dirname $newrawfile`
+   makedir $newdir 
+   
+   mv -v $rawfile $newrawfile 
+done
+
+rmdir -v /magic/{datacenter,data/rawfiles}/fromtape/???data/* 
+
+printprocesslog "INFO launching filesondisk"
+$scriptspath/filesondisk &
+
+finish 

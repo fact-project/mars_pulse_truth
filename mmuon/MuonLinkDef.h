@@ -1,0 +1,17 @@
+#ifdef __CINT__
+
+#pragma link off all globals;
+#pragma link off all classes;
+#pragma link off all functions;
+
+#pragma link C++ class MMuonSearchPar+;
+#pragma link C++ class MMuonCalibPar+;
+#pragma link C++ class MMuonSetup+;
+
+#pragma link C++ class MMuonSearchParCalc+;
+#pragma link C++ class MMuonCalibParCalc+;
+
+#pragma link C++ class MHMuonPar+;
+#pragma link C++ class MHSingleMuon+;
+
+#endif

@@ -1,0 +1,1460 @@
+Please  do  not write behind the end of line tag so that it is  possible
+to   send  a   Changelog   file  to  a  line  printer  directly.  Thanks.
+
+For your entries please follow EXACTLY this style:
+
+_yyyy/mm/dd_[Your Name]
+_
+___*_filename:
+_____-_description
+_
+___*_filename2, filename3:
+_____-_description
+_
+_
+_
+
+While an underscore is a placeholder for a white-space or an empty line.
+
+                                                 -*-*- END OF LINE -*-*-
+
+ 2010/11/29 Reiner Rohlfs
+
+   * msim/MPhotonData.cc:
+     - Use all data if telescope array is not defined
+
+   * msim/MPhotonEvent.[h,cc]:
+     - remove following methods:
+         Int_t ReadCorsikaEvt(MCorsikaFormat *fInFormat, Int_t i);
+         Int_t ReadCorsikaEvt(istream &fin, Int_t i);
+     - replace those methods by
+         Int_t ReadEventIoEvt(MCorsikaFormat *fInFormat);
+         Int_t ReadCorsikaEvt(Float_t * data, Int_t numEvents, Int_t arrayIdx);
+ 
+   * mcorsika/MCorsikaRunHeader.h mcorsika/MCorsikaRunHeader.cc
+     - Split method ReadEvtEnd() into two functions:
+        ReadEvtEnd() and ReadEventHeader()
+
+   * mcorsika/MCorsikaEvtHeader.[h,cc]:
+     - method ReadEvt does not read data from file by itself, but gets
+       buffer as input
+     - test that number of reuse of same shour is not greater than 20
+     - method ReadEvtEnd does not seek to the EVTE block and does not
+       read the Bloch header any more.
+
+   * mcorsika/MCorsikaFormat.[h,cc]:
+     - remove following methods:
+       SeekNextBlock(), UnreadLastHeader(), UnreadLastData(), StorePos(),
+       ResetPos(), Rewind(), GetNextEvent(), GetCurrPos(),
+       NextEventObject() and NextPhotonObject()
+     - new method: NextBlock() 
+
+   * mcorsika/MCorsikaRead.[h,cc]:
+     - new design of program flow. It is now determined by the order of
+       the data blocks in the input file.
+     - Depending on the variables fTelescopeIdx and fArrayIdx, only data
+       of the requested telescope and array are stored in the output
+       file.
+       
+   * readcorsika.cc:     
+     - two new command line arguments: -A=arrayNo and -T=telescopeNo  
+       The values of these parameters are store in the MCorsikaRead -
+       class.
+
+
+ 2010/11/22 Thomas Bretz
+
+   * Makefile.rules:
+     - use -C option of make instead of cd
+
+   * msimreflector/MSimRays.cc:
+     - added some comments
+     - fixed timing for a point source
+
+   * mbase/MStatusDisplay.cc:
+     - display canvas title in status line
+
+   * mhbase/MH3.[h,cc]:
+     - added scaling for fourth (time) axis
+
+
+
+ 2010/11/03 Daniela Dorner
+
+   * datacenter/scripts/copyoutput:
+     - changed query so that only successfully processed files are 
+       copied
+     - removed logging output to use script in cronjob in Dortmund
+
+
+
+ 2010/10/28 Thomas Bretz
+
+   * mjobs/MJCuts.cc:
+     - improved debug output in WriteResults
+
+   * mjobs/MJob.cc:
+     - imporved searching for an open file in WriteContainer
+
+
+
+ 2010/10/28 Daniela Dorner
+
+   * datacenter/scripts/writemcsequencefile:
+     - bug fix (every run was listed several times)
+
+
+
+ 2010/10/27 Daniela Dorner
+
+   * datacenter/scripts/jobmanager:
+     - imlemented new algorithm / rewritten 
+     - queries status of queue less often
+     - one can select algorithm to determine number of jobs to be 
+       submitted
+     - one can submit more than one job at the same time
+     - no waiting time between scripts, but only between loops number of 
+       jobs
+     - number of jobs for steps is not given absolute anymore, but in a
+       ratio
+     - maximum number of jobs for one step can be given
+
+   * datacenter/scripts/setup.phido.fact.mc, 
+     datacenter/scripts/setup.wue.fact.mc:
+     - adapted variables for settings of jobmanager to implement the new
+       algorithm
+
+   * datacenter/scripts/runstar_mc, datacenter/scripts/runcallisto_mc
+     datacenter/scripts/runceres, datacenter/scripts/runcorsika, 
+     datacenter/scripts/sourcefile:
+     - implemented usage of lock in db instead of function checklock 
+       which uses lock-file
+     - in sourcefile: adapted function setstatus to take care of locking
+
+   * datacenter/scripts/run.condor:
+     - adapted to allow submission of several jobs with one submit
+
+   * datacenter/scripts/copyoutput:
+     - included output of info if nothing has to be copied
+
+
+
+ 2010/10/19 Daniela Dorner
+
+   * datacenter/scripts/insertmc:
+     - added reminder to start writemcsequencefile
+
+   * datacenter/scripts/writemcsequencefile:
+     - added check if there are runs in the DB
+
+
+
+ 2010/10/18 Daniela Dorner
+
+   * datacenter/db/menu.php, datacenter/db/mcdefs.php:
+     - added number of events to include the difference between number 
+       of showers and number of events introduced by implementing
+       fNumReUseShowers
+
+   * datacenter/db/include.php, datacenter/db/mcinfo.php:
+     - added 'done and avail' to status pull-down
+     - added 'done and avail' to status group-by
+
+   * datacenter/scripts/insertmc:
+     - added fAvailable
+     - new values for numfile with CSCAT 20
+
+   * datacenter/scripts/jobmanager:
+     - updated setting for pbs
+
+   * datacenter/scripts/setup.phido.fact.mc:
+     - added setup for copying
+
+   * datacenter/scripts/copyoutput:
+     - added (script to copy output from one site to the main site, 
+       currently working and used for copying corsika files from 
+       Dortmund to Wuerzburg
+
+
+
+ 2010/10/06 Daniela Dorner
+
+   * datacenter/scripts/sourcefile:
+     - updated status queries to implemented new DB columns fAvailable 
+       and fProcessingSiteKEY for the status tables to allow for storing
+       the information where the process is/was running and whether it 
+       is already available in the main data center, i.e. whether it has
+       been already copied 
+       This ensures that the next step is only started when the job is
+       done AND the file is available
+
+   * datacenter/scripts/setup.wue.fact.mc, 
+     datacenter/scripts/setup.phido.fact.mc:
+     - implemented variables for the processing and main data center 
+       site
+
+
+
+ 2010/10/05 Daniela Dorner
+
+   * datacenter/scripts/jobmanager:
+     - implemented pbs as third queueing system: implemented variable
+       $SOURCEFILEPATH as pbs copies script locally; implemented 
+       walltime and mem
+
+   * datacenter/scripts/setup.phido.fact.mc:
+     - added (setup file for cluster in Dortmund); includes array for 
+       walltime and mem
+
+   * datacenter/scripts/runcorsika, datacenter/scripts/sourcefile:
+     - implemented variable $SOURCEFILEPATH
+
+   * datacenter/db/menu.php, datacenter/db/mcdefs.php, 
+     datacenter/scripts/runcorsika, datacenter/scripts/insertmc:
+     - implemented fNumReUseShowers (parameter how often a shower is 
+       reused in Corsika)
+
+
+
+ 2010/09/30 Thomas Bretz
+
+   * msimreflector/MMirrorSquare.[h,cc]:
+     - implemented WriteM
+
+   * mcorsika/MCorsikaEvtHeader.cc, mcorsika/MCorsikaFormat.[h,cc],
+     mcorsika/MCorsikaRunHeader.cc:
+     - fixed a problem with reading the RUNE section in corsikas 
+       raw format
+
+   * readcorsika.cc:
+     - speed up reading by ot printing the single photons if debug
+       level less than 3
+
+   * msim/MPhotonEvent.cc:
+     - don't loop over all (mostly empty) slots in Print()
+
+   * msimcamera/MSimRandomPhotons.[h,cc]:
+     - changed again the checks to also allow pedestal and calibration
+       runs to be produced without having a MCorsikaRunHeader available
+
+
+
+ 2010/09/29 Thomas Bretz
+
+   * msimreflector/MMirrorHex.[h,cc]:
+     - implemented WriteM
+     - implemented new class MMirrorHex90
+
+   * msimreflector/SimReflectorLinkDef.h:
+     - added MMirrorHex90
+
+   * msimreflector/MMirrorDisk.[h,cc]:
+     - implemented WriteM
+
+   * msimreflector/MReflector.[h,cc]:
+     - added function to write a file with a reflector definition
+
+   * msimreflector/MMirror.h:
+     - added virtual WriteM
+     - added several Getter for Z, Nx, Ny, Nz and Shape
+
+
+
+ 2010/09/28 Thomas Bretz
+
+   * mcorsika/MCorsikaFormat.[h,cc]:
+     - added Read function to allow MCorsikaRead to read
+       object 1203
+     - added Rewind function to allow MCorsikaRead to jump back
+       in file
+     - added a lot of debug output
+     - make GetNextEvent read one telescope data from one array after
+       the other
+
+   * mcorsika/MCorsikaEvtHeader.h:
+     - added AddXY which allows MCorsikaRead to add the telescope 
+       position to the showers impact parameter
+
+   * mcorsika/MCorsikaRead.[h,cc]:
+     - commented out obsolete use of fIn
+     - added reading of telescope positions (object 1201) in 
+       eventio format
+     - added number of telescopes to the calculation of the 
+       total number of events
+     - added a working ReadEvent for eventio format
+     - added ReadEnv to be able to set the requested telscope index
+     - added new data members to hold the telescope positions   
+     - removed obsolete OpenStream
+     - added member function to set telescope index
+
+   * msim/MHPhotonEvent.cc:
+     - changed the number of bins to an odd value to get a bin at zero 
+       for the 2D histograms
+
+
+
+ 2010/09/24 Thomas Bretz
+
+   * mcorsika/MCorsikaEvtHeader.cc:
+     - store impact parameters persistent for further use (because in
+       eventio format the header is not repeated this is needed)
+
+   * mcorsika/MCorsikaFormat.[h,cc]:
+     - adapted to be able to read all telescopes and all reused shower
+       events in eventio
+     - a lot of cosmetics
+     - many more comments
+     - PRELIMINARY
+
+   * mcorsika/MCorsikaRead.[h,cc]:
+     - implemented variable for selection of the telescope in eventio format
+     - implemented eventio format (PRELIMINARY)
+
+   * msim/MPhotonData.[h,cc], msim/MPhotonEvent.[h,cc]:
+     - implemented function to calculate mean event time
+     - implemented function to simulate the wavelength (lambda^-2)
+     - implemented function to shift all photons by a certain xy
+     - adapted ReadCorsikaEvt to changes in MCorsikaFormat
+
+
+
+ 2010/09/24 Daniela Dorner
+
+   * datacenter/scripts/insertmc:
+     - fixed typo
+
+
+
+ 2010/09/22 Thomas Bretz
+
+   * mjobs/MJSimulation.cc:
+     - slight improvement of debug output
+     - call SetAllowEmpty for the three ContEmpty filters
+     - changed binning of camera histograms
+
+   * msimcamera/MSimRandomPhotons.cc:
+     - improved output in case of failure
+
+   * readcorsika.cc:
+     - added RunHeaders
+     - fixed usage-info
+
+   * mbase/MContinue.cc:
+     - no need to call MTask::GetFilter(), GetFilter() is enough
+
+   * mfbase/MF.cc:
+     - accept = as a conditional sign
+     - make sure the return code of the evaluated filter is corectly returned
+
+   * msim/MHPhotonEvent.cc:
+     - implemented types 6-8
+
+   * mcorsika/MCorsikaEvtHeader.[h,cc]:
+     - added fNumReuse
+     - added member functions to increase and reset the number of reusages
+     - increased class version number accordingly
+
+   * mcorsika/MCorsikaRead.[h,cc]:
+     - count the number of showers (events) times its reusage
+       for fNumTotalEvents
+     - adapted ReadEvent to re-usage of showers (still needs to be tested for
+       EventIO)
+     - Fixed return type (should be Int_t) of ReadEvent
+     - take the number of reusages in PostProcess into account
+
+   * mcorsika/MCorsikaRunHeader.[h,cc]:
+     - added total number of reusages fNumReuse
+     - increased class version number accordingly
+
+   * mmc/MMcEvt.hxx:
+     - added setter for the reuse counter
+
+   * msim/MPhotonData.[h,cc]:
+     - removed fNumPhotons (we allow 1-photon bunches only anyway and MMCS
+       doesn't even distribute this number)
+     - increased class version number accordingly
+
+   * msim/MSimMMCS.cc:
+     - correctly propagate the number of events (number of showers times reusage)
+     - propagate counter for reusage to MMcEvt
+
+   * msim/MPhotonEvent.[h,cc]:
+     - added functions to calculate mean x and mean y
+     - propagate re-usage counter through ReadEvent
+
+   * mcorsika/MCorsikaFormat.[h,cc]:
+     - a few clean-ups to the code
+     - added standard file header
+     - a few minor simplifications
+     - replaced local logging stream with gLog
+     - added some empty comments
+
+
+
+ 2010/09/21 Thomas Bretz
+
+   * mjobs/MJSimulation.cc:
+     - correctly propagated run-number to the file-name
+     - fixed a problem with the tab-title in the ps-files
+     - fixed the histogram size for the camera (should be 5 instead
+       of 3,  I hope)
+     - fixed the tab-title for the MedDev tab
+     - do not write image-files in dev-null mode
+
+
+
+ 2010/09/14 Daniela Dorner
+
+   * datacenter/scripts/runcorsika:
+     - removed STEPFC from inputcard as anyhow default of 1 was used 
+       instead of 0.1 
+
+
+
+ 2010/09/06 Thomas Bretz
+
+   * msimreflector/MSimRays.cc:
+     - included TMath for newer root versions
+
+
+
+ 2010/09/03 Daniela Dorner
+
+   * datacenter/scripts/insertmc:
+     - added new standard setup runs
+
+   * datacenter/scripts/runceres:
+     - fixed queries for change from file based to run based processing
+
+   * datacenter/scripts/runcallisto_mc:
+     - changed setup path: implemented ceres setup, as different 
+       callisto.rc are needed for different ceres setup
+
+
+
+ 2010/08/31 Thomas Bretz
+
+   * msimcamera/MSimRandomPhotons.[h,cc]:
+     - improved the range checks. All ranges are now aligned on the
+       range of simulated wavlengths
+
+
+
+ 2010/08/30 Daniela Dorner
+
+   * datacenter/db/mcdefs.php:
+     - adapted joins for processing of ceres on run basis
+
+   * datacenter/scripts/insertmc:
+     - bugfix for insert of rows for new ceres key(s)
+
+
+
+ 2010/08/30 Thomas Bretz
+
+   * mhist/MHCamera.cc:
+     - added options to display contents as int and float
+
+   * mgeom/MGeomCamFACT.cc:
+     - changed default distance from 4.8887 to 4.90
+
+   * mbase/MLut.cc:
+     - added possibility to have comment (ignored) lines
+
+   * msim/MHPhotonEvent.cc:
+     - fixed Type==5
+
+   * msimreflector/MSimRays.[h,cc]:
+     - added
+
+   * msimreflector/SimReflectorLinkDef.h
+     - added MSimRays
+
+   * msimreflector/Makefile
+     - added MSimRays
+
+
+
+ 2010/08/27 Daniela Dorner
+
+   * datacenter/scripts/insertmc:
+     - updated some default values
+
+   * datacenter/scripts/runceres, datacenter/scripts/insertmc, 
+     resources/step_fact.rc:
+     - changed processing of ceres from file- to run-basis
+
+
+
+ 2010/08/26 Daniela Dorner
+
+   * datacenter/db/mcinfo.php:
+     - implemented status 'crashed' also for display of list of runs
+
+   * datacenter/db/mcdefs.php, datacenter/db/menu.php:
+     - implemented CeresSetupKEY for mcinfo.php
+
+
+
+ 2010/08/26 Reiner Rohlfs
+
+   * mcorsika/MCorsikaFormat.[h,cc]
+     - fixed a problem in comparing fRunePos with position 0
+
+
+
+ 2010/08/25 Thomas Bretz
+
+   * mjtrain/MJTrainCuts.cc:
+     - fixed the SetDrawOption for the 2D histogram
+
+
+
+ 2010/08/24 Thomas Bretz
+
+   * mjtrain/MJTrainCuts.cc:
+     - removed the SetDrawOption from the 1D histogram
+
+
+
+ 2010/08/24 Reiner Rohlfs
+
+   * mcorsika/MCorsikaFormat.[h,cc]
+     - in method MCorsikaFormatEventIO::SeekEvtEnd() the RUNE block
+       is first searched at the end of the file. It it is not found
+       the whole file is scanned for the RUNE block. Once it is 
+       found it can be accessed directly at the next call of this
+       function.
+
+
+
+ 2010/08/20 Daniela Dorner
+
+   * datacenter/scripts/sourcefile:
+     - bugfix in query for influenced steps
+
+
+
+ 2010/08/19 Thomas Bretz
+
+   * mjobs/MSequence.cc:
+     - fixed treatment of file number 0 in InflateFileName and
+       PrintRuns
+
+
+
+ 2010/08/17 Thomas Bretz
+
+   * resmc/fact-trigger-sum.txt, resmc/fact-trigger-all.txt, 
+     macros/fact/fact_trigger.C:
+     - added
+
+
+
+ 2010/08/17 Daniela Dorner
+
+   * datacenter/scripts/insertmc:
+     - added (script to insert mc runs and sequences to the FACT MC DB)
+
+
+
+ 2010/08/16 Thomas Bretz
+
+   * mgeom/GeomLinkDef.h, mgeom/Makefile:
+     - added MGeomCamFACT
+
+   * mgeom/MGeomCamFACT.[h,cc]:
+     - added
+
+   * mgeom/MGeomCamDwarf.[h,cc], mgeom/MGeomPix.[h,cc]:
+     - moved CalcXY to MGeomPix
+     - removed obsolete includes
+
+   * mgeom/MGeomCamFact.cc:
+     - removed obsolete includes
+
+   * mranforest/MRanForestCalc.h:
+     - added new function Train which either calls TrainRegression
+       or TrainSingleRF
+
+   * mranforest/MHRanForestGini.cc:
+     - improved display
+
+   * mfileio/MReadMarsFile.cc:
+     - evaluate return code of fRun->Process()
+     - print return code in case of failure
+
+   * mjoptim/MJOptimizeBase.[h,cc]:
+     - improved existing comments
+     - added a full class description
+     - print a warning if TRandom is used a random number generator
+
+   * mtools/MTFillMatrix.cc:
+     - improved handling of negative number of events
+
+   * mjtrain/MJTrainSeparation.cc:
+     - added names to test- and train-dataset for storage
+
+   * mjtrain/TrainLinkDef.h, mjtrain/Makefile:
+     - added MJTrainCuts
+
+   * macros/train/traincuts.C:
+     - added
+
+   * mpointing/MPointingDevCalc.cc:
+     - added a comment about the last lut update
+
+
+
+ 2010/08/13 Thomas Bretz
+
+   * mimage/MHHillasExt.[h,cc]:
+     - added new histograms to display new variables
+     - increased class version number
+
+   * mimage/MHillasExt.cc:
+     - fixed claculation of the weighted time spreads
+     - fixed a bug in the calculation of the third moments!
+
+   * mhist/MHHadronness.cc:
+     - fixed min/max of the intgral histogram
+
+   * mfbase/MFEventSelector.cc:
+     - if the number of events to be selected is negative select all events
+
+   * mhbase/MHn.[h,cc]:
+     - fixed the complex display for five histograms
+
+   * mhbase/MHn.[h,cc], mhbase/MH3.[h,cc]:
+     - implemented a TProfile3D
+     - implemented an option to skip reset of the histograms in a new
+       eventloop
+
+   * mhbase/MH3.[h,cc]:
+     - moved the addition weight to a new data meber fWeight
+     - increased class version number
+
+
+
+ 2010/08/13 Daniela Dorner
+
+   * datacenter/scripts/sourcefile:
+     - implemented faster queries for the dependencies of the steps
+     - simplified code
+     - introduced new level for printprocesslog: DEBUG
+
+   * resources/steps_fact.rc:
+     - adapted to change in queries in sourcefile
+
+
+
+ 2010/08/12 Thomas Bretz
+
+   * mimage/MHillasExt.[h,cc]:
+     - added Getter for fSlope*
+     - added new data members to Print() output
+     - adapted Set() member function
+     - fixed code for calculating weighted spreads
+     - added new data members to Clear function
+
+   * mimage/MHHillas.cc, mimage/MHHillasExt.cc, mimage/MHNewImagePar.cc,
+     mimage/MHVsSize.cc, mimage/MHHillasSrc.cc, mimage/MHImagePar.cc,
+     mhcalib/MHGausEvents.cc, mhflux/MHThetaSq.cc,  mhflux/MHAlpha.cc,
+     mhflux/MHFalseSource.cc, mhflux/MHEffectiveOnTime.cc,
+     mhflux/MHCollectionArea.cc, mhflux/MHThetaSqN.cc, mhflux/MHDisp.cc,
+     mhflux/MHThreshold.cc, mhflux/MHEnergyEst.cc, mjtrain/MJTrainDisp.cc,
+     mtools/MHSimulatedAnnealing.cc, mmuon/MHSingleMuon.cc,
+     mmuon/MHMuonPar.cc, mpointing/MHSrcPosCam.cc, 
+     mpedestal/MHPedestalCor.cc, mhist/MHCamEventRot.cc, 
+     mhist/MHStarMap.cc, mjobs/MJSpectrum.cc, mbadpixels/MHBadPixels.cc,
+     mfbase/MFEventSelector2.cc, mhbase/MBinning.cc, mhbase/MH.[h,cc], 
+     mhbase/MH3.cc, mhbase/MHMatrix.cc, msim/MHPhotonEvent.cc:
+     - changes MH::SetBinning and similar functions to take references 
+       instead of pointers
+     - for the time being wrappers are kept not to break macros
+
+
+
+ 2010/08/11 Thomas Bretz
+
+   * mhbase/MH3.[h,cc]:
+     - added another type to be able to setup a standard profile and
+       one which display the spread as error
+     - improved/fixed error calculation/display
+
+   * mimage/MHillasExt.[h,cc]:
+     - added new data members fTimeSpread and fTimeSpreadWeighted
+     - added new data members fSlopeSpread and fSlopeSpreadWeighted
+     - implemented code to calculate the time spreads and slope spreads
+     - increased class version id by 1
+
+   * mjtrain/TrainLinkDef.h:
+     - added MJTrainImpact
+
+   * mjtrain/MJTrainImpact.[h,cc]:
+     - added
+
+   * mjtrain/MJTrainEnergy.h:
+     - added SetTrainExpSize member function
+
+   * mjtrain/MJTrainDisp.cc:
+     - made the display of the cut-lines a bit more flexible
+     - slightly changed the meaning of the plots
+
+
+
+ 2010/08/10 Thomas Bretz
+
+   * msim/MPhotonData.cc:
+     - fixed two warnings in FillEventIO (implicit conversion
+       from float to int)
+
+   * mhbase/MHn.[h,cc]:
+     - added SetConversion to allow for setting a conversion function
+
+   * mhbase/MH3.[h,cc]:
+     - added conversion function for displaying the histogram
+     - added new data member fConversion
+     - added new member functions Convert and SetConversion
+     - implemented conversion before displaying
+
+   * mjtrain/MJTrainEnergy.cc:
+     - display resolution directly (sqrt)
+     - changed default binning
+     - don't use build in conversion from mm to degree but 
+       MGeomCam.fConvMm2Deg instead.
+
+   * Makefile.rules:
+     - replaced cvs by svn in diff
+
+   * mjtrain/MJTrainDisp.cc:
+     - don't use build in conversion from mm to degree but 
+       MGeomCam.fConvMm2Deg instead.
+
+
+
+ 2010/08/06 Thomas Bretz
+
+   * msimcamera/MSimCamera.[h,cc]:
+     - added the possibility to set an overall baseline, baseline-noise
+       and gain.
+
+   * ceres.rc:
+     - added entries for the new values
+
+
+
+ 2010/07/28 Daniela Dorner
+
+   * datacenter/db/menu.php:
+     - updated initial parameter selection for mcinfo.php
+     - changed table for GetMin/Max to CeresInfo
+
+   * datacenter/db/mcinfo.php:
+     - bugfix for removing WHERE or AND at end of queries
+     - added fStopTime to status-column in case of failure
+     - bugfix for correct joins in case of group-by
+
+   * datacenter/db/mcdefs.php:
+     - updated runtime of ceres
+     - updated joins for status tables
+
+   * datacenter/scripts/insertmc:
+     - added (script to add runs to the database)
+
+   * datacenter/scripts/runcorsika:
+     - added check if 'END OF FILE' is contained in logfile
+     - added check if file number > 999 and change filename if it is
+
+   * datacenter/scripts/setup.wue.fact.mc:
+     - removed cprun
+     - added callisto and star in scripts-array
+
+   * datacenter/scripts/sourcefile:
+     - removed variables for fProgramId
+
+   * resources/steps_fact.rc:
+     - added missing needs
+
+
+
+ 2010/07/23 Reiner Rohlfs
+
+   * mcorsika/MCorsikaFormat.[h,cc]
+     - new files
+       All the differences between EventIo files and coriska files
+       are implemented in these files.
+
+   * mcoriska/MCorsikaRead.[h,cc]
+     - the file handler fIn is replaced by the MCorsikaFormat class.
+     - every access to the input file is replaces by calling 
+       methods of MCorsikaFormat.
+
+   * mcoriska/MCorsikaRunHeader.[h,cc]
+     - the file handler fIn is replaced by the MCorsikaFormat class.
+     - every access to the input file is replaces by calling 
+       methods of MCorsikaFormat.
+
+   * mcoriska/MCorsikaEvtHeader.[h,cc]
+     - the file handler fIn is replaced by the MCorsikaFormat class.
+     - every access to the input file is replaces by calling 
+       methods of MCorsikaFormat.
+
+   * msim/MPhotonEvent.cc
+     - method ReadCorsikaEvt distinguish between Corsika and EventIo
+       input files and calls either FillEventIO() or FillCorsika().
+
+   * msim/MPhotonData.[h,cc]
+     - new method: FillEventIO, which is similar as FillCorsika
+
+
+ 2010/07/09 Thomas Bretz
+
+   * mpointing/MSrcPosCam.[h,cc]:
+     - now the particle position is stored in any case in the headers
+       so in case we have a view cone we must keep the position fixed
+     - added the fix for the MC monte carlos (for them X needs to
+       change its sign due to a bug in the reflector program)
+
+   * mars.rc, star.rc:
+     - changed time contraint in cleaning from aboslute values
+       to relative values (units now ns/deg)
+
+   * mimage/MImgCleanStd.cc:
+     - changed time contraint in cleaning from aboslute values
+       to relative values (units now ns/deg)
+
+
+
+ 2010/07/07 Daniela Dorner
+
+   * datacenter/scripts/runceres:
+     - fixed typo
+
+
+
+ 2010/07/06 Daniela Dorner
+
+   * datacenter/scripts/runstar_mc:
+     - fixed typo
+     - added inpath to command line
+
+
+
+ 2010/07/05 Daniela Dorner
+
+   * datacenter/scripts/runceres:
+     - added path for C and P run (was not the same like for D run)
+
+   * datacenter/scripts/sourcefile:
+     - fixed joins in subquerypart()
+
+   * datacenter/scripts/runcallisto_mc:
+     - added inpath to command line
+
+   * datacenter/db/mcinfo.php:
+     - removed FailMenu
+     - fixed bug (group by did not work in case statusvalue was not 
+       selected)
+
+   * datacenter/db/mcdefs.php:
+     - removed FailMenu columns
+
+
+
+ 2010/07/05 Thomas Bretz
+
+   * mraw/MRawRunHeader.h:
+     - added missing SetFileNumber
+
+   * mjobs/MSequence.cc:
+     - added the missing file number to teh MC file names
+
+   * msimcamera/MSimCalibrationSignal.h:
+     - changed virtual file name from 000000 to 000001 to force file
+       number to be 1.
+
+   * mjobs/MJSimulation.[h,cc]:
+     - added run-number to ceres.root filename
+
+
+
+ 2010/07/02 Daniela Dorner
+
+   * datacenter/scripts/runcorsika:
+     - removed $com
+     - updated logging
+
+   * datacenter/scripts/runceres:
+     - fixed path
+     - added error handling
+
+   * resources/steps_fact.rc:
+     - update joins to new scheme to include further steps in the chain
+
+   * datacenter/scripts/sourcefile:
+     - adapted queries to new scheme of joins
+
+   * datacenter/scripts/runstar_mc:
+     - added (script to run star for mc) 
+
+
+
+ 2010/07/02 Daniela Dorner, Christian Farnier
+
+   * datacenter/scripts/runcallisto_mc:
+     - added (script to callibrate mc) 
+
+
+
+ 2010/06/30 Daniela Dorner
+
+   * datacenter/db/mcinfo.php:
+     - added output to step column in case job is running
+     - fixed typo
+
+   * datacenter/scripts/runcorsika:
+     - small bugfix (new version of 'cut' gives error for '-c 0-4')
+
+   * datacenter/scripts/runceres:
+     - added (script to run telescope simulation of file basis)
+
+   * datacenter/scripts/setup.wue.magic.data,
+     datacenter/scripts/setup.wue.magic.mc,
+     datacenter/scripts/setup.wue.fact.mc:
+     - added condorpath
+
+   * datacenter/scripts/jobmanager,
+     datacenter/scripts/scriptlauncher:
+     - implemented condorpath
+
+   * datacenter/scripts/sourcefile:
+     - changed log and error file name for jobmanager
+
+   * resources/steps_fact.rc:
+     - fixed typo
+
+
+
+ 2010/06/29 Daniela Dorner
+
+   * datacenter/db/mcinfo.php:
+     - added duration to step column in case of 'failed' and 'done'
+
+
+
+ 2010/06/28 Daniela Dorner
+
+   * datacenter/db/include.php:
+     - adapted status query for new db layout
+
+   * datacenter/db/menu.php:
+     - added and exchanged menu points and init elements for the new
+       layout of the FACT mc db
+     - bugfix that menu items can be switched off
+
+   * datacenter/db/mcinfo.php:
+     - adapted the queries for the new layout of the FACT mc db 
+       (different table names, structures and content)
+     - adapted query for the status group by
+
+   * datacenter/db/mcdefs.php:
+     - adapted the arrays for the new layout of the FACT mc db 
+
+
+
+ 2010/06/28 Thomas Bretz
+
+   * mbase/MStatusDisplay.cc:
+     - Status displays where stored as MStatusArray instead of
+       MStatusDisplay
+     - Read now also can read other StatusDisplays if a key is found in
+       the file
+
+
+
+ 2010/06/25 Thomas Bretz
+
+   * mjobs/MJSimulation.[h,cc]:
+     - added data member fRunNumber
+     - changed the rules to create the output file names
+     - set default run-numbers for different run-ytpes
+     - apply run-number 
+     - added IntendedPulsePosition to output
+
+   * mraw/MRawRunHeader.h:
+     - added SetFileNumber member function
+
+
+
+ 2010/06/24 Thomas Bretz
+
+   * mgeom/MGeomCam.h:
+     - call constructor of base class in copy-constructor
+
+   * mhbase/MH.h:
+     - remove argument name where obsolete
+
+   * mjobs/MJSimulation.cc:
+     - fixed some axis labels
+
+   * msimreflector/MMirrorDisk.cc:
+     - changed interpretation from file from radius to diameter
+
+   * ceres.cc:
+     - added option --run-number
+
+   * showplot.cc:
+     - set default palette to pretty palette
+
+   * mcorsika/MCorsikaRunHeader.h:
+     - added getter for ViewConeInnerAngle
+
+   * mmc/MMcCorsikaRunHeader.h:
+     - added HasViewCone
+     - added SetViewCone
+
+   * mmc/MMcEvt.[hxx,cxx], mmc/MMcEvtBasic.[h,cc]:
+     - moved fPhi and fTheta from MMcEvt to MMcEvtBasic
+     - increased class version number accordingly
+     - moved setter
+     - moved getter
+     - adapted Clean()
+     - adapter copy-constructor
+
+   * mpointing/MPointingDevCalc.cc:
+     - added some comments
+
+   * msim/MSimMMCS.cc:
+     - transfer view cone data
+     - set run-info (run/file-number) according to new scheme
+     - always set MMcEvt::fPhi/fTheta to particle direction
+
+
+
+ 2010/06/24 Daniela Dorner
+
+   * datacenter/scripts/sourcefile, resources/steps_fact.rc:
+     - bugfixes: changed joins to get correct queries for all cases
+
+   * datacenter/scripts/setup.wue.fact.mc:
+     - changed path for setup files
+     - added runceres to jobmanager settings
+
+
+
+ 2010/06/22 Daniela Dorner
+
+   * datacenter/scripts/writemcsequencefile:
+     - improved logging
+
+   * datacenter/scripts/sourcefile:
+     - adapted greps in rc-files to grep only lines which are no 
+       comments
+
+
+
+ 2010/06/17 Daniela Dorner
+
+   * resources/steps_fact.rc:
+     - removed step CPRun
+     - split 'Joins' to 'Joins' and 'SpecialJoins' depending on 
+       whether the join is with a different table
+
+   * datacenter/scripts/sourcefile:
+     - bugfix in query
+     - included new type of join from steps.rc
+     - added comments
+
+
+
+ 2010/06/16 Daniela Dorner
+
+   * resources/steps_fact.rc:
+     - removed step CPRun
+     - added step SequenceFile
+
+   * datacenter/scripts/setup.wue.fact.mc:
+     - added path for mc sequences
+
+   * datacenter/scripts/writemcsequencefile:
+     - added (script to write mc sequencefiles)
+
+
+
+ 2010/06/15 Daniela Dorner
+
+   * resources/steps_fact.rc:
+     - added (file containing the dependencies for the steps of the 
+       automatic production of MC for FACT)
+
+
+
+ 2010/06/14 Daniela Dorner
+
+   * datacenter/scripts/sourcefile:
+     - bugfix in query
+
+   * datacenter/scripts/runcorsika:
+     - added output of command to processlog
+
+   * datacenter/scripts/setup.wue.fact.mc:
+     - changed setup to be used by user montecarlo to reproduce some 
+       corsikas
+
+
+
+ 2010/06/11 Daniela Dorner
+
+   * datacenter/scripts/sourcefile:
+     - changed functions and queries to new db layout
+     - added functions to get values from steps.rc
+     - new function for part of query which is identical for the 
+       functions getstatus() and gettodo()
+     - removed $reset (was only needed for MerppUpdate)
+     - improved and added comments
+
+   * datacenter/scripts/jobmanager:
+     - implemented changes for new db layout
+     - fix in function nextscript(): wrong variable was used
+
+   * datacenter/scripts/runcorsika:
+     - implemented changes for new db layout
+     - merged uncommitted changes of Thomas Bretz 
+     - Observatory values and atmosphere now read from DB
+     - implemented new seeds
+     - removed $reused
+     - wavelength range now read from DB
+
+   * datacenter/scripts/setup.wue.fact.mc:
+     - added (setup for fact mc production)
+
+
+
+ 2010/06/11 Stefan Ruegamer
+
+   * mjobs/MJSpectrum.cc
+     - corrected the flux of the published MAGIC spectrum
+
+
+
+ 2010/06/03 Thomas Bretz
+
+   * mranforest/MRanForestCalc.cc:
+     - added stdlib.h to make Dominik happy ;)
+
+
+
+ 2010/05/05 Thomas Bretz
+
+   * mastro/MAstro.cc:
+     - fixed AngularDistance (called a non existing function and
+       the compiler didn't complain)
+
+   * mbase/MParContainer.[h,cc]:
+     - added static function Overwrites (previously in MTask)
+
+   * mbase/MStatusDisplay.[h,cc]:
+     - allow writing a MStatusDisplay without writing a MStatusArray
+       (therefore added SeveAsPlainRoot)
+     - improved reading of files just containing canvases and objects
+
+   * mbase/MTask.[h,cc]:
+     - moved code from Overwrites to a static function in MParContainer
+
+   * msimcamera/MSimCalibrationSignal.cc:
+     - changed distribution of signal from Gauss to Poissonian
+
+   * showplot.cc:
+     - removed nonsense "-q" option
+
+   * mbase/MStatusArray.[h,cc]:
+     - fixed/improved (once again) deleting of the array
+
+   * mbase/MStatusDisplay.cc:
+     - removed the MAstroCatalog workaround - is it still necessary?
+       (needs testing)
+     - added UpdateMemory every here and there to get the memory
+       consumption is more circumstances
+
+
+
+ 2010/04/22 Thomas Bretz
+
+   * showplot.cc:
+     - added --debug-mem option
+
+   * mbase/MParSpline.cc, mhbase/MH3.cc, mhbase/MHn.cc,
+     mhflux/MHAlpha.cc, mhist/MHCamEvent.cc:
+     - added missing call to the RecursiveRemove of the base class
+
+   * mfileio/MReadTree.cc:
+     - In the case Notify failed since about two years accidentaly
+       kTRUE instead of kERROR was returned
+
+   * mfileio/MWriteRootFile.cc:
+     - added some more debug output
+
+   * mhflux/MAlphaFitter.cc:
+     - Return if fit failed
+
+   * mhflux/MHPhi.cc:
+     - avoid inf and nan when producing histogram (the divisor could
+       have been zero in case of the inetgral of an empty histogram)
+
+
+
+ 2010/04/21 Thomas Bretz
+
+   * macros/rootlogon.C:
+     - a small fix which gets rid of the annoying error about an
+       unlocked mutex when starting the MStatusDisplay in the
+       interpreter. It makes sure that fGThreadFactory gets initialized
+       from the main thread.
+
+   * mbase/MStatusDisplay.cc:
+     - added a console output if TryLock fails
+     - the return value of TString::Index was misinterpreted
+
+   * mmuon/MHSingleMuon.cc:
+     - removed another reference to gMinuit
+
+   * msimcamera/MSimRandomPhotons.cc:
+     - re-did the output
+     - choose the other rate f2 instead of f1
+
+   * msimcamera/MSimTrigger.[h,cc]:
+     - keep the index of the trigger channel which finnaly issued
+       the trigger and propagate it to the event header
+
+   * mraw/MrawEvtHeader.h:
+     - implementd setter for fNumTriggerLvl1
+
+
+
+ 2010/04/20 Thomas Bretz
+
+   * mfileio/MReadTree.cc:
+     - no error was returned anymore when Notify() failed. Fixed.
+
+
+
+ 2010/04/19 Thomas Bretz
+
+   * mbase/MStatusArray.cc:
+     - added a workaround to prevent crashes in case of double
+       deleteion of the fHistogram in TGraphs
+
+   * mcorsika/MCorsikaEvtHeader.cc:
+     - replaced special characters by UTF8 characters
+
+   * mgeom/MGeom.[h,cc]:
+     - implemented function to return the distance squared
+
+   * mjobs/MJSimulation.cc:
+     - display degree symbol correctly in plots
+     - added artificial star-files to output
+     - for the moment the output of the reflector files is suppressed
+
+   * mmuon/MHSingleMuon.cc:
+     - catch if the fit failed
+     - replaced use of gMinuit by direct access to the function
+
+   * mpointing/MPointing.cc:
+     - replaced deg-symbol by UTF8 character
+
+   * mpointing/MPointingDevCalc.cc:
+     - added more information
+
+   * msignal/MSignalCam.[h,cc]:
+     - made the data members describing the image persistent.
+       they are not guranteed to have correct contents. Use
+       MNewImagePar instead.
+     - increased class version number accordingly
+
+   * msimreflector/MMirrorHex.h:
+     - added Getter for fD
+
+
+
+ 2010/04/13 Daniela Dorner
+
+   * datacenter/db/builddatasets.php:
+     - updated check for observation mode: allowed 'N/A', as there is 
+       else an error for old data
+
+
+
+ 2010/04/13 Thomas Bretz
+
+   * msim/MHPhotonEvent.cc:
+     - automatic binning for case 3
+     - new case 5
+
+   * msim/MHPhotonEvent.h:
+     - this can be a huge memory consumption and we don't need double
+       precision (range) accordingly changed all TH*D to TH*F.
+       consequently increased class version number
+
+
+
+ 2010/03/30 Thomas Bretz
+
+   * Makefile.conf.general:
+     - moved ARCHDEFS from DEFINES to CXXFLAGS otherwise it might get
+       ignored
+
+   * mbase/MQuaternion.h:
+     - added member-function to normalize vector part of quaternion
+
+   * mbase/MTime.cc:
+     - issue an error if __LINUX__ is not set
+
+   * mjobs/MJSimulation.cc:
+     - set name of reflector explicitly to "Reflector"
+
+   * msimreflector/MMirror.h:
+     - added member function to set z position (for optimization purpose)
+     - added SimPSF(TVector3&)
+
+   * msimreflector/MSimReflector.[h,cc]:
+     - added name of reflector as data member 
+
+   * melectronics/MAvalanchePhotoDiode.cc:
+     - scale the crosstalk probability as the height of the emitted
+       signal with the recovery time.
+
+   * mhflux/MHEnergyEst.cc:
+     - added a workaround to get rid of some root-warnings
+
+   * mjtrain/MJTrainEnergy.cc:
+     - improved axis labels
+
+   * mpointing/MPointingDevCalc.cc:
+     - added some more comments
+
+   * msimreflector/MMirror.[h,cc]:
+     - added fShape to allow for parabolic mirrors
+
+   * msimreflector/MReflector.cc:
+     - implemented the option of parabolic mirrors into the
+       reflector defintion file
+
+   * msimreflector/MSimReflector.[h,cc]:
+     - implemented (and fixed) the calculation of the reflection at
+       parabolic surfaces
+     - implemented the possibility to switch off the early check for
+       "photon can hit the camera" (fDetectorMargin<0)
+     - added setter for fDetectorMargin
+
+
+
+
+ 2010/03/01 Stefan Ruegamer
+
+   * resources/hilocalib.rc:
+     - added df factors for p23-25, using the same as for p22. Sequences
+       are not running with df in these periods, therefore the correct
+       factors cannot be determined, and it doesn't matter anyway.
+
+   * datacenter/read_lapalma-tapes:
+     - added automationsetup before movingrawfiles
+
+
+
+ 2010/02/23 Thomas Bretz
+
+   * mbase/MAGIC.cc:
+     - projections are supposed to work again in root 5.26 
+       (not tested yet)
+
+   * mbase/MGMap.cc, mbase/MObjLookup.cc:
+     - key and val are Long64 in newer root versions
+
+   * mdata/MDataPhrase.cc:
+     - need inclusion of TFormulaPrimitive in root 5.26
+
+   * mhflux/MMcSpectrumWeight.cc:
+     - root 5.26 has a different calling convention for TH1::Intgeral
+
+   * mjobs/MJob.cc:
+     - added a suggested parenthesis
+
+   * mjtrain/MJTrainDisp.cc:
+     - cast the MH3 histogram correctly to a TH2
+
+
+
+ 2010/02/22 Daniela Dorner
+
+   * datacenter/db/menu.php:
+     - added ObsLevel and download link column for cta pages
+
+   * datacenter/db/ctadefs.php:
+     - added observation level
+
+   * datacenter/db/ctamcinfo.php:
+     - added column with download link for the files
+
+   * datacenter/db/builddatasets.php, datacenter/db/ctamcinfo.php, 
+     datacenter/db/culminating.php, datacenter/db/datacheck.php, 
+     datacenter/db/datasetinfo-aio.php, datacenter/db/ganymed.php, 
+     datacenter/db/include.php, datacenter/db/mcinfo.php, 
+     datacenter/db/opticaldata.php, datacenter/db/printtable.php, 
+     datacenter/db/queryrbk.php, datacenter/db/runinfo-aio.php, 
+     datacenter/db/sequence.php, datacenter/db/sequinfo-aio.php, 
+     datacenter/db/sources.php, datacenter/db/statussbs.php:
+     - bugfix for get.txt
+
+   * datacenter/db/datasetinfo-aio.php:
+     - bugfix calling PrintPage()
+
+
+
+ 2010/02/01 Daniela Dorner
+
+   * datacenter/scripts/fillmcdb:
+     - added observation level
+
+   * datacenter/scripts/sourcefile:
+     - added comment concerning $0 problem
+     - added 'ERROR' in processlog message of makedir
+
+
+
+ 2010/02/04 Stefan Ruegamer
+
+   * mraw/MRawRunHeader.cc
+     - changed GetTypeID()!=fTelescopeNumber*10U+5U to GetTypeID()!=5U
+       so that the new 5xxxxxx sequences can be processed
+     - adapted error message
+     - inserted Domino calibration run
+
+   * mraw/MRawRunHeader.cc
+     - inserted Domino calibration run
+
+
+
+ 2010/02/01 Daniela Dorner
+
+   * datacenter/scripts/runsimtel
+     - fixes typo
+     - replaced path in disk-check by variable
+
+
+
+ 2010/01/15 Stefan Ruegamer
+
+   * datacenter/scripts/dowebplots, jobmanager
+     - if-condition if [ "$numproc" = "" ] now correctly checks for "0"
+
+   * datacenter/scripts/scriptlauncher
+     - added automationsetup variable in condor command
+
+   * datacenter/macros/buildsequenceentries.C
+     - where necessary changed Int to Long to account for the high value
+       of the stereo runs
+
+   * resources/sequences.rc
+     - added two transition conditions for the calibration scripts
+       10Led_UV_PEDANDCAL_1kHz and 10LED_UV

@@ -1,0 +1,239 @@
+#primaries:
+SequenceBuildStatus.Primary: fDate fTelescopeNumber
+RunProcessStatus.Primary: fRunNumber fTelescopeNumber fFileNumber
+SequenceProcessStatus.Primary: fSequenceFirst fTelescopeNumber
+DataSetProcessStatus.Primary: fDataSetNumber
+MCRunProcessStatus.Primary: fMCRunNumber 
+
+#--------------------------------------------------------------------
+
+#SequenceBuildStatus.fDate: 
+SequenceBuildStatus.fDate.Default: yes
+#SequenceBuildStatus.fDate.Needs: -
+SequenceBuildStatus.fDate.Influences: SequenceBuildStatus.fExclusionsDone SequenceBuildStatus.fSequenceEntriesBuilt 
+SequenceBuildStatus.fDate.Reset: yes
+
+#SequenceBuildStatus.fCCFilled:
+SequenceBuildStatus.fCCFilled.Default: no
+SequenceBuildStatus.fCCFilled.Needs: SequenceBuildStatus.fDate
+SequenceBuildStatus.fCCFilled.Influences: SequenceBuildStatus.fExclusionsDone SequenceBuildStatus.fSequenceEntriesBuilt 
+SequenceBuildStatus.fCCFilled.Reset: yes
+
+#SequenceBuildStatus.fExclusionsDone: 
+SequenceBuildStatus.fExclusionsDone.Default: no
+SequenceBuildStatus.fExclusionsDone.Needs: SequenceBuildStatus.fCCFilled 
+SequenceBuildStatus.fExclusionsDone.Influences: SequenceBuildStatus.fSequenceEntriesBuilt 
+SequenceBuildStatus.fExclusionsDone.Reset: yes
+
+#SequenceBuildStatus.fSequenceEntriesBuilt: 
+SequenceBuildStatus.fSequenceEntriesBuilt.Default: no
+SequenceBuildStatus.fSequenceEntriesBuilt.Needs: SequenceBuildStatus.fCCFilled SequenceBuildStatus.fExclusionsDone 
+#SequenceBuildStatus.fSequenceEntriesBuilt.Influences: 
+SequenceBuildStatus.fSequenceEntriesBuilt.Reset: yes
+
+#--------------------------------------------------------------------
+
+#RunProcessStatus.fRunNumber: 
+RunProcessStatus.fRunNumber.Default: yes
+#RunProcessStatus.fRunNumber.Needs: - 
+RunProcessStatus.fRunNumber.Influences: RunProcessStatus.fCCFileAvail RunProcessStatus.fCaCoFileAvail RunProcessStatus.fCaCoFileFound RunProcessStatus.fRawFileAvail RunProcessStatus.fMerpp RunProcessStatus.fMerppCCUpdate RunProcessStatus.fMerppCaCoUpdate
+RunProcessStatus.fRunNumber.Reset: yes 
+
+#RunProcessStatus.fRawFileAvail: 
+RunProcessStatus.fRawFileAvail.Default: no
+#RunProcessStatus.fRawFileAvail.Needs: - 
+#RunProcessStatus.fRawFileAvail.Influences: RunProcessStatus.fTimingCorrection RunProcessStatus.fDataCheckDone RunProcessStatus.fMerpp RunProcessStatus.fMerppCCUpdate RunProcessStatus.fMerppCaCoUpdate
+RunProcessStatus.fRawFileAvail.Reset: yes 
+
+#RunProcessStatus.fCCFileAvail: 
+RunProcessStatus.fCCFileAvail.Default: no
+#RunProcessStatus.fCCFileAvail.Needs: - 
+#RunProcessStatus.fCCFileAvail.Influences: RunProcessStatus.fMerppCCUpdate RunProcessStatus.fMerppCaCoUpdate
+RunProcessStatus.fCCFileAvail.Reset: yes 
+
+#RunProcessStatus.fCaCoFileAvail: 
+RunProcessStatus.fCaCoFileAvail.Default: no
+#RunProcessStatus.fCaCoFileAvail.Needs: - 
+#RunProcessStatus.fCaCoFileAvail.Influences: RunProcessStatus.fMerppCaCoUpdate
+RunProcessStatus.fCaCoFileAvail.Reset: yes 
+
+#RunProcessStatus.fCaCoFileFound: 
+RunProcessStatus.fCaCoFileFound.Default: no
+#RunProcessStatus.fCaCoFileFound.Needs: - 
+#RunProcessStatus.fCaCoFileFound.Influences: RunProcessStatus.fMerppCaCoUpdate
+RunProcessStatus.fCaCoFileFound.Reset: yes 
+
+#RunProcessStatus.fDataCheckDone: 
+RunProcessStatus.fDataCheckDone.Default: no
+RunProcessStatus.fDataCheckDone.Needs: RunProcessStatus.fRawFileAvail
+#RunProcessStatus.fDataCheckDone.Influences: -
+RunProcessStatus.fDataCheckDone.Reset: yes 
+
+#RunProcessStatus.fTimingCorrection: 
+RunProcessStatus.fTimingCorrection.Default: check
+RunProcessStatus.fTimingCorrection.Needs: RunProcessStatus.fRawFileAvail
+RunProcessStatus.fTimingCorrection.Influences: RunProcessStatus.fMerpp RunProcessStatus.fMerppCCUpdate RunProcessStatus.fMerppCaCoUpdate
+RunProcessStatus.fTimingCorrection.Reset: yes 
+
+#RunProcessStatus.fCompmux:
+RunProcessStatus.fCompmux.Default: check
+RunProcessStatus.fCompmux.Needs: RunProcessStatus.fRawFileAvail
+RunProcessStatus.fCompmux.Influences: RunProcessStatus.fMerpp RunProcessStatus.fMerppCCUpdate RunProcessStatus.fMerppCaCoUpdate
+RunProcessStatus.fCompmux.Reset: yes
+
+#--------------------------------------------------------------------
+
+#SequenceProcessStatus.fSequenceFirst: 
+SequenceProcessStatus.fSequenceFirst.Default: yes
+#SequenceProcessStatus.fSequenceFirst.Needs: -
+SequenceProcessStatus.fSequenceFirst.Influences: SequenceProcessStatus.fSequenceFileWritten SequenceProcessStatus.fAllFilesAvail SequenceProcessStatus.fCallisto SequenceProcessStatus.fFillCallisto SequenceProcessStatus.fStar SequenceProcessStatus.fFillStar
+SequenceProcessStatus.fSequenceFirst.Reset: yes
+
+#SequenceProcessStatus.fSequenceFileWritten: 
+SequenceProcessStatus.fSequenceFileWritten.Default: check
+SequenceProcessStatus.fSequenceFileWritten.Needs: SequenceProcessStatus.fSequenceFirst
+SequenceProcessStatus.fSequenceFileWritten.Influences: SequenceProcessStatus.fAllFilesAvail SequenceProcessStatus.fCallisto SequenceProcessStatus.fFillCallisto SequenceProcessStatus.fStar SequenceProcessStatus.fFillStar SequenceProcessStatus.fWebCalib SequenceProcessStatus.fWebSignal SequenceProcessStatus.fWebStar
+SequenceProcessStatus.fSequenceFileWritten.Reset: yes 
+
+#SequenceProcessStatus.fAllFilesAvail: 
+SequenceProcessStatus.fAllFilesAvail.Default: no
+SequenceProcessStatus.fAllFilesAvail.Needs: SequenceProcessStatus.fSequenceFileWritten
+SequenceProcessStatus.fAllFilesAvail.Influences: SequenceProcessStatus.fCallisto SequenceProcessStatus.fFillCallisto SequenceProcessStatus.fStar SequenceProcessStatus.fFillStar SequenceProcessStatus.fWebCalib SequenceProcessStatus.fWebSignal SequenceProcessStatus.fWebStar
+SequenceProcessStatus.fAllFilesAvail.Reset: yes
+
+#SequenceProcessStatus.fCallisto: 
+SequenceProcessStatus.fCallisto.Default: no
+SequenceProcessStatus.fCallisto.Needs: SequenceProcessStatus.fSequenceFileWritten SequenceProcessStatus.fAllFilesAvail SequenceProcessStatus.fNotZipping
+SequenceProcessStatus.fCallisto.Influences: SequenceProcessStatus.fFillCallisto SequenceProcessStatus.fStar SequenceProcessStatus.fFillStar SequenceProcessStatus.fWebCalib SequenceProcessStatus.fWebSignal SequenceProcessStatus.fWebStar
+SequenceProcessStatus.fCallisto.Reset: yes
+
+#SequenceProcessStatus.fFillCallisto: 
+SequenceProcessStatus.fFillCallisto.Default: no
+SequenceProcessStatus.fFillCallisto.Needs: SequenceProcessStatus.fSequenceFileWritten SequenceProcessStatus.fAllFilesAvail SequenceProcessStatus.fCallisto
+#SequenceProcessStatus.fFillCallisto.Influences: -
+SequenceProcessStatus.fFillCallisto.Reset: yes
+
+#SequenceProcessStatus.fWebCalib: 
+SequenceProcessStatus.fWebCalib.Default: no
+SequenceProcessStatus.fWebCalib.Needs: SequenceProcessStatus.fSequenceFileWritten SequenceProcessStatus.fAllFilesAvail SequenceProcessStatus.fCallisto
+#SequenceProcessStatus.fWebCalib.Influences: -
+SequenceProcessStatus.fWebCalib.Reset: yes
+
+#SequenceProcessStatus.fWebSignal: 
+SequenceProcessStatus.fWebSignal.Default: no
+SequenceProcessStatus.fWebSignal.Needs: SequenceProcessStatus.fSequenceFileWritten SequenceProcessStatus.fAllFilesAvail SequenceProcessStatus.fCallisto
+#SequenceProcessStatus.fWebSignal.Influences: -
+SequenceProcessStatus.fWebSignal.Reset: yes
+
+#SequenceProcessStatus.fStar: 
+SequenceProcessStatus.fStar.Default: no
+SequenceProcessStatus.fStar.Needs: SequenceProcessStatus.fSequenceFileWritten SequenceProcessStatus.fAllFilesAvail SequenceProcessStatus.fCallisto
+SequenceProcessStatus.fStar.Influences: SequenceProcessStatus.fFillStar SequenceProcessStatus.fWebStar
+SequenceProcessStatus.fStar.Reset: yes
+
+#SequenceProcessStatus.fFillStar: 
+SequenceProcessStatus.fFillStar.Default: no
+SequenceProcessStatus.fFillStar.Needs: SequenceProcessStatus.fSequenceFileWritten SequenceProcessStatus.fAllFilesAvail SequenceProcessStatus.fCallisto SequenceProcessStatus.fStar
+#SequenceProcessStatus.fFillStar.Influences: -
+SequenceProcessStatus.fFillStar.Reset: yes
+
+#SequenceProcessStatus.fWebStar: 
+SequenceProcessStatus.fWebStar.Default: no
+SequenceProcessStatus.fWebStar.Needs: SequenceProcessStatus.fSequenceFileWritten SequenceProcessStatus.fAllFilesAvail SequenceProcessStatus.fCallisto SequenceProcessStatus.fStar
+#SequenceProcessStatus.fWebStar.Influences: -
+SequenceProcessStatus.fWebStar.Reset: yes
+
+#--------------------------------------------------------------------
+
+#DataSetProcessStatus.fDataSetNumber: 
+DataSetProcessStatus.fDataSetNumber.Default: yes
+#DataSetProcessStatus.fDataSetNumber.Needs: -
+DataSetProcessStatus.fDataSetNumber.Influences: DataSetProcessStatus.fDataSetInserted DataSetProcessStatus.fDataSetFileWritten DataSetProcessStatus.fStarFilesAvail DataSetProcessStatus.fGanymed DataSetProcessStatus.fFillGanymed DataSetProcessStatus.fWebGanymed DataSetProcessStatus.fWebPlotDBGanymed
+DataSetProcessStatus.fDataSetNumber.Reset: yes
+
+#DataSetProcessStatus.fDataSetInserted:
+DataSetProcessStatus.fDataSetInserted.Default: no
+DataSetProcessStatus.fDataSetInserted.Needs: DataSetProcessStatus.fDataSetNumber
+DataSetProcessStatus.fDataSetInserted.Influences: DataSetProcessStatus.fDataSetFileWritten DataSetProcessStatus.fStarFilesAvail DataSetProcessStatus.fGanymed DataSetProcessStatus.fFillGanymed DataSetProcessStatus.fFillGanymed DataSetProcessStatus.fWebGanymed DataSetProcessStatus.fWebPlotDBGanymed
+DataSetProcessStatus.fDataSetInserted.Reset: yes
+
+#DataSetProcessStatus.fDataSetFileWritten:
+DataSetProcessStatus.fDataSetFileWritten.Default: no
+DataSetProcessStatus.fDataSetFileWritten.Needs: DataSetProcessStatus.fDataSetNumber DataSetProcessStatus.fDataSetInserted
+DataSetProcessStatus.fDataSetFileWritten.Influences: DataSetProcessStatus.fStarFilesAvail DataSetProcessStatus.fGanymed DataSetProcessStatus.fFillGanymed DataSetProcessStatus.fWebGanymed DataSetProcessStatus.fWebPlotDBGanymed
+DataSetProcessStatus.fDataSetFileWritten.Reset: yes
+
+#DataSetProcessStatus.fStarFilesAvail: 
+DataSetProcessStatus.fStarFilesAvail.Default: no
+DataSetProcessStatus.fStarFilesAvail.Needs: DataSetProcessStatus.fDataSetInserted DataSetProcessStatus.fDataSetFileWritten
+DataSetProcessStatus.fStarFilesAvail.Influences: DataSetProcessStatus.fGanymed DataSetProcessStatus.fFillGanymed DataSetProcessStatus.fWebGanymed DataSetProcessStatus.fWebPlotDBGanymed
+DataSetProcessStatus.fStarFilesAvail.Reset: yes
+
+#DataSetProcessStatus.fGanymed: 
+DataSetProcessStatus.fGanymed.Default: no
+DataSetProcessStatus.fGanymed.Needs: DataSetProcessStatus.fDataSetInserted DataSetProcessStatus.fDataSetFileWritten DataSetProcessStatus.fStarFilesAvail 
+DataSetProcessStatus.fGanymed.Influences: DataSetProcessStatus.fFillGanymed DataSetProcessStatus.fWebGanymed DataSetProcessStatus.fWebPlotDBGanymed
+DataSetProcessStatus.fGanymed.Reset: yes
+
+#DataSetProcessStatus.fFillGanymed: 
+DataSetProcessStatus.fFillGanymed.Default: no
+DataSetProcessStatus.fFillGanymed.Needs: DataSetProcessStatus.fDataSetInserted DataSetProcessStatus.fDataSetFileWritten DataSetProcessStatus.fStarFilesAvail  DataSetProcessStatus.fGanymed 
+#DataSetProcessStatus.fFillGanymed.Influences: 
+DataSetProcessStatus.fFillGanymed.Reset: yes
+
+#DataSetProcessStatus.fWebGanymed: 
+DataSetProcessStatus.fWebGanymed.Default: no
+DataSetProcessStatus.fWebGanymed.Needs: DataSetProcessStatus.fDataSetInserted DataSetProcessStatus.fDataSetFileWritten DataSetProcessStatus.fStarFilesAvail  DataSetProcessStatus.fGanymed 
+#DataSetProcessStatus.fWebGanymed.Influences: 
+DataSetProcessStatus.fWebGanymed.Reset: yes
+
+#DataSetProcessStatus.fWebPlotDBGanymed: 
+DataSetProcessStatus.fWebPlotDBGanymed.Default: no
+DataSetProcessStatus.fWebPlotDBGanymed.Needs: DataSetProcessStatus.fDataSetInserted DataSetProcessStatus.fDataSetFileWritten DataSetProcessStatus.fStarFilesAvail  DataSetProcessStatus.fGanymed 
+#DataSetProcessStatus.fWebPlotDBGanymed.Influences: 
+DataSetProcessStatus.fWebPlotDBGanymed.Reset: yes
+
+#--------------------------------------------------------------------
+
+#MCRunProcessStatus.fMCRunNumber: 
+MCRunProcessStatus.fMCRunNumber.Default: yes
+#MCRunProcessStatus.fMCRunNumber.Needs: -
+MCRunProcessStatus.fMCRunNumber.Influences: MCRunProcessStatus.fCameraInputCreated
+MCRunProcessStatus.fMCRunNumber.Reset: yes
+
+#MCRunProcessStatus.fCameraInputCreated: 
+MCRunProcessStatus.fCameraInputCreated.Default: no
+MCRunProcessStatus.fCameraInputCreated.Needs: MCRunProcessStatus.fMCRunNumber
+MCRunProcessStatus.fCameraInputCreated.Influences: MCRunProcessStatus.fReflectorInputCreated
+MCRunProcessStatus.fCameraInputCreated.Reset: yes 
+
+#MCRunProcessStatus.fReflectorInputCreated: 
+MCRunProcessStatus.fReflectorInputCreated.Default: no
+MCRunProcessStatus.fReflectorInputCreated.Needs: MCRunProcessStatus.fCameraInputCreated
+MCRunProcessStatus.fReflectorInputCreated.Influences: MCRunProcessStatus.fCorsikaInputCreated
+MCRunProcessStatus.fReflectorInputCreated.Reset: yes 
+
+#MCRunProcessStatus.fCorsikaInputCreated: 
+MCRunProcessStatus.fCorsikaInputCreated.Default: no
+MCRunProcessStatus.fCorsikaInputCreated.Needs: MCRunProcessStatus.fReflectorInputCreated
+MCRunProcessStatus.fCorsikaInputCreated.Influences: MCRunProcessStatus.fCorsikaFileAvail
+MCRunProcessStatus.fCorsikaInputCreated.Reset: yes 
+
+#MCRunProcessStatus.fCorsikaFileAvail: 
+MCRunProcessStatus.fCorsikaFileAvail.Default: no
+MCRunProcessStatus.fCorsikaFileAvail.Needs: MCRunProcessStatus.fCorsikaInputCreated
+MCRunProcessStatus.fCorsikaFileAvail.Influences: MCRunProcessStatus.fReflectorFileAvail MCRunProcessStatus.fCameraFileAvail
+MCRunProcessStatus.fCorsikaFileAvail.Reset: yes 
+
+#MCRunProcessStatus.fReflectorFileAvail: 
+MCRunProcessStatus.fReflectorFileAvail.Default: no
+MCRunProcessStatus.fReflectorFileAvail.Needs: MCRunProcessStatus.fCorsikaFileAvail
+MCRunProcessStatus.fReflectorFileAvail.Influences: MCRunProcessStatus.fCameraFileAvail
+MCRunProcessStatus.fReflectorFileAvail.Reset: yes 
+
+#MCRunProcessStatus.fCameraFileAvail: 
+MCRunProcessStatus.fCameraFileAvail.Default: no
+MCRunProcessStatus.fCameraFileAvail.Needs: MCRunProcessStatus.fReflectorFileAvail
+#MCRunProcessStatus.fCameraFileAvail.Influences: 
+MCRunProcessStatus.fCameraFileAvail.Reset: yes 
+

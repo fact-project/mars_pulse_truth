@@ -1,0 +1,199 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Thomas Bretz  03/2007 <mailto:tbretz@astro.uni-wuerzburg.de>
+#   Author(s): Daniela Dorner  02/2008 <mailto:dorner@astro.uni-wuerzburg.de>
+#   Author(s): Stefan Ruegamer  02/2008 <mailto:snruegam@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2008
+#
+#
+# ========================================================================
+#
+# This script searches for crashed runs, sequences or datasets in the db
+# as well as obsolete or missing sequence files and corresponding callisto
+# and star folders. In the third and fourth check the consistency between
+# the Run and Sequence DB is checked.
+#
+#
+# TODO
+#
+# Spped up with SQL: FIELD(25123, 1, 2, 3, 4, 5, ..., 1000200);
+# Cross check sequences in Sequence and other databases
+# added switch which allows to correct for the problems immediatly
+# unify the checks (especially 1b and 1c)
+# for the sequences better use 0* instead of 0+ ?
+
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=dbchk
+
+getdbsetup
+alias mymysql='mysql -s -u $us --password=$pw --host=$ho $db'
+
+# check for crashed nights, runs, sequences and datasets
+printprocesslog "INFO Checking if something is crashed on nightly basis" 
+nights=`echo "SELECT fDate FROM SequenceBuildStatus WHERE isnull(fFailedTime) and not isnull(fStartTime) and adddate(fStartTime, Interval 12 HOUR) < Now()" | mymysql`
+if [ ! "$nights" = "" ]
+then
+   printprocesslog "WARN For the following nights something seems to be crashed. Please check manually: $nights"
+else
+   printprocesslog "INFO Nothing found." 
+fi
+
+printprocesslog "INFO Checking if something is crashed on run basis" 
+cruns=`echo "SELECT fRunNumber FROM RunProcessStatus WHERE isnull(fFailedTime) and not isnull(fStartTime) and adddate(fStartTime, Interval 12 HOUR) < Now()" | mymysql`
+if [ ! "$cruns" = "" ]
+then
+   printprocesslog "WARN The following runs seem to be crashed. Please check manually: $cruns"
+else
+   printprocesslog "INFO Nothing found." 
+fi
+
+printprocesslog "INFO Checking if something is crashed on sequence basis" 
+csequences=`echo "SELECT fSequenceFirst FROM SequenceProcessStatus WHERE isnull(fFailedTime) and not isnull(fStartTime) and adddate(fStartTime, Interval 12 HOUR) < Now()" | mymysql`
+if [ ! "$csequences" = "" ]
+then
+   printprocesslog "WARN The following sequences seem to be crashed. Please check manually: $csequences"
+else
+   printprocesslog "INFO Nothing found." 
+fi
+
+printprocesslog "INFO Checking if something is crashed on dataset basis" 
+cdatasets=`echo "SELECT fDataSetNumber FROM DataSetProcessStatus WHERE isnull(fFailedTime) and not isnull(fStartTime) and adddate(fStartTime, Interval 12 HOUR) < Now()"  | mymysql`
+if [ ! "$cdatasets" = "" ]
+then
+   printprocesslog "WARN The following datasets seem to be crashed. Please check manually: $cdatasets"
+else
+   printprocesslog "INFO Nothing found." 
+fi
+
+# CHECK 1
+printprocesslog "INFO Checking if all sequence files have a corresponding entry in Sequences" 
+files=`find $sequpath -type f`
+for file in $files
+do
+   sequence=`echo $file | sed -e "s/^.*\/sequence0\+\([0-9]\+\)\.txt$/\1/"`
+   if [ "$sequence" = "" ] || [ "$sequence" = "$file" ]
+   then
+      printprocesslog "ERROR No sequence file: $file" 
+      continue
+   fi
+ 
+   var=`echo SELECT fSequenceFirst FROM Sequences WHERE fSequenceFirst=$sequence | mymysql`
+   if ! [ "$sequence" = "$var" ]
+   then
+      printprocesslog "ERROR Sequence-File $sequence exists, but it is not in Sequences (DB)." 
+      continue
+   fi
+done
+
+# CHECK 1b (callisto)
+printprocesslog "INFO Checking if all sequences in ${datapath}/callisto have a corresponding sequence in Sequence" 
+dirs=`find ${datapath}/callisto -mindepth 2 -maxdepth 2 -type d`
+for dir in $dirs
+do
+   sequence=`echo $dir | sed -e "s/^.*\/0\+\([0-9]\+\)$/\1/"`
+   if [ "$sequence" = "" ] || [ "$sequence" = "$dir" ]
+   then
+      printprocesslog "ERROR Invalid directory: $dir" 
+      continue
+   fi
+   
+   var=`echo SELECT fSequenceFirst FROM Sequences WHERE fSequenceFirst=$sequence | mymysql`
+   if ! [ "$sequence" = "$var" ]
+   then
+      printprocesslog "ERROR $dir exists, but no corresponding sequence in Sequences (DB)." 
+      continue
+   fi
+done
+
+# CHECK 1c (star)
+printprocesslog "INFO Checking if all sequences in ${datapath}/star have a corresponding sequence in Sequence" 
+dirs=`find ${datapath}/star -mindepth 2 -type d`
+for dir in $dirs
+do
+   sequence=`echo $dir | sed -e "s/^.*\/0\+\([0-9]\+\)$/\1/"`
+   if [ "$sequence" = "" ] || [ "$sequence" = "$dir" ]
+   then
+      printprocesslog "ERROR Invalid directory: $dir" 
+      continue
+   fi
+   
+   var=`echo SELECT fSequenceFirst FROM Sequences WHERE fSequenceFirst=$sequence | mymysql`
+   if ! [ "$sequence" = "$var" ]
+   then
+      printprocesslog "ERROR $dir exists, but no corresponding sequence in Sequences (DB)." 
+      continue
+   fi
+done
+
+# CHECK 2
+printprocesslog "INFO Checking if all sequences in Sequences have a corresponding sequence files" 
+sequences=`echo SELECT fSequenceFirst FROM Sequences left join SequenceProcessStatus using (fSequenceFirst,fTelescopeNumber) where not isnull(fSequenceFileWritten) | mymysql`
+for sequence in $sequences
+do
+   var=`find $sequpath -type f -regex .*/sequence0+${sequence}\.txt$`
+   if [ "$var" = "" ]
+   then
+      printprocesslog "ERROR Sequence-File for $sequence not found but in DB." 
+   fi
+done
+
+# CHECK 3
+printprocesslog "INFO Checking if all sequences from Sequences exist RunData" 
+sequences=`echo SELECT fSequenceFirst FROM Sequences GROUP BY fSequenceFirst | mymysql`
+for sequence in $sequences
+do
+   res=`echo SELECT fSequenceFirst FROM RunData WHERE fSequenceFirst=$sequence GROUP BY fSequenceFirst | mymysql`
+   if ! [ "$sequence" = "$res" ]
+   then
+      printprocesslog "ERROR Sequence $sequence exists in Sequences but not in RunData (DB)."
+      continue
+   fi
+done
+
+# CHECK 4
+printprocesslog "INFO Checking if all sequences from RunData exist in Sequences" 
+sequences=`echo SELECT fSequenceFirst FROM RunData WHERE not fSequenceFirst=0 GROUP BY fSequenceFirst | mymysql`
+for sequence in $sequences
+do
+   var=`echo SELECT fSequenceFirst FROM Sequences WHERE fSequenceFirst=$sequence | mymysql`
+   if ! [ "$sequence" = "$var" ]
+   then
+      printprocesslog "ERROR Sequence $sequence exists in RunData but not in Sequences (DB)." 
+      continue
+   fi
+done
+
+# CHECK 5
+printprocesslog "INFO Checking if all sequences from RunData exist in SequenceProcessStatus" 
+sequences=`echo SELECT fSequenceFirst FROM RunData WHERE not fSequenceFirst=0 GROUP BY fSequenceFirst | mymysql`
+for sequence in $sequences
+do
+   var=`echo SELECT fSequenceFirst FROM SequenceProcessStatus WHERE fSequenceFirst=$sequence | mymysql`
+   if ! [ "$sequence" = "$var" ]
+   then
+      printprocesslog "ERROR Sequence $sequence exists in RunData but not in SequenceProcessStatus (DB)." 
+      continue
+   fi
+done
+
+finish 

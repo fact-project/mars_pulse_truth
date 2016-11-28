@@ -1,0 +1,191 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of CheObs, the Modular Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appears in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  01/2009 <mailto:daniela.dorner@unige.ch>
+#
+#   Copyright: CheObs Software Development, 2000-2009
+#
+#
+# ========================================================================
+#
+# This script runs corsika and simtelarray.
+# 
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=corsikasimtel
+column=fCorsikaSimTelarray
+
+# todo:
+# evtl trennung v corsika u simtel
+
+set -C
+# set write permission for group
+umask 002
+
+simdir=$mcpath/software/simtel
+
+export CORSIKA_PATH=$simdir/corsika-6970/run/
+export SIM_TELARRAY_PATH=$simdir/sim_telarray
+#export SIM_TELARRAY_PATH=$simdir
+export SIM_TELARRAY_RUN_PATH=$simdir/sim_telarray
+export MCDATA_PATH=$mcpath
+export CORSIKA_DATA="${MCDATA_PATH}/corsika"
+export SIM_TELARRAY_DATA="${MCDATA_PATH}/simtel"
+export LD_LIBRARY_PATH=$simdir/hessioxxx/lib/
+
+# printing input card to stdout
+function printinputcard()
+{
+   # Run number
+   echo "RUNNR "$run
+   # Number of simulated events
+   echo "NSHOW "$numevts
+   # Seed values for simulation
+   echo "SEED "$run" 0 0 "
+   echo "SEED "$run" 0 0 "
+   echo "SEED "$run" 0 0 "
+   echo "SEED "$run" 0 0 "
+   # Observation level
+   echo "OBSLEV "$obslev".E2"
+   # output directory
+   echo "DIRECT "$outpath"/ "
+   cat $inputcardpart
+}
+
+
+# get hostname
+prodhost=`echo $HOSTNAME | sed -e 's/compute-0-//' -e 's/[.]local//'`
+
+diskusage=( `df $mcpath | grep $mcpath ` )
+# continue only if more than 90 GB are left on /state/cta
+if [ ${diskusage[2]} -lt 90000000 ]
+then
+   printprocesslog "WARN less than 90 GB left on $mcpath on node $prodhost "
+   finish
+else
+   printprocesslog "INFO still ${diskusage[3]} left on $mcpath on node $prodhost "
+fi
+
+
+# get sequence # 
+gettodo "1" 
+run=${primaries[0]}
+
+# lock sequ
+lockfile=$lockpath/lock-$table-$column-$run.txt
+checklock 
+
+printprocesslog "INFO starting $program for run $run"
+
+# get values for inputcard
+query="SELECT fParticleTypeName FROM MCRunData LEFT JOIN ParticleType using (fParticleTypeKEY) where fMCRunNumber="$run
+primparticle=`sendquery`
+query="SELECT fNumEvents FROM MCRunData where fMCRunNumber="$run
+numevts=`sendquery`
+
+# get observation level for the script to be begun for sim_telarray
+query="SELECT fObsLevel FROM MCRunData WHERE fMCRunNumber="$run
+obslev=`sendquery`
+# export $OBSLEVEL for the script sim_telarray/cta-ultra2_run.sh or sim_telarray/cta-ultra2-moon_run.sh
+export OBSLEVEL=$obslev
+
+# get moon condition for the script to be begun for sim_telarray
+query="SELECT fMoonConditionKEY FROM MCRunData where fMCRunNumber="$run
+mooncase=`sendquery`
+# export $moon for the script sim_telarray/multi/multi_cta-ultra3.cfg
+case $mooncase in
+   0)   export moon=''
+        ;;
+   1)   export moon="-moon"
+        ;;
+   *)   printprocesslog "ERROR $program failed to retrieve the moon condition"
+        finish
+        ;;
+esac
+
+# for MC for 5at5
+if [ "$obslev" == "5000" ]
+then
+   export moon="-5at5"
+   inputcardpart=$setuppath/INPUTS_CTA_ULTRA3_${primparticle}_part_5at5
+else
+   inputcardpart=$setuppath/INPUTS_CTA_ULTRA3_${primparticle}_part
+fi
+
+
+# path and logs
+outpath=$mcpath"/corsika/"`printf %06d $run`
+logfile=$outpath/$program"-"`printf %06d $run`".log"
+inputcard=$outpath/$program"-"`printf %06d $run`".card"
+makedir $outpath 
+
+# insert host into db
+query="UPDATE MCRunProcessStatus set fProductionHostKEY=$prodhost where fMCRunNumber="$run
+if ! sendquery $query
+then
+   printprocesslog "inserting host failed"
+   finish
+fi
+
+setstatus "start" 
+
+cd $CORSIKA_PATH
+
+printprocesslog "INFO create inputcard for run $run"
+
+#
+# starting corsika with pipe to simtelarray
+#  in the inputcard the path to the script is defined:
+#     ${SIM_TELARRAY_PATH}/run_sim_cta-ultra3 (i.e. run_sim_hessarray_generic)
+#  in this script a setup file is chosen:
+#     multicfg="multi/multi_${cfg}.cfg"
+#  in multi/multi_cta-ultra3.cfg one can choose whether to store 
+#     the corsika files:
+#     gzip > ${CORSIKA_DATA}/run${CORSIKA_RUN}.corsika.gz
+#  and multi/multi_cta-ultra3.cfg starts the script
+#     ${SIM_TELARRAY_PATH}/cta-ultra2_run.sh (i.e. generic_run.sh)
+#     in which e.g. path and file name are set
+#
+printinputcard >| $inputcard
+#./corsika < $inputcard >| $logfile 2>&1
+./corsika6970Linux_QGSII_urqmd < $inputcard >| $logfile 2>&1
+check1=$?
+
+case $check1 in
+   0)   printprocesslog "INFO finished corsika and simtelarray without error (check1=$check1) "
+        if ! grep 'END OF RUN' $logfile
+        then
+           printprocesslog "ERROR could not find 'END OF RUN' in $logfile => unknown error for run $run"
+           com=$Fcorsikasimtel
+           check=2
+        else
+           printprocesslog "INFO $program finished successfully for mc run number $run"
+        fi
+        ;;
+   *)   printprocesslog "ERROR $program failed for mc run number $run (check1=$check1)"
+        com=$Fcorsikasimtel
+        check=$check1
+        ;;
+esac
+
+setstatus "stop"
+
+finish
+

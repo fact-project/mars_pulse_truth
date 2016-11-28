@@ -1,0 +1,41 @@
+MC: resources/hiloconv-df46-mc.root
+
+20: resources/hiloconv-df46-p20.root
+21: resources/hiloconv-df46-p21.root
+22: resources/hiloconv-df46-p22.root
+# df factors cannot be calculated, none of the sequence is running with df
+# inserting these factors so that makecallistolinks is running automatically
+23: resources/hiloconv-df46-p22.root
+24: resources/hiloconv-df46-p22.root
+25: resources/hiloconv-df46-p22.root
+
+27: resources/hiloconv-df46-p27.root
+28: resources/hiloconv-df46-p28.root
+29: resources/hiloconv-df46-p29.root
+30: resources/hiloconv-df46-p30.root
+31: resources/hiloconv-df46-p31.root
+32: resources/hiloconv-df46-p32.root
+33: resources/hiloconv-df46-p33.root
+34: resources/hiloconv-df46-p34.root
+35: resources/hiloconv-df46-p35.root
+36: resources/hiloconv-df46-p36.root
+37: resources/hiloconv-df46-p37.root
+38: resources/hiloconv-df46-p38.root
+39: resources/hiloconv-df46-p39.root
+40: resources/hiloconv-df46-p40.root
+
+# Data after introduction of splitters
+#41: hiloconv-df46-p41.root
+#42: hiloconv-df46-p42.root
+
+41: resources/hiloconv-df46-p43.root
+42: resources/hiloconv-df46-p43.root
+
+43: resources/hiloconv-df46-p43.root
+44: resources/hiloconv-df46-p44.root
+45: resources/hiloconv-df46-p45.root
+46: resources/hiloconv-df46-p46.root
+47: resources/hiloconv-df46-p47.root
+48: resources/hiloconv-df46-p48.root
+49: resources/hiloconv-df46-p49.root
+50: resources/hiloconv-df46-p50.root

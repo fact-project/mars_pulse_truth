@@ -1,0 +1,10 @@
+#
+# Reference lines for the data check, valid from for data
+# before Dec. 04:
+#
+######################################################################
+#
+# Mean Absolute Time:
+#
+InnerRefTime:             10.0
+OuterRefTime:             10.0

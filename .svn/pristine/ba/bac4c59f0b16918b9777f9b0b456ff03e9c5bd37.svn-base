@@ -1,0 +1,159 @@
+# -------------------------------------------------------------
+#  THIS RESOURCE FILES IS AN EXAMPLE AND BELONGS TO calendar.C
+# -------------------------------------------------------------
+
+# Define the images for the 12 months
+01: magic_t.xpm
+02: marslogo.xpm
+03: marslogo.xpm
+04: magic_t.xpm
+05: marslogo.xpm
+06: marslogo.xpm
+07: magic_t.xpm
+08: marslogo.xpm
+09: marslogo.xpm
+10: magic_t.xpm
+11: marslogo.xpm
+12: marslogo.xpm
+
+# define descriptions for your images
+01.Text: All File types supported by TASImage are supported.
+02.Text: Please try to use the context menu on the small boxes.
+03.Text: Choose SetDefaultLayout from the context menu.
+04.Text: Play around with th eoptions in the context menu.
+05.Text: Parts of the context menu are sensitive to the mouse position.
+06.Text: To create a postscript file of your calendar change the macro.
+07.Text: 
+08.Text: 
+09.Text: 
+10.Text: 
+11.Text: 
+12.Text: 
+
+# ------------------------------------------------------------
+# General information
+#
+# This are the most important settings. For more details of
+# more resources please have a look at the class reference 
+# of MCalendar and the descriptions of its member functions.
+
+# For something in the box for each day (defined in "Contents")
+# you have several options which are always known (as an example
+# "Day" is used here):
+#
+#  - Day.TextAlign: Center
+#    Defines the position of the output in the box. For more 
+#    details about what is allowed see MEnv::GetAlign
+#
+#  - Day.Format: %e
+#    available if a number (month, week, day, etc) should be
+#    formatted (or converted into text) For more details on
+#    the allowed formats see MTime::GetFormatStr or strftime
+#
+#  - Day.TextColor: Blue
+#    Defined the output color. For more details see
+#    MEnv::GetColor
+#
+#  - Day.TextFont: 62
+#    Define the font for the output text. For more details
+#    see TAttText
+#
+#  - To change the settings depending on the day of the week
+#    (0=sonday, 1=monday, etc) put the number of the day
+#    behind the Name of your resource, eg. To diaply the day-number
+#    of sundays in red (while all others are black) use
+#       Day.TextColor: Black
+#       Day.Active.0.TextColor: Red
+#    The term Active before the 0 defines that only the active
+#    days are printed in red. Active days are the days which belong 
+#    to the current month (sometimes before the beginning or end
+#    of a month the days of the previous or next month are shown,
+#    the are called Inactive) To change the color of the inactive
+#    sundays to red do
+#       Day.Inactive.0.TextColor: Red
+#    You can also change the text font to green for all active
+#    days (except the sunday which is already set to red):
+#       Day.Active.TextColor: red
+#
+# ------------------------------------------------------------
+
+# Which contents should the calendar have? Here you define what
+# should be displayed in your box. You could also name them
+# A and B instead of Day and Date. The result would be identical 
+# (I mean the name is totally artificial and defined here)
+# This also means that you can define as many of them as you want.
+# In this example files (calendar.rc and holidays.rc) the
+# following possible options are defined (see below):
+#   Day Date Holiday Birthday DayName Week
+Contents: Day Date Holiday Birthday DayName
+
+# What is the language for the month and day names?
+Language: de_DE
+
+# Where in the boxes should the moon grafic and text be aligned?
+# (The numbers are according to TAttText, 0 means off)
+Moon.Graf.Align:              11
+Moon.Text.Align:              0
+#Moon.Text.Type:              0
+#Moon.Text.Continous:         No
+
+# This is the definition of the moon grafic color
+Moon.Inactive.FillColor:      18
+Moon.Inactive.0.FillColor:    17
+
+# This lines can be used to draw the week number somewhere
+# Restriction is string containing the number of all days
+# at which the week should be printed (eg. "0" for sundays,
+# "1" for mondays or "01" for sunday and monday
+#Week.TextAlign:              top right
+#Week.Format:                 KW%V
+#Week.Restriction:            1
+#Week.TextSize:               0.1
+#Week.Active.TextColor:       Grey8
+#Week.Inactive.TextFont:      42
+#Week.Inactive.TextColor:     17
+
+# Define the layout of the day-name.
+Day.TextAlign:                top left
+Day.Format:                   %e
+#Day.TextFont: 62
+#Day.Active.TextFont:         22
+Day.Inactive.TextFont:        42
+Day.Inactive.TextColor:       17
+Day.Inactive.0.TextColor:     17
+
+# Define the layout of the date (number)
+Date.TextAlign:               bottom right
+Date.Format:                  %a
+Date.Active.0.TextColor:      2
+#Date.Active.TextFont:        22
+Date.Inactive.TextFont:       42
+Date.Inactive.FillColor:      19
+Date.Inactive.TextColor:      17
+Date.Active.0.FillColor:      17
+Date.Inactive.0.FillColor:    18
+Date.Inactive.0.TextColor:    17
+
+# Define the layout of holidays, including the easter holidays
+# (see holiday.rc)
+Holiday.TextAlign:            center
+Holiday.TextSize:             0.13
+Holiday.TextColor:            4
+Holiday.Inactive.TextColor:   17
+Holiday.TextFont:             62
+
+# Define the layout of birthdays (see holiday.rc)
+Birthday.TextAlign:           center
+Birthday.TextSize:            0.13
+Birthday.TextColor:           Dark Green
+Birthday.Inactive.TextColor:  17
+Birthday.TextFont:            62
+
+# Define the layout for days with a name (eg. "Good Friday") which
+# might not be holidays
+DayName.TextColor:            13
+DayName.TextAlign:            Center
+DayName.TextFont:             62
+DayName.TextSize:             0.13
+DayName.Inactive.TextColor:   17
+DayName.Inactive.0.TextColor: 17

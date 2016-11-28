@@ -1,0 +1,105 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Stefan Ruegamer 12/2007 <mailto:snruegam@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2008
+#
+#
+# ========================================================================
+#
+# This script is removing the switching noise out of raw files.
+# Corresponding information will be inserted into the database. The noise
+# removal is being done by the script 'compmux'.
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=compmux
+column=fCompmux
+
+set -C
+
+scriptlog=$runlogpath/run$program-$datetime.log
+date >> $scriptlog 2>&1
+
+# query db 20 times for jobs
+for ((j=0 ; j < 10000 ; j++))
+do
+   gettodo "1" >> $scriptlog 2>&1
+   runno=${primaries[0]}
+   tempfile=/data/tmp/temp${runno}.gz
+   
+   lockfile=$lockpath/lock-$table-$column-$runno.txt
+   checklock continue >> $scriptlog 2>&1
+   
+   setstatus "start" >> $scriptlog 2>&1
+   
+   # try to find the file; if impossible, continue with an error
+   echo "getting path for run $runno..." >> $scriptlog 2>&1
+   printprocesslog "INFO starting $program for run $runno"
+   fullname=`find $datapath/rawfiles/2007/0[2-9] -name 20070*${runno}_[DCPS]_*.raw.gz`
+   arraycheck=`echo $fullname | wc -w`
+   if [ "$fullname" == "" ] || ! [ $arraycheck == 1 ]
+   then
+      echo "ERROR file for run $runno not found or more than one file found... continue" >> $scriptlog 2>&1
+      printprocesslog "ERROR $program failed, file for run $runno not found or more than one file found"
+      rm -v $lockpath/lock-$table-$column-$runno.txt >> $scriptlog 2>&1
+      check=20
+      com=$FCompmux
+      setstatus "stop" >> $scriptlog 2>&1
+      echo "" >> $scriptlog 2>&1
+      continue
+   fi
+   
+   # cut the slices
+   check1=`ssh -nx phoenix 'cd /home/operator/compmux ; nice -n 19 gzip -cd' $fullname '| nice -n 19 ./compmux | nice -n 19 gzip -1c > /data/tmp/temp'${runno}.gz ' ; echo ${PIPESTATUS[1]}'`
+   
+   # check success and insert information into the database
+   case $check1 in
+      0)   echo " check1=$check1 -> everything ok -> compmux succeeded, overwriting old file for run $runno" >> $scriptlog 2>&1
+      	   ssh -nx phoenix nice -n 19 touch -r $fullname $tempfile
+           ssh -nx phoenix nice -n 19 mv -f $tempfile $fullname >> $scriptlog 2>&1
+           check2=$?
+           case $check2 in
+              0)   echo " check2=$check2 -> everything ok -> mv done, setting db status for run $runno" >> $scriptlog 2>&1
+      	           ssh -nx phoenix nice -n 19 chmod a=r $fullname
+                   ;;
+              *)   echo " check2=$check2 -> ERROR - moving of run $runno failed" >> $scriptlog 2>&1
+                   printprocesslog "ERROR $program failed, moving of run $runno failed"
+        	   check=$check2
+              	   com=$FCompmux
+                   ;;
+           esac
+           printprocesslog "INFO $program finished successfully for run $runno"
+           ;;
+      *)   echo " check1=$check1 -> ERROR - $program failed for run $runno" >> $scriptlog 2>&1
+           printprocesslog "ERROR $program failed for run $runno"
+           rm -v $tempfile >> $scriptlog 2>&1
+           check=$check1
+      	   com=$FCompmux
+           ;;
+   esac
+   
+   rm -v $lockpath/lock-$table-$column-$runno.txt >> $scriptlog 2>&1
+   setstatus "stop" >> $scriptlog 2>&1
+   echo "" >> $scriptlog 2>&1
+done
+
+finish >> $scriptlog 2>&1

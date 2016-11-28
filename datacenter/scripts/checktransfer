@@ -1,0 +1,58 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  09/2006 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2007
+#
+#
+# ========================================================================
+#
+# This script checks the transfer: 
+# 1) the transfer of subsystem files from LP
+# 2) the transfer of rawfiles from PIC
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+
+#checking the transfer of the subsystemdata files
+transferdir=/home/lapalma/transfer
+dirs=`find $transferdir -type d`
+for dir in $dirs
+do 
+   if [ "$dir" = "$transferdir" ]
+   then 
+      continue
+   fi
+   files=`find $dir -maxdepth 1 -type f | wc -l`
+   if [ $files -eq 0 ]
+   then
+      continue
+   fi
+   printprocesslog "WARN $dir contains still $files files"
+done
+
+#checking if there are temporary zipfiles
+files=`find $datapath/rawfiles/20[0-1][0-9]/ -name ".*\.raw\.??????"`
+
+for file in ${files[@]}
+do 
+   printprocesslog "WARN found temporary zipfile $file"
+done

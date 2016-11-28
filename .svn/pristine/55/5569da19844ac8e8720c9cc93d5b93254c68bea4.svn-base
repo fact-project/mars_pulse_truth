@@ -1,0 +1,108 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2004 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2007
+#
+#
+# ========================================================================
+#
+# This script launches the filling of the results from the calibration for 
+# all sequences of which the results are not yet in the database.
+#
+# After checking if the script is already running the todolist is written.
+# Then for each sequence in the todo list the calibration results are 
+# filled into the table Calibration in the database using the macros 
+# fillcalib.C and fillsignal.C 
+# If this was successful, the status is inserted into the database using 
+# the function setstatus.
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=fillcallisto
+column=fFillCallisto
+
+set -C
+
+# check if the script is already running
+lockfile=$lockpath/lock-$program.txt
+checklock 
+
+# get todo file
+gettodo 
+
+cd $mars
+
+# fill information into the database for all sequences in the todo file
+for (( s=0 ; s < $num ; s++ ))
+do
+   sequence=${primaries[$s+$s]}
+   telnum=${primaries[$s+$s+1]}
+   printprocesslog "INFO starting $program for sequence $sequence"
+   no=`printf %08d $sequence | cut -c 0-4`
+   no2=`printf %08d $sequence`
+   path="$datapath/callisto/$no/$no2"
+   signalfile=$path/signal$no2.root
+   calibfile=$path/calib$no2.root
+   fillcallistologpath=$logpath/$program/$no
+   makedir $fillcallistologpath 
+   fillcaliblog=$fillcallistologpath/fillcalib-$sequence.log
+   fillsignallog=$fillcallistologpath/fillsignal-$sequence.log
+
+   printprocesslog "INFO run $program for sequence $sequence" 
+   setstatus "start" 
+   printprocesslog "INFO starting fillcalib for sequence $sequence"
+
+   check1=`root -q -b $macrospath/fillcalib.C+\("\"$calibfile\""\,kFALSE\) | tee $fillcaliblog | intgrep`
+
+   case $check1 in
+      1)   printprocesslog "INFO done fillcalib successfully for sequence $sequence (check1=$check1)"
+           ;;
+      0)   printprocesslog "WARN connection to DB failed (check1=$check1)"
+           check="no"
+           setstatus "stop" 
+           continue ;;
+      *)   printprocesslog "ERROR fillcalib failed for sequence $sequence (check1=$check1)"
+           com=$Ffillcalib
+           check=$check1
+           setstatus "stop" 
+           continue ;;
+   esac
+
+   printprocesslog "INFO starting fillsignal for sequence $sequence"
+   check2=`root -q -b $macrospath/fillsignal.C+\("\"$signalfile\""\,kFALSE\) | tee $fillsignallog | intgrep`
+   case $check2 in
+      1)   printprocesslog "INFO done fillsignal successfully for sequence $sequence (check2=$check2)"
+           ;;
+      0)   printprocesslog "WARN connection to DB failed (check2=$check2)"
+           check="no"
+           ;;
+      *)   printprocesslog "ERROR fillsignal failed for sequence $sequence (check2=$check2)"
+           com=$Ffillsignal
+           check=$check2
+           ;;
+   esac
+   
+   setstatus "stop" 
+done
+
+finish 
+

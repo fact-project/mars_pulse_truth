@@ -1,0 +1,8 @@
+Please use the svn feature to document your changes.
+
+Please make sure that you document the correct change for any file
+like it was done before in the Changelog files.
+
+Comments should be very precise and must fit to the change commited for
+the particular file. Do not submit submit several files at once 
+if the changes have nothing to do with each other.

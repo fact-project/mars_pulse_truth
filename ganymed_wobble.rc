@@ -1,0 +1,211 @@
+# ==========================================================================
+#############################################################################
+# ==========================================================================
+#                              General
+# ==========================================================================
+#############################################################################
+# ==========================================================================
+
+# -------------------------------------------------------------------------
+# Use this if you want to setup the logging stream for the jobs
+# (overwrites command line options)
+# -------------------------------------------------------------------------
+#MLog.VerbosityLevel: 2
+#MLog.DebugLevel:     1
+#MLog.NoColors:       yes
+
+# ==========================================================================
+#############################################################################
+# ==========================================================================
+#                               Cuts
+# ==========================================================================
+#############################################################################
+# ==========================================================================
+
+# -------------------------------------------------------------------------
+# Use this if you want to write output to somewhere here you can give
+# the output path
+# -------------------------------------------------------------------------
+#MJCuts.PathOut: .
+
+# -------------------------------------------------------------------------
+# Use this to setup binnings. For more details see: MBinning::ReadEnv
+# -------------------------------------------------------------------------
+BinningAlpha.Raw:        36    0    90
+BinningFalseSource.Raw:  91   -1.5  1.5
+BinningWidth.Raw:        50    0    1
+BinningLength.Raw:       25    0    1
+BinningDist.Raw:         25    0    2
+BinningAsym.Raw:         51   -0.7  0.7
+BinningM3Long.Raw:       51   -0.7  0.7
+BinningM3Trans.Raw:      51   -0.7  0.7
+BinningSlope.Raw:        51   -7.5  7.5
+
+# -------------------------------------------------------------------------
+# Using the starguider for pointing correction. 
+# To switch it off use "MPointingDevCalc.MaxAbsDev: -1"
+# For details see the class reference of MPointingDevCalc
+# -------------------------------------------------------------------------
+#MPointingDevCalc.MaxAbsDev:   15
+#MPointingDevCalc.NumMinStars: 8
+#MPointingDevCalc.NsbLevel:    3.0
+#MPointingDevCalc.NsbMin:      30
+#MPointingDevCalc.NsbMax:      60
+#MPointingDevCalc.Dx          -0.001
+#MPointingDevCalc.Dy          -0.004
+#MPointingDevCalc.MaxAge       1.0
+
+MPointingDevCalc.PointingModels: 1 81855 83722 89180 267253 291104 328198 1000534
+
+# -------------------------------------------------------------------------
+# Setup misfocussing correction (see class reference for MSrcPosCorrect)
+# -------------------------------------------------------------------------
+#MSrcPosCorrect.Dx: 0
+#MSrcPosCorrect.Dy: 0
+
+# -------------------------------------------------------------------------
+# Setup fit mode and ranges
+# -------------------------------------------------------------------------
+#MAlphaFitter.SignalIntegralMax:    15
+#MAlphaFitter.SignalFitMax:         25
+#MAlphaFitter.BackgroundFitMin:     35
+#MAlphaFitter.BackgroundFitMax:     75
+#MAlphaFitter.ScaleMin:             35
+#MAlphaFitter.ScaleMax:             80
+#MAlphaFitter.PolynomOrder:         2
+#MAlphaFitter.ScaleMode:            None
+
+# -------------------------------------------------------------------------
+# Define here which histogram class to use to determin the signal.
+# Currently availyble: MHAlpha, MHTheta <default>
+# -------------------------------------------------------------------------
+#MJCut.NameHist: MHAlpha
+
+# -------------------------------------------------------------------------
+# Define here the number of off-source regions used in wobble mode
+# -------------------------------------------------------------------------
+#MJCut.NumOffSourcePositions: 3
+
+# -------------------------------------------------------------------------
+# To get a meaningfull false source plot in wobble mode use magic cuts
+# and the following two lines.
+# -------------------------------------------------------------------------
+MJCut.NameHistFS: MHDisp
+
+MHDisp.Wobble:   Yes
+MHDisp.Smearing: 0.06
+#MHDisp.ScaleMin: 0.325
+#MHDisp.ScaleMax: 0.475
+
+# -------------------------------------------------------------------------
+# Use this to set the number of bins corresponding to the signal region
+# and if you use a Anti-Theta cut the second one has to be enabled
+# -------------------------------------------------------------------------
+#MHPhi.NumBinsSignal: 2
+#MHPhi.UseAntiPhiCut: No
+
+# -------------------------------------------------------------------------
+# There are three cuts:
+#   CutQ: Cut after reading file
+#   Cut0: After calculation of src dependent parameters, energy estimation
+#         and disp calculation, before writing summary file
+#   Cut1: After writing summary file before filling false source plots
+#   Cut2: After filling false source plots before filling alpha plots
+#   Cut3: After filling alpha plots (eg. Alpha cuts) for image parameter
+#         display, eg. write only events after alpha cut to ganymed file
+# -------------------------------------------------------------------------
+CutQ.Inverted: Yes
+Cut0.Inverted: Yes
+Cut1.Inverted: Yes
+Cut2.Inverted: Yes
+Cut3.Inverted: Yes
+
+# Quality-cuts (remove unphysical and obvious non-gamma events)
+CutQ.Condition: {0} && {1} && {2} && {3} && {4} && {5}
+CutQ.0: MImagePar.fNumIslands<3
+CutQ.1: MNewImagePar.fNumUsedPixels>5
+CutQ.2: MNewImagePar.fLeakage1 < 0.3
+CutQ.3: log10(MNewImagePar.fConcCOG)<-0.45+0.08*(log10(MHillas.fSize)<3.9)*(log10(MHillas.fSize)-3.9)^2
+CutQ.4: log10(MNewImagePar.fConc1)  <-0.75+0.10*(log10(MHillas.fSize)<3.8)*(log10(MHillas.fSize)-3.8)^2
+CutQ.5: MHillas.fLength>-3.6*(log10(MHillas.fSize)-6.0)^2+70
+
+# -------------------------------------------------------------------------
+# Such a cut could be used to exclude strange pointing positions. like
+# the camera center in wobble mode. Note, that a cut in the poiting
+# position directly influences the effective observation time and should
+# only be applied if the events are lost anyhow. In both cases you must
+# correct for the loss of observation time calculating your flux!
+# -------------------------------------------------------------------------
+#Cut0.Condition: MSrcPosCam.GetDist*MGeomCam.fConvMm2Deg>0.3
+
+# ---------- SETUP FOR WOBBLE-MODE -----------
+#MAlphaFitter.ScaleMode: none
+MAlphaFitter.BackgroundFitMin: 0.09
+MAlphaFitter.BackgroundFitMax: 0.25
+MAlphaFitter.PolynomOrder: 1
+MAlphaFitter.SignalFunction: ThetaSq
+
+# For more details on the magic cuts see its class reference
+Cut1.Condition: MFMagicCuts
+Cut1.ThetaCut: None
+# Parametrization of Disp
+Cut1.Param0:   1.15136
+Cut1.Param8:   0.0681437
+Cut1.Param9:   2.62932
+Cut1.Param10:  1.51279
+Cut1.Param11:  0.0507821
+# Parametrization for sign of disp (m3long, slope)
+Cut1.Param5:  -0.07
+Cut1.Param6:   7.2
+Cut1.Param7:   0.5
+# ThetaSq-Cut
+Cut1.Param1:   0.215
+# Area-Cut
+Cut1.Param2:   0.215468
+Cut1.Param3:   5.63973
+Cut1.Param4:   0.0836169
+
+# To switch on random forest uncomment the following lines
+#Cut1.HadronnessCut: Hadronness
+#Cut1.Param13: 0.5
+#Cut1.Param14: 100
+
+# To use both, hadronness and area cut do
+#Cut1.HadronnessCut: All
+
+# -------------------------------------------------------------------------
+# This cut is applied exclusively to the plots in the tab CutT. It is
+# resonable to show the events within your signal region here to
+# see if your signal region is clean from strange events (e.g. sparks)
+# -------------------------------------------------------------------------
+CutT.Condition: ThetaSquared.fVal < ThetaSquaredCut.fVal
+
+# -------------------------------------------------------------------------
+# Use this to executa a task (eg to calc hadronness) before Cut1
+# -------------------------------------------------------------------------
+# CalcHadronness: MRanForestCalc
+# CalcHadronness.FileName: rf-separation.root
+# CalcHadronness.NameOutput: Hadronness
+# CalcHadronness.Debug: No
+
+# -------------------------------------------------------------------------
+# Use this to executa a task (eg to calc disp) before Cut1
+# -------------------------------------------------------------------------
+# CalcDisp: MRanForestCalc
+# CalcDisp.FileName: rf-disp.root
+# CalcDisp.NameOutput: Disp
+# CalcDisp.Debug: No
+# Cut1.CalcDisp: No
+
+# CalcDisp: MParameterCalc
+# CalcDisp.Rule: 1.15*(1-MHillas.fWidth/MHillas.fLength)
+# CalcDisp.NameOutput: Disp
+# Cut1.CalcDisp: No
+
+# -------------------------------------------------------------------------
+# Use this to executa a task (eg to estimate energy) after all Cuts
+# -------------------------------------------------------------------------
+# EstimateEnergy: MRanForestCalc
+# EstimateEnergy.NameOutput: MEnergyEst
+# EstimateEnergy.FileName: ranforest.root
+# EstimateEnergy.Debug: No

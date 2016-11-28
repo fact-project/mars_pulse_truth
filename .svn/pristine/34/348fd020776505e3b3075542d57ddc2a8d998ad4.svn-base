@@ -1,0 +1,254 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  05/2007 <mailto:daniela.dorner@unige.ch>
+#
+#   Copyright: MAGIC Software Development, 2000-2010
+#
+#
+# ========================================================================
+#
+# This script runs corsika.
+# 
+
+if [ "$SOURCEFILEPATH" = "" ]
+then 
+   source `dirname $0`/sourcefile
+else
+   source $SOURCEFILEPATH/sourcefile
+fi
+printprocesslog "INFO starting $0"
+program=corsika
+step=Corsika
+
+set -C
+
+export FLUPRO=$corsikapath'/fluka2008_3'
+
+# printing input card to stdout
+function printinputcard()
+{
+   # Run number
+   echo "RUNNR "$file
+   # Starting event number
+   echo "EVTNR 1"
+   # Number of simulated events
+   echo "NSHOW "$numevts
+   # Seed values for simulation
+   echo "SEED "$seed1" 0 0 "
+   echo "SEED "$seed2" 0 0 "
+   echo "SEED "$seed3" 0 0 "
+   # Primary particle
+   echo "PRMPAR "$primparticle
+   echo "ERANGE "$erange
+   echo "ESLOPE "$slope
+   # Simulation range (theta, phi, view cone, starting altitude)
+   echo "THETAP "$zdrange
+   echo "PHIP "$azrange
+   echo "VIEWCONE 0. "$viewconemax
+   echo "FIXCHI "$startalt
+   # Observation level, magnetic field, atmosphere
+   echo "OBSLEV "$obslev".E2"
+   # From www.noaa.gov/geomagmodels roughly for January 2009. (was 29.5 and 23.0)
+   # MAGNET BX BZ (BX is the horizontal component (muT) to the x-direction of
+   # the detector, BZ is the vertical component (muT) downwards)
+   echo "MAGNET "$magnet
+   # Rotation angle between array x-direction and magnetic north direction
+   # positive if array x-direction points to the west
+   echo "ARRANG "$magnetrot
+   # Atmosphere (model, true/false for atmospheric refraction of cer-photons)
+   # Atmosphere read from atmprof11.dat
+   # My current understanding is that only refraction (bending of light
+   # but no absorption of photons is taken into account) setting T.
+   echo "ATMOSPHERE "$atm" T"
+
+   # Current boundaries in reflector program
+   # echo "ATMLAY 400000 1000000 4000000 10000000"
+
+   # Boundaries as determined by CORSIKA
+   # Until we can read the result from the corsika fit we fix the
+   # values which come out of the fit. This is not ideal but forces
+   # things to be consistent. Be careful is using a different model -
+   # the fit might not be ideal.
+   echo "ATMLAY 775000 1650000 5000000 10500000"
+
+   # Other parameters
+   echo "RADNKG 200.E2"
+   echo "ECUTS 0.3 0.3 0.02 0.02"
+   echo "ECTMAP 1.E4"
+   # Don't add muon particle data to output
+   echo "MUADDI F"
+   # Enable muon multiple scattering
+   echo "MUMULT T"
+   # Wavelength range (was originally 600)
+   echo "CWAVLG "$wavelengths
+   # MMCS
+   echo "CSCAT "$numreuse" 0. "$impactmax
+   # CORSIKA
+   # echo "CSCAT "$numreuse" "$impactmax" 0."
+   echo "CERSIZ 1."
+   # Write Cherenkov photons to cer-file
+   echo "CERFIL T"
+   # Number of telescopes
+   echo "CERTEL 1"
+   # MMCS
+   echo " 0. 0. 0. 0. 0. "$diameter" "$diameter
+   # CORSIKA (x, y, z, r)
+   # echo "TELESCOPE 0. 0. 0. "$diameter
+   # This keyword has no relevance but allows to store the 
+   # maximum simulated impact parameter. The "magic" is that
+   # ceres interpretes the third and fourth argument as
+   # maximum simulated impact if they are identical and
+   # the other four arguments are 1
+   # echo "CERARY 1 1 "$diameter" "$diameter" 1 1"
+   # How the longitudinal shower development is sampled
+   # echo "LONGI T 10. T F"
+   echo "LONGI F 20 0 F F"
+   # Maximum number of detailed particles to print
+   echo "MAXPRT 0"
+   # Suppress file with partciles reaching ground (DATnnnnnn)
+   # FIXME: Should we make this switchable by the database?
+   echo "PAROUT F F"
+   # Don't write a database file
+   echo "DATBAS F"
+   # Switch off all debugging output
+   echo "DEBUG F 6 F 1000000"
+   # Output path
+   echo "DIRECT "$outpath
+   # DIRECT /dev/null
+   # TELFIL filename
+   # TELFIL | gzip
+   # TELESCOPE X Y Z R
+   # User and host (for convenience)
+   echo "USER "`whoami`
+   echo "HOST "`hostname`
+   # End of input card
+   echo "EXIT"
+}
+
+
+# get run # and file #
+numchanged=0
+while (( 0 < 21 ))
+do 
+   if ! [ $numchanged -eq 1 ]
+   then 
+      if ! [ "$run" = "" ] && ! [ "$file" = "" ]
+      then
+         printprocesslog "INFO $program for run $run and file $file is already running => request new number "
+      fi
+      gettodo "1" 
+      run=${primaries[0]}
+      file=${primaries[1]}
+      if [ "$run" = "" ] || [ "$file" = "" ]
+      then
+         printprocesslog "INFO nothing to do for $program "
+      fi
+   else
+      printprocesslog "INFO starting $program for run $run and file $file"
+      break
+   fi
+   setstatus "start"
+done
+
+# running corsika
+printprocesslog "INFO run $program for run $run  and file $file" 
+printprocesslog "INFO create input card for run $run  and file $file" 
+
+# get values for inputcard
+query="SELECT fParticleTypeKEY FROM CorsikaInfo WHERE fRunNumber=$run AND fFileNumber=$file"
+primparticle=`sendquery`
+query="SELECT fEnergyMin, fEnergyMax FROM CorsikaInfo WHERE fRunNumber=$run AND fFileNumber=$file"
+erange=`sendquery`
+query="SELECT fNumEvents FROM CorsikaInfo WHERE fRunNumber=$run AND fFileNumber=$file"
+numevts=`sendquery`
+query="SELECT fEnergySlope FROM CorsikaInfo WHERE fRunNumber=$run AND fFileNumber=$file"
+slope=`sendquery`
+query="SELECT fZenithDistanceMin, fZenithDistanceMax FROM CorsikaInfo WHERE fRunNumber=$run AND fFileNumber=$file"
+zdrange=`sendquery`
+# Change from the MARS definition (Az=90 -> East) to Corsika (Az=90 -> West)
+query="SELECT 180-fAzimuthMin, 180-fAzimuthMax FROM CorsikaInfo WHERE fRunNumber=$run AND fFileNumber=$file"
+azrange=`sendquery`
+query="SELECT fCorsikaSeed1 FROM CorsikaInfo WHERE fRunNumber=$run AND fFileNumber=$file"
+seed1=`sendquery`
+query="SELECT fCorsikaSeed2 FROM CorsikaInfo WHERE fRunNumber=$run AND fFileNumber=$file"
+seed2=`sendquery`
+query="SELECT fCorsikaSeed3 FROM CorsikaInfo WHERE fRunNumber=$run AND fFileNumber=$file"
+seed3=`sendquery`
+query="SELECT fImpactMax FROM CorsikaInfo WHERE fRunNumber=$run AND fFileNumber=$file"
+impactmax=`sendquery`
+query="SELECT fViewConeMax FROM CorsikaInfo WHERE fRunNumber=$run AND fFileNumber=$file"
+viewconemax=`sendquery`
+query="SELECT fStartingAltitude FROM CorsikaInfo WHERE fRunNumber=$run AND fFileNumber=$file"
+startalt=`sendquery`
+query="SELECT fMirrorDiameter FROM CorsikaInfo WHERE fRunNumber=$run AND fFileNumber=$file"
+diameter=`sendquery`
+query="SELECT fAtmosphericModelKEY FROM CorsikaInfo WHERE fRunNumber=$run AND fFileNumber=$file"
+atm=`sendquery`
+query="SELECT fObsLevel FROM CorsikaInfo LEFT JOIN Observatory USING(fObservatoryKEY) WHERE fRunNumber=$run AND fFileNumber=$file"
+obslev=`sendquery`
+query="SELECT fMagnetBX, fMagnetBZ FROM CorsikaInfo LEFT JOIN Observatory USING(fObservatoryKEY) WHERE fRunNumber=$run AND fFileNumber=$file"
+magnet=`sendquery`
+query="SELECT fMagnetRotation FROM CorsikaInfo LEFT JOIN Observatory USING(fObservatoryKEY) WHERE fRunNumber=$run AND fFileNumber=$file"
+magnetrot=`sendquery`
+query="SELECT fWavelengthMin, fWavelengthMax FROM CorsikaInfo WHERE fRunNumber=$run AND fFileNumber=$file"
+wavelengths=`sendquery`
+query="SELECT fNumReUseShowers FROM CorsikaInfo WHERE fRunNumber=$run AND fFileNumber=$file"
+numreuse=`sendquery`
+
+outpath=$mcpath"/"$program"/"`printf %08d $run | cut -c 1-4`/`printf %08d $run | cut -c 5-8`
+makedir $outpath 
+logfile=$outpath/cer000`printf %06d $file | cut -c 4-6`".log"
+
+cd $corsikapath
+
+printprocesslog "INFO executing 'printinputcard | ./cc6501p-linux >| $logfile 2>&1' in directory $corsikapath "
+printinputcard | ./cc6501p-linux >| $logfile 2>&1
+
+check1=$?
+case $check1 in
+   0)   printprocesslog "INFO $program finished successfully for run $run file $file (return code $check1)"
+        if [ $file -gt 999 ]
+        then 
+           corsikafilenew=$mcpath/$program/`printf %08d $run | cut -c 1-4`/`printf %08d $run | cut -c 5-8`/cer000`printf %06d $file | cut -c 4-6`
+           corsikafileold=$mcpath/$program/`printf %08d $run | cut -c 1-4`/`printf %08d $run | cut -c 5-8`/cer`printf %06d $file`
+           if ! mv $corsikafileold $corsikafilenew
+           then
+              printprocesslog "ERROR could not mv $corsikafileold to $corsikafilenew"
+              check=2
+           fi
+        fi
+        if ! grep 'END OF RUN' $logfile
+        then
+           printprocesslog "ERROR could not find 'END OF RUN' in $logfile => unknown error for run $run file $file "
+           check=2
+        fi
+        ;;
+   *)   printprocesslog "ERROR $program failed for run $run file $file (return code $check1)"
+        check=$check1
+        ;;
+esac
+
+# removing empty datnnnnnn file
+rm -f $outpath/dat`printf %06d $file`
+
+setstatus "stop" 
+
+finish 
+

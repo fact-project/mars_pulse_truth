@@ -1,0 +1,296 @@
+# ==========================================================================
+#############################################################################
+# ==========================================================================
+#                              General
+# ==========================================================================
+#############################################################################
+# ==========================================================================
+
+# -------------------------------------------------------------------------
+# Use this if you want to setup the logging stream for the jobs
+# (overwrites command line options)
+# -------------------------------------------------------------------------
+MLog.VerbosityLevel: 4
+#MLog.DebugLevel:     1
+#MLog.NoColors:       yes
+
+# ==========================================================================
+#############################################################################
+# ==========================================================================
+#                                   Ceres
+# ==========================================================================
+#############################################################################
+# ==========================================================================
+
+# -------------------------------------------------------------------------
+# Use this if you want to write the MJStar output somewhere
+# If you don't want it, it is written to the calibration output anyhow.
+# -------------------------------------------------------------------------
+#PathOut: .
+#PathIn: .
+
+
+# -------------------------------------------------------------------------
+# Configure Eventloop
+# -------------------------------------------------------------------------
+#MaxEvents: 10000
+#Overwrite: yes,no
+
+
+# -------------------------------------------------------------------------
+# Use this to setup binnings. For more details see: MBinning::ReadEnv
+# -------------------------------------------------------------------------
+# BinningEnergy.Raw:      100      1    100000  log
+# BinningSize.Raw:        100      1  10000000  log
+BinningImpact.Raw:       40   0       1000
+# BinningHeight.Raw:       50      0        12
+# BinningAz.Raw:          360   -360       360
+# BinningZd.Raw:           70      0        70
+# BinningViewCone.Raw:    155      0        31
+BinningTrigPos.Raw:     300    -25       275
+# BinningEvtWidth.Raw:    150      0        25
+# BinningDist.Raw:        100      0       2.5
+# BinningDistC.Raw:       100      0       2.5
+# BinningThreshold.Raw:    35    0.9     90000  log
+# BinningEnergyEst.Raw:   100    0.9     90000  log
+
+
+# -------------------------------------------------------------------------
+# Initialize random number generator (see MJob::InitRandomNumberGenerator)
+# -------------------------------------------------------------------------
+RandomNumberGenerator: TRandom3
+#RandomNumberSeedValue: 0
+
+
+# -------------------------------------------------------------------------
+# Ceres general setup
+# -------------------------------------------------------------------------
+
+# Switch off the camera "electronics"
+#Camera: Off
+
+# Force the use of the "hardware" trigger for calibration data
+#ForceTrigger: Yes
+
+
+# -------------------------------------------------------------------------
+# Some setup for the atmosphere. The default should be well suited.
+# -------------------------------------------------------------------------
+#MSimAtmosphere.FileAerosols: resmc/atmopshere-aerosols.txt
+#MSimAtmosphere.FileOzone:    resmc/atmopshere-ozone.txt
+
+
+# -------------------------------------------------------------------------
+# Here you can control the poiting of the telescope. To switch on
+# off-target observations set a value for the distance !=0 [deg].
+# For details see MSimPointingPos
+# -------------------------------------------------------------------------
+#MSimPointingPos.OffTargetDistance: 0.4
+#MSimPointingPos.OffTargetPhi: -1
+
+
+# -------------------------------------------------------------------------
+# Setup the reflector and camera geometry
+# -------------------------------------------------------------------------
+Reflector.Constructor: MReflector
+
+# For the file definition see MReflector::ReadFile
+
+Reflector.FileName: /fhgfs/groups/app/mc_workshop/datacenter/setup/ceres/030/fact-reflector.txt
+# Units mm: ~0.02° 
+#Reflector.SetSigmaPSF: 1.8
+# Units mm: ~0.03°
+#Reflector.SetSigmaPSF: 2.6
+#Reflector.SetSigmaPSF: 1.66
+
+# new Value from 7.12.2012:
+# 0.95 of the reflected light was inside a circle with a radius of 2.25mm. This corresponds to a SigmaPSF of 1.3 mm
+#Reflector.SetSigmaPSF: 1.3
+
+# new Value from 29.05.2013:
+# Set SigmaPSF to pixelsize
+Reflector.SetSigmaPSF: 10.0
+
+# --- DWARF ---
+# distance from mirror to camera [cm]
+#focal_distance     489.73
+# TRUE focal of the paraboloid (must correspond to that of the mirror positions defined below!)
+#paraboloid_focal   488.87
+
+#MGeomCam.Constructor:   MGeomCamDwarf(189.8,  9.5,  4.8887);
+MGeomCam.Constructor:   MGeomCamFACT();
+
+#MSimBundlePhotons.FileName: resmc/dwarf-fact.txt
+
+# Set the APD type (1: 30x30 <default>, 2: 60x60, 3:60x60(ct=15%))
+MSimAPD.Type: 1
+MSimExcessNoise.ExcessNoise: 0.12
+
+# -------------------------------------------------------------------------
+# Setup the absorption, conversion efficiency and angular acceptance
+# -------------------------------------------------------------------------
+MirrorReflectivity.FileName:           /fhgfs/groups/app/mc_workshop/datacenter/setup/ceres/030/MirrorReflectivity_Lustermann_FACT_bearbeitet.txt
+PhotonDetectionEfficiency.FileName:    /fhgfs/groups/app/mc_workshop/datacenter/setup/ceres/030/fact-pde-1.0V.txt
+ConesAngularAcceptance.FileName:       /fhgfs/groups/app/mc_workshop/datacenter/setup/ceres/030/fact-cones-angular-acceptance.txt
+ConesTransmission.FileName:            /fhgfs/groups/app/mc_workshop/datacenter/setup/ceres/030/Transmittance_1439Cones_FACT_bearbeitet.txt
+
+# -------------------------------------------------------------------------
+# Setup what in MMCS would be called "additional spot size"
+# -------------------------------------------------------------------------
+#MSimPSF.Sigma: -1
+#MSimReflector.DetectorMargin: 0
+
+# -------------------------------------------------------------------------
+# Setup the dark counts (FrequencyFixed) and the NSB noise per cm^2
+# -------------------------------------------------------------------------
+# Dark Counts per APD: ~4MHz
+#MSimRandomPhotons.FrequencyFixed: 0.004
+# NSB photon rate per cm^2 ~40MHz (folded with the cones' angular
+# acceptance and the wavelength acceptance of the camera (window, apd, etc)
+# 0.040 1/ns/cm^2 NSB-rate:
+MSimRandomPhotons.FileNameNSB:
+MSimRandomPhotons.FrequencyNSB:   0.0
+
+# FIXME: With a class describing the cones we could give NSB as
+# per sr and cm^2
+
+# -------------------------------------------------------------------------
+# Setup the trigger
+# -------------------------------------------------------------------------
+# This line could be omitted but then the discriminator would be
+# evaluated for all pixels not just for the pixels which are
+# later "connected" in the trigger (used in the coincidence map)
+# MSimTrigger.FileNameRouteAC:         resmc/magic-trigger-1NN.txt
+
+MSimTrigger.FileNameRouteAC: /fhgfs/groups/app/mc_workshop/datacenter/setup/ceres/030/fact-trigger-sum.txt
+#MSimTrigger.DiscriminatorThreshold: 13416
+
+# new Value from 29.01.2013: DiscriminatorThreshold is 9*offset(3280)+21*gain(328)=36408
+MSimTrigger.DiscriminatorThreshold: 36408
+
+# new Value from 28.08.2013: DiscriminatorThreshold is 9*offset(3720)+21*gain(372)=41292
+MSimTrigger.DiscriminatorThreshold: 41292
+
+# HEGRA like single pixel above threshold trigger
+#MSimTrigger.DiscriminatorThreshold:  10.00
+# Is this an option for a single pixel trigger?
+#MSimTrigger.DigitalSignalLength:     -1
+#MSimTrigger.CoincidenceTime:          3
+
+# Magic like 2NN trigger (inner 396 pixel)
+#MSimTrigger.FileNameCoincidenceMap:  resmc/magic-trigger-2NN.txt
+#MSimTrigger.DiscriminatorThreshold:  7.00
+#MSimTrigger.DigitalSignalLength:     8
+#MSimTrigger.CoincidenceTime:         0.5
+
+# Magic like 3NN trigger (inner 396 pixel)
+#MSimTrigger.FileNameCoincidenceMap:  resmc/magic-trigger-3NN.txt
+#MSimTrigger.DiscriminatorThreshold:  6.0
+#MSimTrigger.DigitalSignalLength:     8
+#MSimTrigger.CoincidenceTime:         0.5
+
+# Magic like 4NN trigger (inner 396 pixel)
+#MSimTrigger.FileNameCoincidenceMap:  resmc/magic-trigger-4NN.txt
+#MSimTrigger.DiscriminatorThreshold:  5.0
+#MSimTrigger.DigitalSignalLength:     8
+#MSimTrigger.CoincidenceTime:         0.5
+
+#MSimTrigger.FileNameRouteAC:         resmc/fact-7map.txt
+#MSimTrigger.DiscriminatorThreshold:  14040
+#MSimTrigger.DigitalSignalLength:     8
+#MSimTrigger.CoincidenceTime:         0.5
+
+# Every Pixel(!) should see the same signal independant of its size
+MSimCalibrationSignal.NumPhotons: 24
+MSimCalibrationSignal.NumEvents:  1000
+
+IntendedPulsePos.Val: 30
+
+#PulseShape.Function.Name: exp(-(x/2)^2/2)
+#PulseShape.FileName: /fhgfs/groups/app/mc_workshop/datacenter/setup/ceres/030/dwarf-pulse.txt
+
+# -------------------------------------------------------------------------
+# Description how a pedestal/calibration signal is produced
+# -------------------------------------------------------------------------
+
+#MSimCalibrationSignal.NumEvents:  1000
+#MSimCalibrationSignal.NumPhotons;    5
+#MSimCalibrationSignal.TimeJitter;  1.0
+
+
+# -------------------------------------------------------------------------
+# Setup the FADC
+# -------------------------------------------------------------------------
+
+MRawRunHeader.SamplingFrequency: 2000
+MRawRunHeader.NumSamples:        1024
+MRawRunHeader.NumBytesPerSample:    2
+MRawRunHeader.FadcResolution:      12
+
+# Old values
+# Baseline at 15 like in MAGIC
+# 1.5 bit noise for a gain of 64
+# This allows a maximum of 200phe/pix
+#MSimCamera.DefaultOffset: 960
+#MSimCamera.DefaultNoise:   96
+#MSimCamera.DefaultGain:   256
+
+# New values
+#MSimCamera.DefaultOffset: 1000
+#MSimCamera.DefaultNoise:    30
+#MSimCamera.DefaultGain:    190
+
+# New values from 7.12.2012
+# gain of one pe is ~10mV, corresponds to 328 DAC (16 bit with a dynamic range of 2 V)
+# offset is 10 pe (->3280 DAC)
+# electronic noise is about 0.15 pe (->50 DAC)
+#MSimCamera.DefaultOffset: 3280
+#MSimCamera.DefaultNoise:    50
+#MSimCamera.DefaultGain:    328
+
+# New values from 28.08.2013
+# Gain (integral over 30 slices) of one pe is 123.5 mV ns in real data.
+# Gain(integral over 30 slices over the PulseShape is 10.8757 1ns.
+# The scaling factor (DefaultGain) should be 123.5 / 10.8757 mV = 11,3556 mV
+# this corresponds to 372 ADC (16 bit with a dynamic range of 2 V)
+# offset is 10 pe (->3720 ADC)
+# electronic noise is about 1.4 mV (->45 ADC)
+MSimCamera.DefaultOffset: 3720
+MSimCamera.DefaultNoise:    45
+MSimCamera.DefaultGain:    358
+
+# Value for the fudgefactor in the calculation of the accoupling:
+MSimCamera.fACFudgeFactor: 0.3367
+
+#MSimReadout.fConversionFactor: 1
+
+# The number of sampling points is almost irrelevant because they
+# are equidistant, i.e. calculated and no search is necessary.
+# Nevertheless, you must make sure that there are enough points
+# to sample the function accuratly enough.
+# Attention: x in the function is given in slices, so if you change the sampling
+# frequency you have to change also this function
+PulseShape.Function.Name:  (1.626*(1-exp(-0.3803*0.5*x))*exp(-0.0649*0.5*x))
+PulseShape.Function.Npx:   300
+PulseShape.Function.Xmin:   0
+PulseShape.Function.Xmax:   300
+
+# -------------------------------------------------------------------------
+# Setup an image cleaning on the pure gamma signal (without noise)
+# -------------------------------------------------------------------------
+
+#MImgCleanStd.CleanLevel1:   6.0
+#MImgCleanStd.CleanLevel2:   6.0
+
+# -------------------------------------------------------------------------
+# This is a cut executed after the calculation of the image parameters
+# -------------------------------------------------------------------------
+Cut.Inverted: Yes
+
+#Cut.Condition: MNewImagePar.fNumUsedPixels>3 && MHillas.fSize>6
+Cut.Condition: MHillas.fSize>10
+#&& MHillas.fSize>30
+#MSimTrigger.SimulateElectronics: Off
+
+# Does not trigger anyway
+ContEmpty3.Condition: MPhotonEvent.GetNumPhotons<10

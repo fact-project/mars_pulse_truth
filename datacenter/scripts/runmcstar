@@ -1,0 +1,117 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2004 <mailto:dorner@astro.uni-wuerzburg.de>
+#   Author(s): Stefan Ruegamer 08/2007 <mailto:snruegam@astro.uni-wuerzburg.de>
+#   Author(s): Daniel Hoehne   06/2008 <mailto:hoehne@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2008
+#
+#
+# ========================================================================
+#
+# This script is launching star for mc sequences.
+# 
+# As star takes some time, only one mc sequence is processed at once. 
+# First the script gets a sequence number from the database for which 
+# star has to be done (function gettodo). After setting the status in the 
+# database (set fStartTime; to know that the sequence is already being 
+# processed), the image parameters are calculated for the sequence. 
+# Afterwards the status in the database is updated according to the return 
+# value of star. 
+# The important INFOs, WARNings and ERRORs are written not only to the 
+# scriptlog but also to the processlog.
+#
+# Atm the processing has to be done in a separate Mars directory because 
+# different sql.rc and steps.rc files are needed.
+#
+# The star.rc files are taken from the datacenter/setup/star directory
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=star
+column=fStar
+
+set -C
+
+scriptlog=$runlogpath/runmc$program-$datetime.log
+date >> $scriptlog 2>&1
+
+# get sequence # 
+gettodo "1" >> $scriptlog 2>&1
+sequence=${primaries[0]}
+
+# lock sequ
+lockfile=$lockpath/lock-$table-$column-$sequence.txt
+checklock >> $scriptlog 2>&1
+
+cd $mars
+
+echo "run $program for mc sequence $sequence..." >> $scriptlog 2>&1
+printprocesslog "INFO starting $program for mc sequence $sequence"
+no=`printf %08d $sequence | cut -c 0-4`
+no2=`printf %08d $sequence`
+outpath="$mcpath/$program/$no/$no2"
+inpath=`echo $outpath | sed -e 's/star/callisto/'`
+makedir $outpath >> $scriptlog 2>&1
+
+sequfile="$mcsequpath/$no/sequence$no2.txt"
+
+primvar=$no2
+setstatus "start" >> $scriptlog 2>&1
+
+#echo "staging files..." >> $scriptlog 2>&1
+#ssh -nx phoenix /opt/SUNWsamfs/bin/stage -V $inpath/19*_0*${run}_Y_*_E.root >> $scriptlog 2>&1
+
+
+# define star.rc files
+starrcnew=$setuppath/$program/star.rc
+starrcmux=$setuppath/$program/star_mux.rc
+
+epoch=`grep Epoch $sequfile | cut -d: -f2 | grep Mux`
+# link star.rc file
+echo "linking the star.rc file to $outpath" >> $scriptlog 2>&1
+if [ "$epoch" = "" ]
+then
+   ln -vsf $starrcnew $outpath/star.rc >> $scriptlog 2>&1
+else
+   ln -vsf $starrcmux $outpath/star.rc >> $scriptlog 2>&1
+fi
+starrcseq=$outpath/star.rc
+
+echo "./star -mc -b -q -v4 -f --log=$outpath/$program$no2.log --html=$outpath/$program$no2.html --ind=$inpath --out=$outpath $sequfile --config=$starrcseq 2>> $scriptlog> /dev/null" >> $scriptlog 2>&1
+./star -mc -b -q -v4 -f --log=$outpath/$program$no2.log --html=$outpath/$program$no2.html --ind=$inpath --out=$outpath $sequfile --config=$starrcseq 2>> $scriptlog> /dev/null
+check1=$?
+
+case $check1 in
+   0)   echo " check1=$check1 -> everything ok " >> $scriptlog 2>&1
+        printprocesslog "INFO $program finished successfully for mc sequence $sequence"
+        ;;
+   *)   echo " check1=$check1 -> ERROR -> step has to be repeated" >> $scriptlog 2>&1
+        printprocesslog "ERROR $program failed for mc sequence $sequence"
+        com=$Fmcstar
+        check=$check1
+        ;;
+esac
+
+setstatus "stop" >> $scriptlog 2>&1
+
+finish >> $scriptlog 2>&1
+

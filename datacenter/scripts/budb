@@ -1,0 +1,143 @@
+#!/bin/bash
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  10/2006 <mailto:daniela.dorner@unige.ch>
+#
+#   Copyright: MAGIC Software Development, 2000-2011
+#
+#
+# ========================================================================
+#
+# This script backups the databases give in setup.XXX in the array dbnames
+# 
+# In addition, it writes out the commands how to create the database 
+# MyMagic, in case all databases are backuped. 
+#
+
+today=`date +%F`
+olday=`date +%F --date="-30day"`
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+
+set -C
+
+path=/home/`whoami`/DB_Backup
+logpath=$path/log
+filepath=$path/files
+mkdir -pv $logpath
+mkdir -pv $filepath
+logfile=$logpath/budb$today.log
+oldlog=$logpath/budb$olday.log
+
+date > $logfile
+getdbsetup
+
+echo "today: $today" >> $logfile 2>&1
+echo "date to remove: $olday" >> $logfile 2>&1
+
+if ls $oldlog >/dev/null 2>&1
+then 
+   echo "removing old logfile..." >> $logfile 2>&1
+   rm -v $oldlog >> $logfile 2>&1
+fi
+
+if [ "${dbnames[0]}" == "all" ]
+then
+   dbname=MyMagic
+   command=$filepath/Create$dbname$today.txt
+   oldcommand=$filepath/Create$dbname$olday.txt
+   file=$filepath/alldatabases
+   end=.sql.bz2
+   zipfile=$file$today$end
+   oldzip=$file$olday$end
+
+   echo "removing old files..." >> $logfile 2>&1
+   if ls $oldzip >/dev/null 2>&1
+   then 
+      rm -v $oldzip >> $logfile 2>&1
+   fi
+   if ls $oldcommand >/dev/null 2>&1
+   then 
+      rm -v $oldcommand >> $logfile 2>&1
+   fi
+  
+   echo "writing create commands to $command..." >> $logfile 2>&1
+   # commands to create MyMagic
+   if ! mysqldump --host=$ho --database $dbname -u dump --no-data >| $command 2>> $logfile
+   then
+      printprocesslog "ERROR mysqldump failed "
+      echo "ERROR mysqldump failed " >> $logfile 2>&1
+   fi
+
+   echo "writing all databases to $zipfile..." >> $logfile 2>&1
+   # complete databases 
+   if ! mysqldump --host=$ho --all-databases -u dump | bzip2 -9 -c >| $zipfile 2>> $logfile
+   then
+     printprocesslog "ERROR mysqldump failed "
+     echo "ERROR mysqldump failed " >> $logfile 2>&1
+   fi
+else 
+   echo "doing backup for the following databases: "${dbnames[@]}  >> $logfile 2>&1
+   for dbname in ${dbnames[@]}
+   do 
+      filepath2=$filepath/$dbname
+      command=$filepath2"/Create_"$dbname"_"$today".txt"
+      oldcommand=$filepath2"/Create_"$dbname"_"$olday".txt"
+      mkdir -pv $filepath2
+
+      file=$filepath2/$dbname
+      end=.sql.bz2
+      zipfile=$file"_"$today$end
+      oldzip=$file"_"$olday$end
+
+      echo "removing old files..." >> $logfile 2>&1
+      if ls $oldzip >/dev/null 2>&1
+      then
+         rm -v $oldzip >> $logfile 2>&1
+      fi
+      if ls $oldlog >/dev/null 2>&1
+      then
+         rm -v $oldlog >> $logfile 2>&1
+      fi
+      if ls $oldcommand >/dev/null 2>&1
+      then
+         rm -v $oldcommand >> $logfile 2>&1
+      fi
+
+      echo "writing create commands to $command..." >> $logfile 2>&1
+      # commands to create db
+      if ! mysqldump --host=$ho --database $dbname -u dump --no-data >| $command 2>> $logfile
+      then
+         printprocesslog "ERROR mysqldump failed "
+         echo "ERROR mysqldump failed " >> $logfile 2>&1
+      fi
+
+      echo "writing database $dbname to $zipfile..." >> $logfile 2>&1
+      
+      if ! mysqldump --host=$ho --database $dbname -u dump | bzip2 -9 -c >| $zipfile 2>> $logfile
+      then
+        printprocesslog "ERROR mysqldump failed "
+        echo "ERROR mysqldump failed " >> $logfile 2>&1
+      fi
+   done
+fi
+
+finish >> $logfile 2>&1
+

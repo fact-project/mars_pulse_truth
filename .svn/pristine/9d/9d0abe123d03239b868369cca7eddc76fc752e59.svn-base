@@ -1,0 +1,3091 @@
+Please  do  not write behind the end of line tag so that it is  possible
+to   send  a   Changelog   file  to  a  line  printer  directly.  Thanks.
+
+For your entries please follow EXACTLY this style:
+
+_yyyy/mm/dd_[Your Name]
+_
+___*_filename:
+_____-_description
+_
+___*_filename2, filename3:
+_____-_description
+_
+_
+_
+
+While an underscore is a placeholder for a white-space or an empty line.
+
+                                                 -*-*- END OF LINE -*-*-
+
+ 2008/12/23 Stefan Ruegamer
+
+   * datacenter/scripts/movingrawfiles
+     - corrected moving of zipped rawfiles
+
+   * datacenter/scripts/dodatacheck
+     - added the new linearity run (_N_-files)
+
+   * test 4
+   
+
+
+ 2008/12/22 Daniel Hoehne-Moench
+
+   * datacenter/macros/filldotrun.C:
+     - implemented SuperArehucas version 081214-0
+
+
+
+ 2008/12/22 Stefan Ruegamer
+
+   * datacenter/macros/doexclusions.C
+     - added telescope number where missing
+
+   * datacenter/scripts/movingrawfiles
+     - added moving of zipped rawfiles
+
+
+
+ 2008/12/21 Thomas Bretz
+
+   * Makefile.rules:
+     - removed $(ROOTSYS) from the call to rootcint. It should
+       be in th epath anyway
+
+   * mars-config.cc, mbase/MZlib.cc:
+     - included string.h
+
+   * showlog.cc, manalysis/MGeomApply.cc, mbase/MAGIC.cc, 
+     mbase/MMath.cc, mbase/MProgressBar.cc, mbase/MSearch.cc,
+     mdata/MDataElement.cc, mfileio/MReadScanFile.cc,
+     mhbase/MH3.cc, mjobs/MSequenceSQL.cc,
+     mpointing/MPointingDevCalc.cc, msql/MSQLMagic.cc:
+     - included stdlib.h
+
+   * mastro/MAstro.h, mhbase/MHn.h:
+     - fixed the naming of some veriables in the definition
+
+   * mbase/MGMap.cc, mtools/MagicJam.cc:
+     - inlcude climits
+
+   * mbase/MStatusDisplay.cc:
+     - implemented a workaround against root's buffer overflows
+     - switched of root's own handling by resetting
+       kShowEventStatus
+
+   * mhbase/MH.[h,cc]:
+     - added a workaround for the buffor overflow in 
+       TH1::GetObjectInfo and TProfile::GetObjectInfo
+
+   * mhist/MHCamera.cc:
+     - implemented a workaround for the buffer overflow in root's
+       GetObjectInfo
+
+   * msql/MSQLServer.[h,cc]:
+     - replaced GetPrimaryKey by GetPrimaryKeys
+
+
+
+ 2008/12/19 Daniel Hoehne-Moench
+
+   * datacenter/macros/filldotrun.C:
+     - implemented SuperArehucas version 081204-0 incl. sumtrigger 
+       flag
+
+   * datacenter/db/magicdefs.php, datacenter/db/menu.php:
+     - implemented sumtrigger flag (in runinfo and sequinfo menus)
+
+
+
+ 2008/12/09 Thomas Bretz
+
+   * datacenter/macros/buildsequenceentries.C:
+     - propagate the condition to get the sequences of one day
+       to the subsequent splitting of the block to decreasde 
+       strange results in case of incosistency in the db (for example
+       if Arehucas write nonsense run numbers)
+
+
+
+ 2008/12/02 Daniela Dorner
+
+   * datacenter/db/showplots.php:
+     - bugfix: added removing of spaces in seq-string
+     - changed number of star-tabs from 19 to 20 (temporary)
+
+
+
+ 2008/12/02 Thomas Bretz
+
+   * mbase/MStatusDisplay.[h,cc], mbase/MEvtLoop.cc:
+     - added Pause and Single Step option
+
+   * mcorsika/MCorsikaEvtHeader.[h,cc], mcorsika/MCorsikaRead.[h,cc],
+     mcorsika/MCorsikaRunHeader.[h,cc]:
+     - moved filling of run header from first event header to
+       MCorsikaRunHeader
+
+   * mfileio/MWriteRootFile.cc:
+     - improved a check in the constructor if no filename is given
+
+   * mhbase/MH.cc:
+     - make SetBinning also work for TProfile2D
+
+   * mhist/MHCamera.[h,cc]:
+     - added functions to return the number of used pixels
+
+   * mjobs/MDataSet.cc, mjobs/MSequence.cc:
+     - improved by using new GetEnvValue3
+
+   * mbase/MParContainer.[h,cc]:
+     - added new member function GetEnvValue3 which is more flexible
+       in the number of leading zeroes within a resource name
+
+
+
+ 2008/12/01 Daniela Dorner
+
+   * datacenter/scripts/runcorsika:
+     - removed not needed query
+
+   * datacenter/scripts/sourcefile:
+     - added check if script is executed with the full path
+     - added check if rc-files are existing
+
+   * datacenter/db/menu.php:
+     - removed not needed lines
+
+   * datacenter/db/include.php:
+     - valign='top' for queryrbk.php
+
+   * datacenter/db/queryrbk.php:
+     - added print button
+
+
+
+ 2008/11/28 Thomas Bretz
+
+   * mjobs/MJSpectrum.cc:
+     - fixed a problem in FormFlux which did not handle the nagative slope
+       correctly
+     - Changed the title of the Spectrum histogram to make the fit
+       result fit better
+     - added a histogram showing the readin source position of the MCs
+
+   * mcorsika/CorsikaLinkDef.h, mcorsika/Makefile, 
+     mcorsika/MCorsikaEvtHeader.[h,cc], mcorsika/MCorsikaRead.[h,cc],
+     mcorsika/MCorsikaRunHeader.[h,cc]:
+     - addedcc MCorsikaRunHeader.h
+
+
+
+ 2008/11/27 Thomas Bretz
+
+   * mbase/MContinue.[h,cc]:
+     - updated ClassVersion number according to last change
+
+   * mraw/MRawFilesRead.cc:
+     - fixed a bug when errno==0
+
+   * mjobs/MJStar.cc:
+     - in case of sum trigger skip only events with only sum-trigger not
+       all events with sum-trigger for effective on time calculation
+
+   * datacenter/plotdb.C:
+     - fixed a problem with the order in the select if case of Groups
+     - removed automatic Postscript storage
+     - added some plots about currents
+
+   * mraw/MRawRunHeader.[h,cc]:
+     - added new run-type "Linearity"
+
+
+
+ 2008/11/24 Daniela Dorner
+
+   * datacenter/scripts/runcorsika:
+     - changed fAzimuth* to 180-fAzimuth* (different coordinate system
+       of CORSIKA
+
+
+
+ 2008/11/21 Daniela Dorner
+
+   * datacenter/db/showplots.php:
+     - adapted number of tabs
+
+
+
+ 2008/11/18 Daniela Dorner
+
+   * datacenter/scripts/runcamera:
+     - redirect output from camera program to scriptlog
+     - changed expected return code (Julian has adapted reflector to 
+       return something in case of successful completion of the 
+       program)
+     - fixed logging
+     - adapted redirect to delete old logging output in case of 
+       restarting
+
+   * datacenter/scripts/runcorsika:
+     - adapted redirect to delete old logging output in case of 
+       restarting
+
+   * datacenter/scripts/runcamera:
+     - redirect output from camera program to scriptlog
+     - own failed variable
+     - changed misleading variable name
+
+   * datacenter/scripts/setup, datacenter/scripts/runcorsika:
+     - moved FLUPRO to setup
+
+
+
+ 2008/11/18 Stefan Ruegamer
+
+   * datacenter/scripts/read_lapalma_tapes
+     - added this script which is used to read raw file tapes sent from
+       La Palma; executed by root on phoenix (because he should know
+       about the free disc space status)
+
+   * datacenter/scripts/checkmd5sum
+     - prevented date echo on the executing shell
+
+   * datacenter/scripts/checktransfer
+     - removed check for .finished files (.finished are no longer used)
+
+
+
+ 2008/11/16 Daniela Dorner
+
+   * datacenter/db/menu.php, datacenter/db/sequinfo-aio.php:
+     - added option to query only sumtrigger data
+
+
+
+ 2008/11/14 Daniela Dorner
+
+   * datacenter/scripts/sourcefile:
+     - added variable for sql.rc
+     - simplified code of two for-loops
+
+   * datacenter/scripts/setup:
+     - fixed typo
+
+   * datacenter/scripts/runcorsika:
+     - fixed query
+     - fixed logging
+
+
+
+ 2008/11/13 Daniela Dorner
+
+   * datacenter/scripts/runcorsika:
+     - added that maximum viewcone is queried from the database
+     - added that number of reuses for shower is queried from the 
+       database
+     - added that mirror diameter is queried from the database
+     - added that starting altitude is queried from the database
+     - changed fImpactParameter to fImpactMax
+
+
+
+ 2008/11/12 Daniela Dorner
+
+   * datacenter/db/menu.js, datacenter/db/include.php:
+     - added feature to remove lines for table ('-' button at beginning 
+       of each line) and button to get all lines back ('+' at top of 
+       the column)
+
+
+
+ 2008/11/12 Thomas Bretz
+
+   * datacenter/macros/plotstat.C:
+     - added descriptions for the tabs
+     - added legend to all tabs
+     - added beginning and end of period to all tabs
+
+   * mastro/MAstro.[h,cc]:
+     - added new member function GetMoonPeriodMjd
+     - added new member function GetMagicPeriodStart
+
+   * mbase/MTime.[h,cc]:
+     - added new member function SetMoonPeriod
+     - added new member function SetMagicPeriodStart
+
+   * callisto.rc, callisto_Dec04Jan05.rc, callisto_MarApr05.rc,
+     callisto_mux.rc:
+     - adapted number of max events for extraction of
+       pedestals from data runs and set the number of events
+       used for pedestal extraction instead.
+
+   * callisto_mux.rc:
+     - adapted valued for pulse position dtermination to fit better
+       the MUX data (especially get rid of a bias towards higher
+       values from saturating pixels)
+
+   * mhcalib/MHCalibrationPulseTimeCam.[h,cc]:
+     - added member function GetNumEvents
+     - changed number of required pixels to 3
+     - made sure that the number of required pixels is correctly 
+       applied
+
+   * mjobs/MJPedestal.[h,cc]:
+     - added new data members to better describe the number of required
+       and aimed events for pulse position and pedestal extraction
+     - changed the filters for the pedestal and pulse position
+       in a way that not more than the requested events will be
+       extracted
+     - added a MContinue which will stop the lop if the pedestal and
+       pulse position extraction has been finished
+     - added more precise checks after the loop to check if enough events
+       were found
+
+   * mpedestal/MExtractPedestal.[h,cc]:
+     - set fCounter already in Process
+
+   * mpedestal/MExtractPedestal.[h,cc], mpedestal/MPedCalcPedRun.[h,cc],
+     mpedestal/MPedCalcFromLoGain.[h,cc]:
+     - changed type of Calc from Int_t to void
+
+   * mbase/MContinue.[h,cc]:
+     - allow to use MContinue also to return something else in Process()
+       than just kCONTNUE
+
+   * mfbase/MFilterList.h:
+     - added member function GetNumEntries to get the number of
+       list elements
+
+   * mhcalib/MHGausEvents.h:
+     - added member function GetEntries
+
+   * mjobs/MJStar.cc:
+     - only plot the source position in the case of Monte Carlos
+       otherwise it is always 0/0 anyway
+
+   * mraw/MRawRunHeader.cc:
+     - be more precise when printing the run number
+
+   * mtrigger/MTriggerPattern.[h,cc]:
+     - added a Print function to be able to use MPrint
+
+
+
+ 2008/11/11 Thomas Bretz
+
+   * mbase/MStatusDisplay.cc:
+     - removed obsolete code of rot128
+     - Increased size of ListBox in MARS tab
+
+   * mgeom/MGeomCamDwarf.h:
+     - changed to have the APD camera layout as default
+
+   * manalysis/AnalysisLinkDef.h, manalysis/Makefile:
+     - removed MMcTriggerLvl2
+     - removed MMcTriggerLvl2Calc
+
+   * mhbase/MH.[h,cc], mhbase/MH3.[h,cc], mhbase/MHArray.[h,cc],
+     mhbase/MHMatrix.[h,cc], mhbase/MHn.[h,cc],
+     mhcalib/MHCalibrationCam.[h,cc], mhist/MHRate.[h,cc],
+     mhcalib/MHCalibrationChargePINDiode.[h,cc], mhflux/MHAlpha.[h,cc],
+     mhflux/MHCollectionArea.[h,cc], mhflux/MHDisp.[h,cc],
+     mhflux/MHEffectiveOnTime.[h,cc], mhflux/MHEnergyEst.[h,cc],
+     mhflux/MHFalseSource.[h,cc], mhflux/MHPhi.[h,cc],
+     mhflux/MHThetaSqN.[h,cc], mhflux/MHThreshold.[h,cc],
+     mhist/MHCamEvent.[h,cc], mhist/MHCamEventRot.[h,cc],
+     mhist/MHEvent.[h,cc], mhist/MHHadronness.[h,cc], 
+     mhist/MHStarMap.[h,cc], mhist/MHTriggerLvl0.[h,cc],
+     mhist/MHWeather.[h,cc], mhvstime/MHPixVsTime.[h,cc],
+     mhvstime/MHSectorVsTime.[h,cc], mhvstime/MHVsTime.[h,cc],
+     mimage/MHHillas.[h,cc], mimage/MHHillasExt.[h,cc],
+     mimage/MHHillasSrc.[h,cc], mimage/MHImagePar.[h,cc],
+     mimage/MHNewImagePar.[h,cc], mimage/MHNewImagePar2.[h,cc],
+     mimage/MHVsSize.[h,cc], mbadpixels/MHBadPixels.[h,cc],
+     mmuon/MHMuonPar.[h,cc], mmuon/MHSingleMuon.[h,cc],
+     mpedestal/MHPedestalCor.[h,cc], mpointing/MHPointing.[h,cc],
+     mranforest/MHRanForest.[h,cc], mranforest/MHRanForestGini.[h,cc], 
+     mreflector/MHReflector.[h,cc]:
+     - changed return type of Fill from bool to int
+     - fixed return value where necessary
+
+   * mhbase/MFillH.cc:
+     - return Int from Fill instead of Bool
+
+
+
+ 2008/11/11 Thomas Bretz, Daniela Dorner
+
+   * datacenter/db/tabs.php:
+     - new script (by chance with the name of an existing sctipt) 
+       plotting the tabs of status displays
+       the old script is not needed anymore and is therefore 
+       overwritten
+
+   * datacenter/db/tabs.js:
+     - added (js for tabs.php)
+
+   * datacenter/db/tabs.css:
+     - added (layout for tabs.php)
+
+
+
+ 2008/11/11 Daniela Dorner
+
+   * datacenter/db/tabs.php:
+     - fixed path for ganymed
+     - added plotdb for ganymed
+
+   * datacenter/db/datasetinfo-aio.php:
+     - added link for plotdb for ganymed
+
+   * datacenter/db/datasetinfo-aio.php, datacenter/db/sequinfo-aio.php:, 
+     datacenter/db/index-header.html:
+     - uncommented link to ganymed.php and sequences.php, as these 
+       scripts are not yet updated to new data structure
+
+   * datacenter/db/datasetinfo-aio.php, datacenter/db/sequinfo-aio.php:
+     - implemented link to new tabs.php
+
+   * datacenter/db/plotinclude.php:
+     - implemented new files names for showplots*.php
+
+   * datacenter/db/runinfo-aio.php:
+     - ranges are now expanded when page is loaded
+
+   * datacenter/scripts/budb, datacenter/scripts/fillcamera,
+     datacenter/scripts/mcsequences:
+     - exchanged vela by variable for host
+
+   * datacenter/scripts/dowebplots:
+     - removed sequence/dataset number from file name of csv file
+     - removed general rsync of callisto/star/ganymed at the end of the
+       script, as --delete was not working in the intended way and 
+       the single directories are rsynced anyhow
+
+
+
+ 2008/10/29 Thomas Bretz
+
+   * mpointing/MSrcPosCalc.cc:
+     - return kERROR instead of kFALSE if source position is too far
+       away from the camera center
+     - DeltaPhi replaced by Angle to take declination into account
+
+   * mreport/MReport.cc:
+     - fixed a typo (200805190 instead of 200605190)
+
+
+
+ 2008/10/23 Daniel Hoehne-Moench
+
+   * datacenter/macros/fillcamera.C:
+     - added and changed some parameters
+
+   * datacenter/scripts/fillcamera:
+     - rewritten
+
+
+
+ 2008/10/14 Thomas Bretz
+
+   * mjobs/MJPedestal.cc:
+     - for extracting the pulse position we have to allow sum events 
+       but require level 1 trigger instead of disallowing sum-events
+
+
+
+ 2008/10/13 Thomas Bretz
+ 
+   * callisto.cc, ganymed.cc, mars.cc, merpp.cc, readdaq.cc, 
+     readraw.cc, showlog.cc, showplot.cc, sinope.cc,
+     sponde.cc, star.cc:
+     - adapted to changes in MArgs
+
+   * mbase/MArgs.[h,cc]:
+     - interprete all options after -- as arguments
+     - moved removing of root options to a new member function
+
+   * mhist/MHEvent.cc:
+     - removed the obsolete M before the run id
+
+   * mjobs/MJMerpp.cc:
+     - fixed a bug which caused RunHedears to be merpped as RunHeader
+
+   * mraw/MRawRunHeader.cc:
+     - only use the event-number fix after run 326152, which is
+       more accurate
+
+   * mreport/MReport.cc:
+     - implemented a new version fix, namely 200809300
+
+   * mreport/MReportCC.cc:
+     - implemented interpretation of new format 200809030
+
+
+
+ 2008/10/13 Daniel Hoehne-Moench
+
+   * datacenter/macros/filldotrun.C:
+     - implemented SuperArehucas version 080912-0
+
+
+
+ 2008/09/16 Stefan Ruegamer
+
+   * datacenter/scripts/budb:
+     - redirection to a not existing file changed for the finish command
+
+   * datacenter/scripts/checkmd5sum:
+     - script is now executed specifying the tape number in the command
+       line
+     - added several outputs to the logfile
+     - removed phoenix login, the script is being executed now via
+       read_lapalma_tapes from phoenix
+     - added check for empty md5 files
+
+   * datacenter/scripts/runstar:
+     - corrected staging of files, _E-files are no longer existing
+
+
+
+ 2008/09/05 Daniela Dorner
+
+   * datacenter/scripts/sourcfile:
+     - fixed bug (setstatus was not working for datasets and runs)
+
+
+
+ 2008/08/27 Daniela Dorner
+
+   * datacenter/scripts/fillganymed:
+     - fixed bug in getting the dataset number (removed telescope 
+       number)
+
+   * datacenter/scripts/copyscript:
+     - fixed bug in find for optical files
+     - added some logging
+
+
+
+ 2008/08/25 Daniela Dorner
+
+   * datacenter/macros/filloptical.C:
+     - added different return values in case of not matching lines
+     - added new columns (ellipticity and position angle)
+
+   * datacenter/macros/fillobjects.C, datacenter/macros/fillobjects2.C:
+     - InsertUpdate instead of Insert now
+
+   * resources/TeVsources.txt, resources/good_compstars_R.txt:
+     - added new sources
+
+   * datacenter/scripts/copyscript:
+     - implemented new return values
+     - improved find for optical files
+
+   * datacenter/scripts/dbchk:
+     - adapted check for consistency between sequencefiles and content 
+       of database: now only done for sequences where the file is 
+       already written
+
+
+
+ 2008/08/22 Daniela Dorner
+
+   * datacenter/scripts/scriptlauncher:
+     - fixed bug in starting scripts with command line options
+
+   * datacenter/scripts/dowebplots:
+     - fixed bug (showplot was not executed in the mars directory)
+     - moved all general rsyncs to the end of the script
+
+
+
+ 2008/08/21 Daniela Dorner
+
+   * datacenter/db/plotdb.php:
+     - changed input field from 6 to 8 digits
+
+   * datacenter/scripts/dbchk:
+     - added check if something on nightly basis failed
+
+   * datacenter/scripts/dowebplots:
+     - fixed sequencepath in rsync
+
+   * datacenter/scripts/jobmanager:
+     - changed choosing of jobmanager (data or mc) from if to case
+     - implemented case-statement for the choice of the queueing 
+       system (condor and sun grid engine implemented up to now)
+     - implemented commands for sun grid engine 
+
+   * datacenter/scripts/jobmanager, datacenter/scripts/setup:
+     - moved defining of array scripts and pnoswe(ek) from sourcefile 
+       to jobmanager
+     - fixed problem with mc jobmanager pnos
+
+   * datacenter/scripts/setup:
+     - implemented definition of queueing system
+     - exchanged camera version
+
+   * datacenter/scripts/sourcefile:
+     - host is retrieved from sql.rc now
+
+   * datacenter/scripts/runcorsika, datacenter/scripts/runreflector, 
+     datacenter/scripts/runcamera, datacenter/scripts/setup:
+     - moved defining of detectorpath from scripts to sourcefile 
+
+   * datacenter/scripts/runcorsika, datacenter/scripts/setup:
+     - implemented variable for path of Mmcs
+
+   * datacenter/scripts/runcorsika:
+     - exchanged 'operator' in inputcard by `whoami`
+     - implemented usage of function for new datastructure
+
+   * resources/steps.rc:
+     - added line for primaries for MCRunProcessingStatus
+
+
+
+ 2008/08/15 Daniela Dorner
+
+   * datacenter/macros/plotdb.C, datacenter/macros/plotoptical.C,
+     datacenter/macros/plotstat.C, datacenter/macros/plotusage.C:
+     - added call plot*(TString path) needed for the script 
+       dowebplots
+     - added path to output file
+
+   * datacenter/macros/plotdb.C:
+     - added path to call plotdb(dataset)
+
+   * datacenter/macros/plotoptical.C:
+     - added path to call plotoptical(source)
+
+   * datacenter/macros/plotstat.C:
+     - fixed bug in query
+
+   * datacenter/macros/plotusage.C:
+     - adapted comment
+     - removed not needed calls
+
+   * datacenter/scripts/doqualityplots, 
+     datacenter/scripts/webupdate-star, 
+     datacenter/scripts/webupdate-sinope, 
+     datacenter/scripts/webupdate-callisto,
+     datacenter/scripts/webupdate-ganymed:
+     - deleted (not needed anymore, done by dowebplots now)
+
+   * datacenter/scripts/dowebplots:
+     - rewritten completely: script now handles not only creating 
+       web plots for ganymed, star and callisto, but also plotdb, 
+       plotusage, plotstat and plotoptical
+     - implemented steering via DB for ganymed, star and callisto to 
+       make sure that all plots are produced
+     - added rsync to this script
+     - via command line options it is possible to choose which plots 
+       should be produced
+     - redirect of the root error (used to output mean values) to 
+       txt files in the webdirectory
+     - added writing of csv file (read by tabs.php)
+
+   * datacenter/scripts/run.condor:
+     - added 'Arguments' (needed to submit dowebplots including
+       command line opticon to condor) 
+
+   * datacenter/scripts/scriptlauncher:
+     - removed makedir of $listpath and $lockpath (done in setup
+       already)
+     - exchanged algorithm to loop over scripts to allow for scripts
+       with command line option
+
+   * datacenter/scripts/sourcefile, datacenter/scripts/jobmanager:
+     - moved definition of $column from sourcefile to jobmanager
+       to allow for usage of the function getstatus by other scripts
+       than the jobmanager
+
+   * datacenter/scripts/sourcefile:
+     - removed definition of webpath (already defined in setup)
+     - removed making of $listpath (not needed anymore)
+     - added fail code for dowebplots (27)
+     - additional if-clause in the getstatus function to allow 
+       for using it even if no column is defined
+     - removed not needed 'numproc=0'
+
+   * resources/steps.rc:
+     - added steps for webplots (fWebCalib, fWebStar, fWebGanymed, 
+       fWebPlotDBGanymed)
+
+
+
+ 2008/08/14 Daniela Dorner
+
+   * datacenter/macros/plotusage.C:
+     - added (macro to plot condor usage from DB)
+
+
+
+ 2008/08/13 Daniela Dorner
+
+   * datacenter/scripts/setup:
+     - removed listpath (not used anymore)
+     - removed commented, not needed lines
+
+
+
+ 2008/08/13 Stefan Ruegamer
+
+   * datacenter/scripts/webupdate-star:
+     - added option to prevent melibea-Q-files from being rsynced
+
+
+
+ 2008/08/12 Stefan Ruegamer
+
+   * datacenter/script/checkmd5sum:
+     - fixed the check for raw files
+     - added a check for the nunmber of checked files
+
+   * datacenter/scripts/webupdate-callisto,
+     datacenter/scripts/webupdate-star:
+     - fixed the --exclude option so Y and I file do no longer get
+       synced
+
+   * datacenter/script/zipscript:
+     - added check if the raw file is no longer existing (happens when
+       multiple zipscripts are started)
+     - added check for the case that the sequence number is 0
+     - fixed some echos
+     - added telescope number for the db update query
+
+
+
+ 2008/08/08 Daniela Dorner
+
+   * datacenter/db/magicdefs.php:
+     - fixed sorting for sequences
+
+   * datacenter/scripts/checkstardone, 
+     datacenter/scripts/writedatasetfiles:
+     - fixed bug in getting the dataset number (removed telescope 
+       number)
+
+
+
+ 2008/08/07 Daniela Dorner
+
+   * datacenter/scripts/runganymed:
+     - removed telescope number
+
+   * datacenter/scripts/checkstardone:
+     - added dataset number to output
+
+   * datacenter/db/runinfo-aio.php, datacenter/db/sequinfo-aio.php
+     datacenter/db/magicdefs.php:
+     - improved sorting with combination of (file-,) run/sequ- and 
+       telescope number
+
+
+
+ 2008/08/07 Thomas Bretz
+
+   * datacenter/macros/buildsequenceentries.C:
+     - fixed a problem with the check whether a sequence already
+       exists. It was always belived that the sequence doesn't exist.
+
+
+
+ 2008/08/07 Stefan Ruegamer
+
+   * datacenter/scripts/makecallistolinks
+     - added a condition to prevent the linking of the old Dec04Jan05.rc
+       for mux data
+
+   * datacenter/scripts/cutslices
+     - changed checklock to checklock continue to prevent the program 
+       from exiting if a lock file already exists
+
+
+
+ 2008/08/06 Daniela Dorner
+
+   * datacenter/db/sequinfo.php, datacenter/db/sequinfo-aio.php,
+     datacenter/db/sequence.php, datacenter/db/runinfo.php,
+     datacenter/db/runinfo-aio.php, datacenter/db/resetseq.php,
+     datacenter/db/plotinclude.php, datacenter/db/magicdefs.php,
+     datacenter/db/ganymed.php, datacenter/db/findoffdata.php,
+     datacenter/db/dbstatus.php, datacenter/db/datasetinfo-aio.php,
+     datacenter/db/datasetinfo.php, datacenter/db/datacheck.php,
+     datacenter/db/builddatasets.php:
+     - changed syntax of left join to 'using(columnname)'
+
+   * datacenter/db/sequinfo-aio.php, datacenter/db/runinfo-aio.php,
+     datacenter/db/magicdefs.php, datacenter/db/builddatasets.php
+     datacenter/db/dbstatus.php, datacenter/db/findoffdata.php,
+     datacenter/db/plotinclude.php, datacenter/db/resetseq.php,
+     datacenter/db/sequence.php, datacenter/db/sequinfo.php:
+     - implemented telescope number
+
+   * datacenter/db/runinfo-aio.php:
+     - moved pulldown for number of results
+
+   * datacenter/db/resetseq.php:
+     - removed unknown ip adresses, added names to known ip adresses
+
+   * datacenter/db/menu.php:
+     - changed width input field for sequence number in run menu from 
+       6 to 8
+
+
+
+ 2008/08/06 Thomas Bretz
+
+   * mfileio/MReadTree.cc:
+     - removed some debug out
+
+
+
+ 2008/08/06 Stefan Ruegamer
+
+   * callisto_mux.rc
+     - changed the extractor window from 15 64 to 0 49
+
+   * datacenter/scripts/setup
+     - commented the lines containing cutslices out
+
+
+
+ 2008/08/05 Stefan Ruegamer
+
+   * datacenter/scripts/movingrawfiles:
+     - added checks for owner of the file
+     - adapted the script to the different pathes
+       
+   * datacenter/scripts/zipscript:
+     - added telno and fileno so it works with the new files
+     - added the telno to the calzip-lock file
+
+   * datacenter/scripts/runcallisto:
+     - added the telno to the calzip-lock file
+     - removed the link to callisto_mux_new.rc, it is no longer needed
+
+
+
+ 2008/08/05 Thomas Bretz
+
+   * datacenter/macros/fillstar.C:
+     - fixed the case of invalid effective on times
+     - fixed the regular expression to find the MSequence in old files
+     - added information about the dc currents
+
+   * datacenter/macros/fillcondor.C:
+     - added
+
+
+
+ 2008/08/05 Daniela Dorner
+
+   * datacenter/tools/resetpriorities:
+     - added (script to reset priorities in the tables RunProcessStatus,
+       SequenceProcessStatus and DataSetProcessStatus)
+
+   * datacenter/scripts/makecallistolinks:
+     - removed not needed output
+
+   * datacenter/scripts/sourcefile:
+     - fixed bug in query of setstatus 
+     - improved if-clause to avoid unneccessary output
+
+   * datacenter/db/menu.php:
+     - changed width input fields for ranges from 6 to 8
+
+   * datacenter/scripts/condorstatistic:
+     - fixed logging output
+
+   * datacenter/scripts/dbchk:
+     - added checking of consistency with table SequenceProcessStatus
+
+   * resources/steps.rc:
+     - fixed primaries of DataSetProcessStatus
+
+
+
+ 2008/08/04 Daniela Dorner
+
+   * datacenter/scripts/runstar:
+     - removed linking of rc-files and command line argument --config
+       (usage of star_mux.rc  not needed anymore)
+
+
+
+ 2008/08/04 Thomas Bretz
+
+   * RELEASE V2.1.1
+
+
+
+ 2008/08/04 Stefan Ruegamer
+
+   * datacenter/scripts/setup:
+     - added compux/cutslices to the jobmanager queue
+ 
+   * datacenter/scripts/movingrawfiles:
+     - modified the regex for finding the run number such that it
+       satisfies the new raw file convention
+     - the script now searches for files in /magic and /data, so
+       movingrawfiles2 is obsolete
+
+   * datacenter/scripts/cutslices:
+     - adapted the script for jobmanager use
+     - included some more checks
+
+
+
+ 2008/08/04 Thomas Bretz
+
+   * mjobs/MJCalibrateSignal.cc:
+     - added a filter against very bright events cleaning the 
+       bad pixel plot
+
+   * ganymed.rc, ganymed_wobble.rc, ganymed_onoff.rc:
+     - slightly tightened the spark cut in length vs size
+
+   * ganymed_wobble.rc:
+     - now uses the default (still 3) for the number of wobble
+       positions
+
+   * mbase/MParEmulated.[h,cc]:
+     - some improvements to support collection (still not finished)
+
+   * mraw/MRawRunHeader.cc:
+     - Implemented a fix for run-numbers between 1001348 and 1001396 
+       which were incorrectly assigned by the cc.
+     - changed order of fix and check
+
+   * resources/calibration_spline.rc:
+     - updated muon calibration constants for the periods 51-57, 
+       58-63 and 67-
+
+
+
+ 2008/08/04 Daniela Dorner
+
+   * datacenter/scripts/setup:
+     - changed order of scripts (now: ganymed, star, callisto)
+     - adapted number of allowed processes (more CPUs available now)
+     - commented mc jobmanager stuff out, as it is not yet working
+       completely
+
+
+
+ 2008/08/03 Daniela Dorner
+
+   * datacenter/scripts/runcamera, datacenter/scripts/runcorsika, 
+     datacenter/scripts/runreflector:
+     - removed primvar
+
+   * datacenter/scripts/condorstatistics:
+     - added (script calling the macro fillcondor.C to fill condor
+       statistics to the database, tars the condor-statistic files
+       afterwards)
+
+   * datacenter/scripts/dowebplots:
+     - added converting from ps to pdf and removing of ps
+
+
+
+ 2008/08/02 Thomas Bretz
+
+   * datacenter/scripts/dbchk:
+     - if the regular expression in sed doesn't find anything
+       nothing is replaced (this case is now handled)
+
+   * mjobs/MJPedestal.cc:
+     - removed the obsolete shift variable in PosePosCheck
+     - do not allow lo-gain starts < 0
+
+   * msignal/MExtractTimeAndCharge.cc:
+     - changed lo-gain stat sift to -1.0 (which is the valie which
+       in use anyway)
+
+   * msignal/MExtractTimeAndCharge.h:
+    - do not add the lo-gain offset wehen setting the start-shift
+
+   * msignal/MExtractor.cc:
+     - make sure Print() prints the class description 
+
+   * mpointing/MSrcPosCalc.[h,cc]:
+     - if the MC camera files are new enough the source position on the
+       camera is now calculated from the stored telescope and shower
+       orientation
+
+
+
+ 2008/08/01 Thomas Bretz
+
+   * ganymed.rc, ganymed_wobble.rc, ganymed_onoff.rc:
+     - added starguider calibration 328198
+
+   * resources/starguider00328198.txt:
+     - added
+
+   * datacenter/macros/plotdb.C:
+     - added fMedNumPheInner/outer
+     - added fRelChargeRmsOuter
+
+   * mbase/MStatusDisplay.[h,cc]:
+     - added %%title%% as a possibility in the filename
+     - added some code to write an XML instead of a csv file
+       (still not in-use)
+
+   * mjobs/MJCut.cc, mjobs/MJSpectrum.cc:
+     - replaced RunNumber by FileId
+
+
+
+ 2008/07/31 Daniela Dorner
+
+   * resources/steps.rc:
+     - added missing influences and needs for DataSetProcessStatus
+
+   * datacenter/scripts/checkstardone:
+     - removed breaks
+     - removed not needed variables
+     - changed dataset from string to int in call of macro
+
+   * datacenter/scripts/budb:
+     - added output how to create database MyMagic
+     - added removing of logfiles
+     - some small inprovements
+
+
+
+ 2008/07/31 Thomas Bretz
+
+   * merpp.cc:
+     - fixed merpping a single report file
+     - Strip the dir name from MJMerpp's name
+
+   * mreports/MReportCamera.cc:
+     - also allow empty HV Settings file names
+
+   * datacenter/macros/checkstardone.C:
+     - fixed the query
+     - fixed a typo
+
+   * datacenter/macros/fillcalib.C:
+     - changed ouput
+     - get seq-number from sequence instead of file-name
+     - added telescope number
+     - added fRelChargeRmsInner/Outer
+     - added fMedNumPheInner/Outer
+     - don't user TEnv anymore
+
+   * datacenter/macros/fillsignal.C
+     - get seq-number from sequence instead of file-name
+     - added telescope number
+
+   * datacenter/macros/fillstar.C:
+     - changed ouput
+     - get seq-number from sequence instead of file-name
+     - added telescope number
+     - added fTotOnTime
+
+   * callisto.rc, callisto_Dec04Jan05.rc, callisto_mux.rc:
+     - removed obsolete reference to ExtractTime
+
+
+
+ 2008/07/30 Thomas Bretz
+
+   * mjobs/MSequence.cc:
+     - fixed a typo in the new Read function
+
+
+
+ 2008/07/30 Daniela Dorner
+
+   * resources/steps.rc:
+     - added 
+     - adapted to new data structure
+
+   * steps.rc:
+     - removed
+
+   * datacenter/macros/setupdb.C, datacenter/macros/setstatus.C, 
+     datacenter/macros/getdolist.C:
+     - removed
+
+   * datacenter/db/datacheck.php, datacenter/db/datasetinfo.php, 
+     datacenter/db/magicdefs.php, datacenter/db/menu.php, 
+     datacenter/db/resetseq.php, datacenter/db/runinfo.php, 
+     datacenter/db/sequinfo.php, datacenter/macros/resetcolumn.C:
+     - removed fFailedCodeAdd
+     - changed fFailedCode to fProgramId
+
+   * datacenter/scripts/sourcefile:
+     - adapted path of steps.rc
+     - added new additional primaries to functions setstatus, getstatus
+       gettodo and getdolist
+     - merged function gettodo and getdolist
+     - removed todofile
+     - removed fFailedCodeAdd
+     - changed fFailedCode to fProgramId
+
+   * datacenter/scripts/buildsequenceentries, 
+     datacenter/scripts/checkfilesforsequenceavail, 
+     datacenter/scripts/checkstardone, datacenter/scripts/doexclusions, 
+     datacenter/scripts/fillcallisto, datacenter/scripts/fillstar, 
+     datacenter/scripts/fillganymed, 
+     datacenter/scripts/writedatasetfiles, 
+     datacenter/scripts/writesequencefiles:
+     - implemented usage of getodo (new merged function)
+     - removed todofile
+     - removed primval
+
+   * datacenter/scripts/runcallisto, datacenter/scripts/dodatacheck, 
+     datacenter/scripts/runganymed, datacenter/scripts/runstar:
+     - implemented usage of getodo (new merged function)
+     - removed primval
+
+   * datacenter/scripts/checkstardone
+     - removed comadd
+
+   * datacenter/scripts/runcallisto
+     - append output of stage.C instead of overwriting logfile
+
+   * datacenter/macros/resetcolumn.C:
+     - added return 0 and output, as this macro is not yes adapted to 
+       the new data structure for MAGIC II
+
+   * datacenter/scripts/makecallistolinks:
+     - exchanged grepping for reason by db-query (return code 13)
+     - exchanged call of resetcolumn.C by direct db-query
+
+
+
+ 2008/07/29 Stefan Ruegamer
+
+   * datacenter/scripts/zipscript
+     - modified the regex for finding the run number such that it
+       satisfies the new raw file convention
+
+
+
+ 2008/07/28 Daniela Dorner
+
+   * datacenter/scripts/correcttime, datacenter/scripts/cutslices, 
+     datacenter/scripts/dodatacheck:
+     - added exit and output, as these scripts are not adapted to the 
+       new data structure for MAGIC II
+
+   * datacenter/scripts/dbchk:
+     - added outputs to processlog 
+
+   * datacenter/scripts/doexclusions, 
+     datacenter/scripts/writesequencefiles,
+     datacenter/scripts/buildsequenceentries:
+     - added telescope number 1 to call of macro
+
+   * datacenter/scripts/sourcefile:
+     - added priority  
+
+
+
+ 2008/07/27 Thomas Bretz
+
+   * merpp.cc:
+     - added include of TClass to work with root 5.20
+
+   * mbase/MParEmulated.[h,cc]:
+     - for root 5.20/00 we have to use TVirtualStreamer instead
+       of TStremaer
+
+   * mbase/MStatusDisplay.cc:
+     - the workaround had to be fixed because since we don't change
+       gPad for printing anymore all following line and text drawings
+       reffered to the wrong gPad
+
+   * datacenter/scripts/doqualityplots, datacenter/scripts/dowebplots:
+     - also antialias text 
+     - save as interlaced png
+
+   * mbase/MThread.h:
+     - use a reinterpret_cast when returning the Thresd's result
+       (this gave a correct warning on 32bit systems)
+
+   * mhbase/MH3.h:
+     - when available return the histogram title as title (without axis)
+     - implemented GetFullTitle member function to return the full title
+
+
+
+ 2008/07/25 Thomas Bretz
+
+   * mbase/MStatusDisplay.cc:
+     - expand path name for csv files
+
+   * mfileio/MReadFiles.cc:
+     - print a warning if no file was added
+
+   * mfileio/MReadTree.cc:
+     - updated warning if no file was added
+     
+   * mfileio/MReadScanFile.[h,cc]:
+     - for safety add a postprocessing removing the contents
+       from the list
+     - also removing the contents from the list before filling
+
+   * mhbase/MH3.cc:
+     - fixed an output
+
+   * mtools/MTFillMatrix.[h,cc]:
+     - added a maximum number the eventloop is running over
+
+   * mjobs/MSequence.cc:
+     - replaced gFile by gDirectory
+
+
+
+ 2008/07/23 Thomas Bretz
+
+   * showplot.cc:
+     - allow to read more than one file
+
+   * datacenter/macros/stage.C:
+     - changed the return type to int
+
+   * mbase/MStatusArray.cc:
+     - added a check for the key in read to supress the root error
+       on the console
+
+   * mbase/MStatusDisplay.[h,cc]:
+     - stop update timer in destructor
+     - added new member function GetNumTabs
+     - we don't need to switch to batchmore when painting canvases
+       anymore
+     - removed an obsolete cout
+
+   * mjobs/MJCalibrateSignal.cc:
+     - changed again the wrong names of the tasklists
+
+   * mjobs/MSequence.[h,cc]:
+     - set default telescope to 1 so that reading old sequence files
+       gives valid sequences.
+     - overwrote Read to allow reading also old sequences which
+       have no default name in the files
+     - removed output of "DataPath" from Print
+
+   * msql/MSQLMagic.[h,cc]:
+     - added a second InsertUpdate
+     - added ExistRow
+
+   * datacenter/scripts/runcallisto:
+     - adapted to all other changes
+     - removed merpping of caco-files
+
+
+
+ 2008/07/22 Thomas Bretz
+
+   * mbase/MTime.cc:
+     - do not check the return value of mktime (this would
+       fail for dates before 1970)
+
+   * mjobs/MJCalibrateSignal.cc, mjobs/MJStar.cc:
+     - distinguish between data-runs and mc-runs for the rate plot
+     - named the tasklist for pedestal and calib extraction
+
+   * mjobs/MJMerpp.cc:
+     - precheck the accessibility of all files if a sequence
+       is processed
+
+   * mjobs/MSequence.cc:
+     - the file number is three digits
+     - the Tag for data runs is DatRuns not DataRuns
+
+   * mfileio/Makefile, mfileio/FileIOLinkDef.h:
+     - added MReadFiles
+     - added MReadScanFile
+
+   * mfileio/MReadFiles.[h,cc], mfileio/MReadScanFile.[h,cc]:
+     - added
+
+   * mfileio/MreadRflFile.[h,cc]:
+     - derived from MReadFiles (untested)
+
+   * datacenter/macros/checkfileavail.C:
+     - fixed a type (TSQLRow instead of TSQlRow)
+     - added a missing ;
+
+   * mfileio/MReadTree.[h,cc]:
+     - added some includes
+     - added the IsOwned member function to make sure we don't
+       spoil memory when out pointers are deleted in the destructor
+     - removed some really obsolete workarounds
+     - added a member function to add friends
+     - don't allocate memory in AddFile
+     - implemented the possibility to process also friends
+     - implemented the possibility to read branches from unknown
+       "vendors", i.e. branches for which the class is not available
+       in the dictionary
+     - added a list to hold all parameter containers to be able to 
+       call SetReadyToSave more easily than previously
+
+   * mbase/MParEmulated.[h,cc]:
+     - added
+
+   * mbase/Makefile, mbase/BaseLinkDef.h:
+     - added MParEmulated
+
+   * mbase/MParameters.h:
+     - added functions to get the pointer to the values. Handle this
+       with care.
+
+   * mbase/MParConatiner.h:
+     - made GetterMethod virtual to allow MParEmulated to overwrite it
+     - made fgListMethodCall protected to allow MParEmulated to
+       add its new TMethodCalls
+
+   * datacenter/macros/checkfileavail.C:
+     - removed dependence on caco-files.
+     - fixed query
+     - output query in case of failure
+
+   * datacenter/scripts/checkfilesforsequenceavail:
+     - fixed to use new checkfileavail.C
+
+   * mcalib/MCalibrateData.cc:
+     - removed the fixed scale factor for MCs. It is now left open,
+       thus it can be changed from the callisto resource file
+
+   * mdata/MDataMember.cc:
+     - small improvement to error output
+
+   * mfileio/MWriteRootFile.cc:
+     - small change to log-level
+
+   * mbase/MTaskList.cc:
+     - in case of an unknown return value stop event loop
+
+   * mfileio/MRead.cc:
+     - use gSystem->BaseName to get file name
+
+
+
+ 2008/07/21 Thomas Bretz
+
+   * mbase/MParContainer.[h,cc]:
+     - adde new static ember functions GetClass
+
+   * mbase/MParList.[h,cc], mbase/MStatusArray.[h,cc],
+     mreport/MReportHelp.cc:
+     - use new GetClass function
+
+
+
+ 2008/07/20 Thomas Bretz
+
+   * callisto.cc, star.cc, mjobs/MDataSet.cc, mjobs/MJCalibrateSignal.cc,
+     mjobs/MJCalibration.cc, mjobs/MJPedestal.cc, mjoptim/MJOptimize.cc,
+     mmain/MEventDisplay.cc:
+     - replaced Setup*Runs by GetRuns
+
+   * datacenter/macros/buildsequenceentries.C:
+     - output if something is deleted
+
+   * datacenter/macros/plotdb.C:
+     - added kGroupByDay option
+     - some small changes
+     - made group by work with "as"
+     - made use of TEnv obsolete
+
+   * datacenter/macros/plotrundb.C:
+     - added telescope number as otpion
+
+   * datacenter/scripts/checkfilesforsequenceavail:
+     - added telescope number 1 to call of checkfileavail.C
+
+   * mbase/MTime.cc:
+     - made SetSqlDateTime more flexible
+
+   * mjobs/MJMerpp.[h,cc]:
+     - added (basically the code from merpp.cc)
+     - enhanced with the possibility to merpp a whole sequence
+
+   * merpp.cc:
+     - use new MJMerpp
+
+   * mjobs/Makefile, mjobs/JobsLinkDef.h:
+     - added MJMerpp
+
+   * datacenter/macros/checkfileavail.C, datacenter/macros/checkstardone.C:
+     - reduced queries to a single query
+     - take sequence number as argumenet instead of filename
+
+   * datacenter/scripts/checkstardone:
+     - adapted to changes in checkstardone.C
+
+   * mjobs/MSequence.[h,cc]:
+     - a lot of rework to the file-interface
+     - included subsystem (cc) files
+     - some renaming to some functions
+     - improved the interface to the database
+     - unified the Setup*Runs into GetRuns
+     - when inflating a sequence name allow to use [tel:]squence now
+
+   * mjobs/MSequenceSQL.[h,cc]:
+     - adapted to changes in MSequence
+
+   * datacenter/macros/stage.C
+     - added
+
+   * mjobs/MJStar.cc:
+     - changed displayed title according to the other jobs
+     - changed Setup*Runs to GetRuns
+     - unified output when finished
+     - make sure the weight for the rate tab is not 0
+     - read the currents now from the camera instead of the currents tree
+
+
+
+ 2008/07/19 Thomas Bretz
+
+   * datacenter/macros/buildsequenceentries.C:
+     - Use the GetId also in the constructor of Rule
+     - fixed reading of the sections in the sequences.rc
+
+   * datacenter/macros/writesequencefile.C:
+     - included iostream
+
+   * mjobs/MSequence.[h,cc]:
+     - updates some comments
+     - simplified the comparison functions
+     - calculate fPeriod automatically in any case 
+       (do not read from file)
+     - added X for excluded to AddFile
+     - use AddFile in ExludeFile
+     - removed incorrect calles to MJob::SortArray
+     - call SortArrays correctly in AddFile
+     - changed default for telescope from 1 to 0 in SQL constructor
+     - allow to set a default path from within the sequence file
+       (in most cases this won't help much)
+
+   * mjobs/MSequenceSQL.[h,cc]:
+     - if telescope number is 0 check whether an unambiguous
+       sequence with this number exists. If existing set the
+       telescope number accordingly
+     - changed default for telescope in constructor to 0 accordingly
+
+
+
+ 2008/07/18 Thomas Bretz
+
+   * mbase/MTime.cc:
+     - GetStringFmt was taking the daylight saving time into account
+       (hopefully this fix is not too much dependent on the kernel)
+
+   * mjobs/MSequence.cc:
+     - added some preliminary code for comparing two sequences
+     - fixed output in Print (the "s" was missing in LightConditions)
+     - do not write the "Run[0-]*" line for anything else than
+       the "Runs" (needs more fixes)
+
+   * mjobs/MSequenceSQL.cc:
+     - added a sanity check
+
+
+
+ 2008/07/17 Thomas Bretz
+
+   * mjobs/MSequence.[h,cc]:
+     - added fTelescope data member
+     - increased class version number accordingly
+     - added return value to WriteFile
+
+   * mjobs/MSequenceSQL.cc:
+     - added TelescopeNumber to where-clause
+     - get fFileNumber from RunData
+     - use File-Id to order files
+     - added telescope number to all constructors
+
+   * automatic-exclusions.rc:
+     - moved as exclusions.rc to resources and updated contents
+       to new doeclusion.C
+
+   * ganymed.cc:
+     - updated Usage output
+     - added new option to change meximum file size
+
+   * merpp.cc:
+     - merpp also MCameraDC from cc-report
+
+   * datacenter/macros/fillsignal.C:
+     - replaces WARNING by ERROR if an error is returned
+
+   * datacenter/macros/writesequencefile.C:
+     - completely redone using new MSequenceSQL
+
+   * mcamera/MCameraDC.[h,cc]:
+     - added the Interprete member function
+     - made MReportCamera and MReportCurrents friends clases
+     - added fStatus
+     - increased class version accordingly
+
+   * mjobs/MJCalibration.cc, mjobs/MJPedestal.cc:
+     - tiny changes to output
+
+   * mreport/MReportCamera.[h,cc]:
+     - removed fStatusDC
+     - removed gkActiveLoadControlVersNum
+     - added interpretation of DC
+     - increased class version by one
+
+   * mreport/MReportCurrents.cc:
+     - moved interpretation of DCs to MCameraDC
+
+   * resources/sequences.rc:
+     - changed some comments
+     - added telescope number to rules
+
+   * datacenter/macros/buildsequenceentries.C:
+     - the building is now based on the file-id (run*1000+file)
+       and it is only done for a single telescope
+     - added telescope number as srgument
+     - added fPriority to SequenceProcessStatus
+     - added fTelescopeNumber to the Sequence table
+     - the sequence number is still idetical to the first run-number
+     - changed reading of resource file such that the telescope
+       number can be given for each subsection
+
+   * datacenter/macros/doexclusions.C:
+     - many simplifications
+     - use telescope number as argument
+     - simplified and improved
+
+   * datacenter/macros/filldotrun.C:
+     - some changes to output
+     - skip comment line at the beginning
+     - skip the line with the telescope number
+     - removed ISNULL from telescope/run/file check
+     - added fPriority to RunProcessStatus
+     - added telescope und file number to RunData and RunProcessStatus
+
+   * datacenter/macros/resetallruns.C:
+     - adapted to new ten:run/file scheme and the new contents
+       of the input file
+
+   * datacenter/scripts/filesondisk:
+     - improved regular expressions to find runs
+     - commmented out caco files
+     - write telescope run and file-number to the file
+     - some simplification
+
+
+
+ 2008/07/16 Thomas Bretz
+
+   * msql/MSQLMagic.[h,cc]:
+     - the wehere clause can now be omitted in Update
+
+
+
+ 2008/07/14 Thomas Bretz
+
+   * datacenter/macros/fillsignal.C:
+     - moved sql.rc to constructor of MSQLMagic
+
+   * datacenter/macros/plotstat.C:
+     - improved beauty of the SQL queries
+     - join by telescope number, run number and file number
+
+   * mbase/MString.[h,cc]:
+     - removed everything except Format which is then identical to
+       newwer root versions TString::Format
+
+   * mastro/MAstro.cc, mastro/MAstroCatalog.cc:
+     - replaced MString::Print by MString::Format
+
+   * mbase/MTime.cc:
+     - In SetSqlDateTime allow also to set dates without time
+
+   * mbase/Makefile, mbase/BaseLinkDef.h:
+     - removed MRunIter
+
+   * mfileio/MWriteRootFile.cc:
+     - sow in status line if a tree has been finally copied
+
+   * mhist/MHEvent.cc:
+     - replaced GetRunNumber by GetStringID
+
+   * mjobs/MJCalibrateSignal.cc:
+     - Replaced RunNumber by FileId in trogger pattern display
+     - do not allow to divide by 0
+
+   * mjobs/MJExtractSignal.cc, mjobs/MJCalibTest.cc:
+     - removed obsolete include of MDirIter
+
+   * mjobs/MJPedestal.cc, mjobs/MJCalibration.cc:
+     - replaced MRunIter by MDirIter
+
+   * mjobs/MSequence.[h,cc]:
+     - moved code to compile (inflate) a run filename or a its path
+       to new static function such that they can be accessed from the outside
+
+   * star.cc, callisto.cc, mjobs/MSequence.[h,cc], mmain/MEventDisplay.cc
+     - renamed InflatePath to InflateSeq
+
+   * mpedestal/MPedCalcPedRun.cc:
+     - when checking the runnumber check also for the telescope number
+
+   * mraw/MRawRunHeader.[h,cc]:
+     - added new function GetStringID
+
+   * mraw/RawLinkDef.h, mraw/Makefile:
+     - removed MRawSocketRead
+
+   * mpointing/MHSrcPosCam.[h,cc]:
+     - fixed ouput in case a container is not found
+     - made it work for monte carlos, too
+     - use weight when filling histogram
+     - changed circle line styles
+     - changed default in constructor to wobble=kTRUE
+
+
+
+ 2008/07/08 Daniel Hoehne
+
+   * datacenter/db/menu.php, datacenter/db/magicdefs.php:
+     - added new columns (fRateTrigEvts, fRateSumEvts, fRatePedEvts,
+       fRatePedTrigEvts, fRateCalEvts, fRateNullEvts, fRateUnknownEvts,
+       fRatioCalEvents, fPulsePosCalib, fAvgWindSpeed, fAvgTemperature,
+       fAvgHumidity, fAvgTempSky, fAvgCloudiness, fRmsCloudiness)
+
+
+
+ 2008/07/05 Thomas Bretz
+
+   * datacenter/macros/fillcamera.C, datacenter/macros/findcacofiles.C:
+     - changed JOIN to use USING
+     - removed dependence on TEnv
+     - some improvement to includes
+
+   * datacenter/macros/filldotrbk.C, datacenter/macros/fillganymed.C,
+     datacenter/macros/filloptical.C, datacenter/macros/fillsignal.C,
+     datacenter/macros/fillsources.C, datacenter/macros/fillstar.C,
+     datacenter/macros/getdolist.C, datacenter/macros/insertcacofile.C,
+     datacenter/macros/insertdataset.C, datacenter/macros/plotoptical.C,
+     datacenter/macros/plotrundb.C, datacenter/macros/plotstat.C,
+     datacenter/macros/resetallruns.C,
+     datacenter/macros/writedatasetfile.C:
+     - removed dependence on TEnv
+     - some improvement to includes
+
+   * datacenter/macros/filldotrun.C:
+     - make it fail for everything except Magic 1
+     - removed dependence on TEnv
+     - some improvement to includes
+
+   * datacenter/macros/plotoptical.C:
+     - removed MPlot, use MPlot from plotdb instead
+
+   * datacenter/macros/setstatus.C:
+     - some improvement to includes
+
+   * mbase/MTime.[h,cc]:
+     - added function returning day of sunrise as MTime
+
+   * mhflux/MHAlpha.cc:
+     - use BinError instead of BinContents to decide whether the
+       excess time is plotted or not
+
+   * mimage/MHHillas.cc:
+     - changed title of "Center"
+
+   * mjobs/JobsLinkDef.h, mjobs/Makefile:
+     - added new class MSequenceSQL
+
+   * mjobs/MSequenceSQL.[h,cc]:
+     - added
+
+   * mjobs/MSequence.[h,cc]:
+     - replaced ReadLightCondition by the more flexible GetLightCondition
+     - added a new constrcutor constructing a MSequence from the database
+     - fixed the output in the comments in Print()
+     - The day and night was printed in a different format than 
+       expected when readin a sequence
+     - fLightCondition and the f*RunsSub were missing in the copy-
+       constructor
+
+   * mjobs/Makefile:
+     - added include of msql
+
+   * msql/MSQLMagic.[h,cc]:
+     - added a comment to ExistStr and allow to set an additional
+       where-clause
+
+   * msql/MSQLServer.cc:
+     - allow to init MSQLServer either by an url or from a named
+       resource file
+     - changed JOIN to use USING
+     - if doing an automatic join join _all_ primaries
+
+   * mtools/MCalendar.cc:
+     - added include of TObjArray needed in newer root versions
+
+
+
+ 2008/07/03 Thomas Bretz
+
+   * datacenter/macros/filldotrun.C:
+     - Replaced MSQKServer by MSQLMagic
+     - this made local functions obsolete
+     - added new format 20080519 including telescope- and file-number
+     - simplified the if-clauses testing for version numbers (due to
+       the initial check only some version numbers allowed anyway)
+     - check for the combination of telescope-, run- and file-number 
+       to be unique.
+
+   * datacenter/macros/plotrundb.C:
+     - use MPlot from plotdb
+     - removed obsolete DataCheck plots
+     - plot only range of dates which makes sense
+
+
+
+ 2008/07/01 Thomas Bretz
+
+   * ganymed.cc:
+     - removed the checks for the accessability of the files. They
+       are checked in the corresponding classes instead
+
+   * sponde.cc:
+     - display only the base name of the ganymed file, not the
+       full path
+
+   * mbase/MMath.[h,cc]:
+     - added a new member function ErrorExc
+     - Let SignificanceExc (former SignificanceLiMaExc) use ErrorExc
+
+   * mhflux/MAlphaFitter.[h,cc]:
+     - replaced fSignificanceExc by fErrorExcess
+     - calculate the error instead of the significance (otherwise we
+       get infinity at 0)
+     - also store a negative number of excess events
+     - replaced all -1 in ProjectionZ calls by the histogram limits
+       (including under- and overflows) This is necessary to get
+       root 5.20/00 working
+     - increased class version number according to the changes
+
+   * mjobs/MDataSet.[h,cc], mjobs/MSequence.[h,cc]:
+     - removed wrong usage of fName and fTitle, introduced new data
+       members instead
+     - initialize fName and fTitle in the constructors correctly
+     - always store the full qualified path name
+     - introduced new member functions GetBaseName and GetFilePath
+     - give the ostream as an argument to Print
+     - added new member function WriteFile to directly Print to
+       an fostream
+     - do not print empty values in Print
+     - increased class version number accordingly
+     - removed GetName and GetRcName accordingly
+
+   * mjobs/MDataSet.cc:
+     - set the dataset number to an invalid status if the file could
+       not be accessed
+
+   * mjobs/MJCut.cc:
+     - replaced GetName for the dataset by GetBaseName
+     - make sure the summary file is not created if not requested
+     - do not use pointers to MWriteRootFile to make sure the instances
+       always get deleted
+
+   * mjobs/MJSpectrum.cc:
+     - fixed a bug in the check for the existence of the excess time
+     - replaced GetName for the dataset by GetBaseName
+     - Write the full path name to the ganymed.root into the file
+     - fixed typos in determine
+
+   * mpointing/MPointingDevCalc.cc:
+     - initialize fNsb* members also in PreProcess as correctly 
+       suggested by valgrind
+
+   * mjobs/MJCalibration.[h,cc]:
+     - made the drawing of the bad pixel explanation more automatic
+     - some simplifications to the function drawing all the result tabs
+     - make sure to do the projection without name. Some root versions
+       don't like several plots with the same name in one tab
+     - removed several misleading drawing of number of outliers etc
+     - added setting of min and max to FixDataCheckHist
+     - simplified DisplayDoubleProjection (also unified in code with
+       MJPedestal)
+     - removed all the obsolste and confusing projections of the 
+       individual sectors and camera halves
+
+   * mjobs/MJPedestal.[h,cc]:
+     - make sure to do the projection without name. Some root versions
+       don't like several plots with the same name in one tab
+     - use the unified DisplayDoubleProjection from MJCalibration
+     - removed all the obsolste and confusing projections of the 
+       individual sectors and camera halves
+
+   * mhflux/MHAlpha.cc:
+     - replaced EventsExcess/SignificanceExc by just ErrorEvents
+     - for the moment do not propagate Excesses<=0 to the pads 
+       (not to spoil the logarithmic display, this still needs a fix)
+     - replaced -1 in ProjectionZ by the bin numbers (including
+       under- and overflow bins), otherwise it won't work with
+       root 5.20/00
+     - propagate all result to the timing histogram (it is not
+       logarithmic anyway)
+     - made Paint also work with the new implementation of ProjectionZ
+       via Project3D in root 5.20/00 (it won't reuse the correct
+       histogram from the pad :( )
+     - replaced kFullDotMedium by 0 (no marker) where appropriate
+     - changed the rule not to display the time-histogram
+
+
+
+ 2008/06/30 Thomas Bretz
+
+   * datacenter/macros/fillstar.C:
+     - check whether graphs are empty in a more accurate way
+
+   * datacenter/macros/plotdb.C:
+     - fixed some axis title
+     - increased range of fRatePedTrigEvts
+
+   * msql/MSQLMagic.cc:
+     - added ' around the where clause in UpdateInsert to allowe
+       also for times etc
+
+   * callisto.cc:
+     - removed test-option (it was never used anyway and should
+       be reprogrammed properly)
+
+   * datacenter/macros/plotdb.C, mbase/MStatusDisplay.h, mbase/MTime.h:
+     - removed unused argument
+
+   * mbadpixels/MBadPixelsPix.h:
+     - added static functions to get names and numbers of unsuitable
+       and unreliable levels
+
+   * mbase/MMath.cc:
+     - made MedianDevImp working properly with a template
+
+   * mhcalib/HCalibLinkDef.h, mhcalib/Makefile:
+     - removed MHCalibrationTestCam
+     - removed MHCalibrationTestTimeCam
+
+   * mhcalib/MHCalibrationCam.cc:
+     - removed an obsolete TPad in Draw()
+     - removed some obsolete kCanDelete in Drwa()
+
+   * mhcalib/MHCalibrationChargeCam.cc:
+     - changed some colors to work properly also in root 5.20/00
+
+   * mhflux/MHThreshold.cc:
+     - made Smooth work with root 5.20/00 (to be checked)
+
+   * mhist/MHCamera.[h,cc]:
+     - fixed defaults in Profile and Projection function to match code
+     - fixed some comments
+     - replaced InheritsFrom arguments by TClass statics
+
+   * mjobs/JobsLinkDef.h:
+     - removed MJCalibTest
+
+   * mjobs/MJCalibrateSignal.cc, mjobs/Makefile:
+     - removed obsolete include of MParameterCalc
+
+   * mranforest/MRanForest.cc:
+     - added a cast in BinarySearch to make it work with the template
+       of root 5.20/00
+
+   * mtools/MCalendar.h:
+     - fixed *MENU option
+
+   * mtools/MagicJam.h:
+     - added the Smooth function of root 5.20/00 to be removed from
+       the context menu
+
+
+
+ 2008/06/21 Thomas Bretz
+
+   * callisto.cc, star.cc, ganymed.cc, sponde.cc:
+     - set the display name to a more convinient name
+
+   * datacenter/macros/plotdb.C:
+     - some improvement in setting axis titles and titles
+       automatically from the sql column names
+     - moved the Muon cut to a SetCondition call
+     - renamed some functions
+
+   * mbase/MStatusDisplay.h:
+     - overwrote SetTitle with a function allowing to set a title
+       only if no title set so far
+
+   * mjobs/MJCalibrateSignal.cc, mjobs/MJCalibration.cc, 
+     mjobs/MJPedestal.cc:
+     - set a proper display title and set it only if not already set
+
+   * mjobs/MJPedestal.cc:
+     - changed some filter names to more convinient names
+
+
+
+ 2008/06/20 Thomas Bretz
+
+   * macros/dohtml.C:
+     - added missing mmovie directory
+
+   * mhflux/MHEnergyEst.cc:
+     - changed the fit range to adapt to the new plot
+     - exchanged the two plots on the right to have the correct plot
+       near the 1D histogram
+     - fixed the title of the plot in the top right
+     - call SetNoExponent and SetMoreLoglabels
+
+   * mjobs/MJSpectrum.[h,cc]:
+     - outsources producing the spectral function as string to
+       a new static function FormFlux
+
+   * mpointing/MPointingDevCalc.cc:
+     - added some info
+
+
+
+ 2008/06/19 Thomas Bretz
+
+   * mjobs/MJSpectrum.cc:
+     - small improvement to output
+     - handle underflow bin of effective on-time more accurate
+     - reddid the formattig of the spectral fit
+
+   * mbase/MMath.[h,cc]:
+     - added Format member function
+
+   * datacenter/macros/plotstat.C:
+     - fixed some axis titles
+
+
+
+ 2008/06/19 Thomas Bretz
+
+   * RELEASE 2.1
+
+
+
+ 2008/06/19 Thomas Bretz
+
+   * mraw/MRawRunHeader.cc:
+     - fixed that the line reading the fNumEventsRead vanished 
+
+
+
+ 2008/06/18 Thomas Bretz
+
+   * datacenter/macros/buildsequenceentries.C:
+     - replaced the old calculation of the run-time of one sequence
+       by a more sophisticated using the TIMEDIFF function
+
+   * mjobs/MJStar.cc:
+     - Use File id instead of run number
+     - fixed the units in the display (phe not \\gamma)
+
+   * mjobs/MSequence.[h,cc]:
+     - reorganized header
+     - implemented new scheme including file numbers
+     - increased class version number accordingly
+     - removed some obsolete old, never used, functions and comments
+
+   * mraw/MRawRunHeader.[h,cc]:
+     - renamed RunID to TypeID
+     - return 0 in RunLength if one of the times is invalid
+
+   * Makefile:
+     - removed sinope
+
+
+
+ 2008/06/17 Daniel Hoehne
+
+   * datacenter/macros/fillcamera.C:
+     - added and changed some parameters
+
+   * datacenter/scripts/mcsequences:
+     - added database interaction. Now sequences are built by querying
+       the relevant parameters in the MC database
+
+   * datacenter/scripts/runmccallisto, datacenter/scripts/runmcstar:
+     - added
+
+   * datacenter/scripts/sourcefile:
+     - added failed codes for runmccallisto and runmcstar
+
+
+
+ 2008/06/17 Thomas Bretz
+
+   * datacenter/macros/plotdb.C:
+     - SetSelectedPad to 0 before calling DrawClone of TGraph
+     - small reordering of the tabs
+     - removed tab with absolute effective on time
+
+   * mbase/MLog.cc:
+     - make sure that the correct output level is restored after root
+       called the error handler
+
+   * mbase/MStatusDisplay.cc:
+     - Changed backround color to white (_not_ kWhite)
+     - made a sunken border around the canvas
+     - SetFrameBorderMode(0) per default
+
+   * mraw/MRawRunHeader.[h,cc]:
+     - added some consistency checks
+     - make the bug fix for the wrong number of events also for
+       V10 and V11
+     - added Getters for RunID and FileID used to idetify
+       the runs more clever than run-number and file-number
+
+
+
+ 2008/06/14 Thomas Bretz
+
+   * merpp.cc:
+     - replaced MRawFileWrite by MWriteRootFile
+
+   * showplot.cc:
+     - added new options to write tiff files
+     - added new options to write csv files
+     - some code simplification
+
+   * datacenter/macros/plotdb.C:
+     - set the title (without axis descriptions) as Tab-title
+     - set FrameBorderMode to 0 for canvas
+
+   * mbase/MStatusArray.[h,cc]:
+     - added a copy constructor taking MStatusDislay as an argument
+     - set gLog to all in Print()
+
+   * mhbase/MFillH.[h,cc]:
+     - allow to set a title in SetNameTab which is used as tab title
+     - therefore added new data member fTitleTab
+     - increased class version by 1
+
+   * mraw/MRawRead.cc:
+     - set ReadyToSave for raw data to be able to use MWriteRootFile
+       in merpp
+
+   * mraw/Makefile, mraw/RawLinkDef.h:
+     - removed MRawFileWrite
+
+   * mbase/MStatusDisplay.[h,cc]:
+     - added the tif file format
+     - added the csv file format
+     - fixed the bmp and xml menu entries
+     - added again to list of specials to allow for access from the
+       interpreter
+     - added title to AddTab. The title is stored as canvas title
+     - added some warpper to access FindobjectInCanvas and Print
+       from the MStatusDisplay to gain access from the interpreter
+     - Removed obsolete DrawClonePad wrapper in Display and
+       added title
+     - added FillArray to add all canvases to a temporary MStatusArray
+     - removed obsolete CanvasSetFillColor
+     - use mktemp in UpdatePSHeader
+     - some code cleanup. Moved some common code from the SaveAs function
+       to the new InitWrite* functions
+     - implemented %%tab%% and %%name%%
+     - added a workround (MyCanvas) to get the title and footer in the 
+       ps-files also in root 5.18
+     - removed cloning of the canvases whereever possible.Gave problems
+       in root 5.18 (not yet understood)
+     - changed color mode of postscrip files from rgb to cmyk
+     - UpdatePSHeader not long needed in root >=5.12
+     - reorganized header file
+
+   * mreport/MReportCC.[h,cc]:
+     - removed obsolete fRecTemp
+     - call Copy() in the correct direction
+
+   * mreport/MReportFileRead.[h,cc]:
+     - use a C++ cast instead of a C-cast
+     - add containers to parameter list _before_ calling SetupReading
+     - removed some obsolete comments in the header
+
+   * mjobs/MJStar.cc:
+     - we need to read the new "Rec" tree
+     - and we need to fill from the Rec _and_ CC tree (could give a bias
+       if the rate on both trees would once be identical anymore)
+
+   * mhist/MHCamEvent.cc:
+     - allocate fSum in constructor to allow filling from two different 
+       tasks
+
+
+
+ 2008/06/14 Thomas Bretz
+
+   * mtrigger/MFTriggerPattern.cc:
+     - improved documentation
+
+   * mars.cc, mbase/MStatusDisplay.cc:
+     - changed the M in MARS to "Modular"
+     - rpelaced year in copyright by current year
+
+   * datacenter/macros/plotdb.C:
+     - increased range for the rate of the calibration events
+     - added "RatioCal" tab
+
+   * datacenter/macros/fillstar.C:
+     - fill NULL also if TGraph is empty
+
+   * mastro/MAstro.cc:
+     - included math.h for darwin
+
+   * mjobs/MJCalibrateSignal.cc:
+     - changed the named of the MFTriggerPattern
+
+   * merpp.cc:
+     - added new option --only, --rep-run, --rep-file, --header-run,
+       --header-file, --telescope
+     - moved Receiver information from tree CC to tree Rec
+
+   * mbase/MStatusDisplay.cc:
+     - replaced MTime by TDatime
+
+   * mcamera/MCameraRecTemp.[h,cc], mcamera/MCameraTD.[h,cc],
+     mcamera/MCameraTH.[h,cc], mreport/MReportCC.[h,cc]:
+     - moved interpretation of sub-parts of the reports from 
+       MReportCC to the corresponding MCamera* classes
+
+   * mreport/MReport.[h,cc]:
+     - added Copy member function to copy time and state
+     - added CheckTag member function
+     - Implemented skipping of the Telescope number in the reports
+       for version >=200805190
+
+   * mreport/MReportCC.[h,cc]:
+     - access Receiver infomations via new class MReportRec
+       even for old file formats
+     - skip this block in new formats
+     - moved CheckTag to base class
+
+   * mreport/MReportCamera.[h,cc]:
+     - removed CheckTag
+
+   * mreport/MReportFileRead.[h,cc]:
+     - don't check for the number of lines anymore but for -1 instead
+     - changed fNumLine from ULong to Long to allow a negative
+       return value. We don't expect so many lines in a file anyway,
+       do we?
+
+   * mreport/MReportFileReadCC.[h,cc]:
+     - splitted CheckFileHeader into several subfunction
+     - added checks and reading of telescope number and file number
+
+   * mreport/MReportRun.[h,cc]:
+     - added file number from new format
+
+   * mreport/Makefile, mreport/ReportLinkDef.h:
+     - added MReportRec
+
+   * mreport/MReportRec.[h,cc]:
+     - added
+
+   * mhist/MHCamera.cc:
+     - fixed a bug in the profile and projection functions namely that
+       the default was not correctly treated because char* was 
+       compared with char*
+
+   * mbase/MLog.cc, mbase/MMath.cc, mbase/MParContainer.cc,
+     mcalib/MCalibrateData.cc, mcalib/MCalibrationPulseTimeCam.cc,
+     mhbase/MBinning.h, mhbase/MH.cc, mhbase/MHMatrix.cc,
+     mhbase/MHn.cc, mhcalib/MHCalibrationChargeCam.cc, mhflux/MHDisp.cc,
+     mimage/MCameraSmooth.cc, mimage/MConcentration.cc,
+     mjobs/MJCalibration.cc, mjoptim/MJOptimize.cc,
+     mjtrain/MJTrainSeparation.cc, mmuon/MMuonSearchPar.cc,
+     mreport/MReportCurrents.cc, mreport/MReportRun.cc,
+     mtools/MChisqEval.cc:
+     - fixed some cast-away constness warnings
+     - fixed some shadow declarations
+
+   * mhbase/MH.[h,cc]:
+     - removed an old obsolete workaround (ProjectionX/Y)
+
+   * mimage/Makefile, mimage/ImageLinkDef.h:
+     - removed MCameraSmooth
+
+   * mbase/MAGIC.h:
+     - added a new namespace UTF8 with double char characters
+
+   * mbase/BaseLinkDef.h:
+     - added the new namespace UTF8
+ 
+   * mimage/MNewImagePar.cc, mpointing/MPointing.cc,
+     datacenter/macros/fillstar.C:
+     - some characters replaced by the new UTF8 characters
+
+
+
+ 2008/06/13 Thomas Bretz
+
+   * datacenter/macros/fillcalib.C:
+     - fixed a bug introduced by the usage of InserUpdate
+
+   * datacenter/macros/fillsignal.C:
+     - fixed a type (the wrong number was printed to the console)
+
+   * mjobs/MJCalibrateSignal.cc:
+     - let all calibration triggered events pass to calibration
+
+   * mtrigger/MFTriggerPattern.[h,cc]:
+     - count a bit more to increase the printed amout of 
+       information at the end
+
+
+
+ 2008/06/12 Thomas Bretz
+
+   * resources/starguider00267253.txt, resources/starguider00291104.txt:
+     - added
+
+   * ganymed.rc, ganymed_wobble.rc, ganymed_onoff.rc:
+     - added preliminary pointing models
+
+   * mpointing/MPointingDevCalc.cc:
+     - updated comments
+
+   * mraw/MRawCrateData.[h,cc], mraw/MRawEvtHeader.[h,cc],
+     mraw/MRawRunHeader.[h,cc]:
+     - renamed reading the old format to ReadEvtOld
+     - implemented reading format>10
+     - added the header size as new argument to ReadEvt
+
+   * mraw/MRawEvtHeader.cc:
+     - made the argument to DecodeTime const
+     - fixed the return value in ReadEvtOld. kCONTINUE could
+       never be returned
+
+   * mraw/MRawRead.cc:
+     - gives header size for format>10 to ReadEvt
+     - if EvtHeader could not be read correctly return kFALSE
+     - let MRawCrateData::ReadEvt check end-of-file
+
+   * merpp.cc:
+     - improved explanation for -ff option
+
+   * readdaq.cc:
+     - added -ff option
+     - added an option to call MReadRawFiles::SetForceMode
+
+   * mbase/MTime.[h,cc]:
+     - added new member function SetBinary to easy processing
+       of the time from the new run header
+
+   * mhflux/MHEffectiveOnTime.cc:
+     - for the integral (Nm) we have to count also events in under and
+       overflow bins
+
+   * mjobs/MJCalibrateSignal.cc, mjobs/MJCalibration.cc, 
+     mjobs/MJPedestal.cc:
+     - call MRawFileRead::SetForceMode to get the (corrected)
+       old behaviour back (not to stop if an event time is
+       broken but to skip the event)
+
+   * mraw/MRawRunHeader.[h,cc]:
+     - the number of events in format version V9 seems to be
+       to high by one. We correct for this.
+     - added new data members for the header sizes
+     - new data member for the file number
+     - increased cize of fSourceEpochChar
+     - consequently increased class version number by 1
+
+   * datacenter/macros/plotdb.C:
+     - improved some titles
+     - added the new rates
+     - added the new values from the star-files
+
+   * mbase/MStatusDisplay.cc:
+     - removing the canvases from the global list didn't work
+       because some RecursiveRemovs rely on gROOT->FindObject to work
+       (adding them to another list didn't work either)
+
+   * mhflux/MHEnergyEst.cc:
+     - renamed the "Resolution" Histogram accordingly.
+
+   * mjobs/MJCalibrateSignal.cc:
+     - added a histogram showing the arrival time of 
+       extracted interleaved calibration events
+
+   * mraw/MRawEvtData.[h,cc]:
+     - fixed the Draw function. It was broken since the latest changes
+     - added fNumBytesPerSample to the Copy-function
+     - fixed the GetSample-function
+     - added a new member funtion to return the maximu possible
+
+   * mars.rc:
+     - changed the default for the MUX spline to the 50 sl window
+
+   * msignal/MSignalCalc.cc:
+     - scale the pedestal correctly with the scale
+
+   * mjobs/MJStar.cc:
+     - allow filling of pyrometer information to be skipped
+
+   * mhist/MHWeather.cc:
+     - show also colored labels
+
+   * Makefile:
+     - it seems the libmars.so looses read permissions for group
+       and others when it is  moved. Now they are set manually
+
+   * datacenter/fillsignal.C, datacenter/macros/fillstar.C:
+     - added filling of calibration pulse position
+     - use more often NULL in case of no entries. This is less
+       biasing in case of averaging of values
+
+    * macros/tutorials/readrfl.C:
+      - print run header
+      - print event header
+      - skip empty events
+
+   * mhist/MHEvent.cc:
+     - removed the pointing from the histogram names. It's 
+       simply obsolete
+
+   * mjobs/MJSpectrum.[h,cc]: 
+     - removed the kolmogorov test from output
+     - added a new tab showing the energy resolution
+     - therefore added a new BinningImpact to the list of binnings
+     - store the ganymed file's file name in the output
+
+   * mmain/MEventDisplay.cc:
+     - skip events without data in the loop not in the code.
+       This ensures that no task can crash due to this
+       when processing MCs
+
+   * msql/MSQLMagic.[h,cc]:
+     - fixed InsertUpdate. The primary key was not inserted 
+       if Insert was called
+
+
+
+ 2008/06/11 Thomas Bretz
+
+   * mhflux/MHEnergyEst.[h,cc]:
+     - finally replaced fResolution by more correct histograms
+     - some code cleanup in projecting, profiling and drawing
+     - increased class version number by one
+
+   * mbase/MStatusDisplay.cc:
+     - remove the embedded canvas from the global list to prevent
+       global access to it
+
+   * mhbase/MH3.cc:
+     - fixed a bug if in a 2D constructor a 1D profile was created
+
+   * mreport/MReportPyrometer.cc:
+     - tiny changes to the comments
+
+
+
+ 2008/06/10 Thomas Bretz
+
+   * mreport/MReportPyrometer.[h,cc]:
+     - added
+
+   * mreport/Makefile, mreport/ReportLinkDef.h:
+     - added MReportPyrometer
+
+   * mreport/MReportRun.cc:
+     - removed obsolete include of MAstro
+
+   * merpp.cc:
+     - added Pyrometer information
+
+   * mfileio/MWriteRootFile.h:
+     - added new member function AddTree to add a container with the
+       corresponding time-stamp
+
+   * mjobs/MCalibrateSignal.cc, mjobs/MJStar.cc:
+     - replaced some AddContainer by the new AddTree
+     - added Pyrometer information to in- and output, respectively
+
+   * datacenter/macros/fillstar.C:
+     - added new columns fAvgHumidity, fAvgCloudiness, fRmsCloudiness
+       and fAvgTempSky
+
+   * mhist/MHWeather.[h,cc]:
+     - removed the display of the solar radiation which was 
+       never working
+     - added display of the pyrometer data to the display
+     - reorganized display
+
+   * mjobs/MJStar.cc:
+     - added filling of the weather data also from the pyrometer branch
+
+
+
+ 2008/06/09 Thomas Bretz
+
+   * mbase/MArgs.[h,cc]:
+     - for convinience store the full command line as Title
+     - replaced *fArgv by fArgv
+
+   * mbase/MObjLookup.cc:
+     - replaced C-style cast by reinterpret_cast
+
+   * datacenter/macros/fillcalib.C, datacenter/macros/fillstar.C:
+     - removed usage of Nint (obsolete... Form does rounding)
+
+   * datacenter/macros/fillsignal.C:
+     - removed usage of Nint (obsolete... Form does rounding)
+     - added new columns to get trigger rates from TrigPat tab
+     - fixed some small bugs lately introduced
+
+   * mhflux/MHEffectiveOnTime.cc:
+     - fixed a typo in ReInit
+
+
+
+ 2008/06/06 Thomas Bretz
+
+   * datacenter/macros/plotdb.C:
+     - added average temperature and wind speed 
+     - reviewed some ranges
+
+   * mhbase/MH3.cc:
+     - in the 2D case with labels and boxes use blue line color
+
+   * mhflux/MHEffectiveOnTime.[h,cc]:
+     - added a new data member fTotalTime counting the total run-time
+       from the run-headers
+     - added the new data member to the display
+     - increased class version number accordingly
+
+   * mjobs/MJCalibrateSignal.cc:
+     - let sum-trigger events pass to get calibrated
+     - improved DefineLabel table for trigger patterns
+     - added MTriggerPattern to output
+
+   * mjobs/MJStar.cc:
+     - added a new tab "Rate" showing the remaining rates per run and
+       trigger pattern after image cleaning
+     - let only event with Lvl1 trigger pass to effective on-time
+       calculation
+     - changed title in plot of avg dc currents and pedestal rms
+
+   * mtrigger/MFTriggerPattern.[h,cc]:
+     - added a counter counting the trigger decision
+     - print the result in the PostProcess
+
+
+
+ 2008/06/06 Thomas Bretz
+
+   * datacenter/macros/fillstar.C:
+     - added windspeed and temperature
+
+   * datacenter/macros/fillcalib.C, datacenter/macros/fillsignal.C,
+     datacenter/macros/fillstar.C:
+     - use MSQLMagic instead of MSQLServer
+
+   * datacenter/macros/plotdb.C:
+     - added wind speed and temperature
+
+   * datacenter/macros/plotstat.C:
+     - added a plot showing the observation time per exposure (based on
+       the source key)
+
+   * mbase/MStatusDisplay.cc:
+     - fixed the SaveAs. A wrong version was comitted
+
+   * mextralgo/MExtralgoSpline.h:
+     - added the missing inclusion of TMath (root 5.18)
+
+
+
+ 2008/06/03 Thomas Bretz
+
+   * mbase/MStatusDisplay.cc:
+     - added missing inclusion of TMath (root 5.18)
+     - initialize gClient in batch mode to repair broken
+       batch-mode in root 5.18. Fortunately this doesn't
+       break root 5.12
+     - added a SaveAs(const char *c, const Option_t *o)
+       based on the new SaveAs from TGObject
+
+   * mcalib/MCalibrationChargePix.[h,cc],
+     mextralgo/MExtralgoDigitalFilter.[h,cc]:
+     - moved some code to source file to prevent TMath inclusion in
+       header (root 5.18)
+
+   * mcalib/MCalibrationChargeCam.cc, 
+     mcalib/MCalibrationChargePINDiode.cc:
+     - added the missing inclusion of TMath (root 5.18)
+
+   * mgeom/MGeomCam.[h,cc]:
+     - for sanity (a bug in root < 5.18) filling fPixels is now 
+       done via AddAt. This "repairs" the functionality of the
+       Streamer which before didn't store any contants of fPixels
+       nor read any contents.
+     - Removed the custom Clone function. It is now obsolete,
+       because it works through the fixed Streamer
+     - a Copy-member function has been implemented
+     - a custom Streamer has been implemented allowing to read
+       files containing MGeomCamMagic written with root 5.12 
+       with root 5.18
+     - A member function containing the workaround has been implemented
+     - Print got an option ("simple")
+
+   * mgeom/GeomLinkDef.h:
+     - suppress root-Streamer
+
+   * manalysis/MGeomApply.cc:
+     - added the newly necessary call to the StreamerWorkaround
+
+   * mgeom/MGeomPix.[h,cc]:
+     - because with the IgnoreTObjectStreamer set for MParContainer
+       the bits for the outer rings cannot be stored. This was no
+       problem before because in reality they have never been written
+       or read. To store the bits a new data-member fUserBits
+       has been introduced.
+     - accordingly all calles to set or remove the bits have been
+       changed to use fUserBits instead
+     - the class version number has been increased due to the new
+       data member
+     - improved Print-output
+
+
+
+ 2008/06/02 Thomas Bretz
+
+   * mars.cc, sinope.cc:
+     - added include of TClass for TIgnoreStreamer (root 5.18)
+
+   * manalysis/MEventRate.[h,cc]:
+     - moved GetError to source file and included TMath (root 5.18)
+
+   * manalysis/MMultiDimDistCalc.cc, mdata/MDataList.cc:
+     - included math.h (root 5.18)
+
+   * mastro/MAstro.[h,cc], mastro/MVector3.[h,cc], mbase/MRunIter.[h,cc],
+     mbase/MTime.[h,cc], mdata/MDataPhrase.[h,cc], mgeom/MGeomPix.[h,cc],
+     mhcalib/MHCalibrationChargeBlindPix.[h,cc],
+     mhflux/MHCollectionArea.[h,cc], mhft/MHexagonFreqSpace.[h,cc],
+     mimage/MHillas.[h,cc], mmuon/MMuonSearchPar..[h,cc],
+     mpedestal/MPedestalPix.[h,cc], mpointing/MPointingDev.[h,cc],
+     mpointing/MSrcPosCam.[h,cc], mpointing/MPointingPos.[h,cc],
+     mpointing/MPointing.[h,cc]:
+     - moved some code to source file to prevent TMath inclusion in
+       header (root 5.18)
+
+   * mbase/MEnv.cc:
+     - added missing include TObjArray (root 5.18)
+     - removed obsolete EmarkerStyles (root 5.18)
+
+   * mbase/MDirIter.cc:
+     - added missing include TList (root 5.18)
+
+   * mastro/MAstroCatalog.cc, mhist/MHHadronness.cc, mhist/MHWeather.cc,
+     mhvstime/MHPixVsTime.cc, mhvstime/MHVsTime.cc, 
+     mpointing/MHPointing.cc, mranforest/MHRanForest.cc,
+     mranforest/MHRanForestGini.cc, mranforest/MRanForest.cc,
+     mreflector/MHReflector.cc:
+     - added missing inlcude TH1 (root 5.18)
+
+   * mbase/MFilter.cc, mbase/MGMap.cc, mbase/MTask.cc,
+     mcalib/MCalibrationBlindPix.cc, mdata/MDataChain.cc,
+     mfilter/MFEnergySlope.cc, mgeom/MGeomMirror.cc,
+     mgui/MCamEvent.cc, mhbase/MBinning.cc, mhbase/MHMatrix.cc,
+     mhcalib/MHCalibrationPix.cc, mhcalib/MHGausEvents.cc,
+     mhflux/MHEnergyEst.cc, mhist/MHCamEventRot.cc,
+     mhist/MHHadronness.cc, mranforest/MHRanForest.cc,
+     mreflector/MRflEvtHeader.cc, mreflector/MRflSinglePhoton.cc,
+     msql/MSQLServer.cc, mtools/MSimulatedAnnealing.cc,
+     mtools/MTFillMatrix.cc, mcalib/MCalibrationPix.cc,
+     mcalib/MCalibrationQEPix.cc, manalysis/MParameterCalc.cc, 
+     mcalib/MCalibrationTestCalc.cc, mdata/MDataArray.cc, 
+     mgeom/MGeomCamDwarf.cc, mhbase/MH3.cc, mtools/MagicJam.cc,
+     mhcalib/MHCalibrationRelTimeCam.cc, mhft/MGeomCamMagicXT.cc, 
+     mranforest/MRanForestCalc.cc, mtools/MagicDomino.cc,
+     mhflux/MHThreshold.cc, mimage/MStereoPar.cc,
+     mfilter/MFCosmics.cc, mpedestal/MPedestalCam.cc:
+     - added missing include of TMath (root 5.18)
+
+   * mbase/MGTask.cc, mdata/MDataChain.cc, mhbase/MHArray.cc,
+     mjobs/MJCut.cc, mjoptim/MJOptimizeCuts.cc, mmc/MMcEvt.cxx:
+     - added missing include of TClass (root 5.18)
+
+   * mhbase/MH3.cc:
+     - added missing include of THashList (root 5.18)
+
+   * mcalib/MCalibrationChargeCalc.[h,cc], msignal/MExtractor.[h,cc],
+     mpedestal/MPedestalSubtract.[h,cc], msignal/MExtractTime.[h,cc]:
+     - for convinience (rootcint of 5.18) changed "static const TString"
+       to "static const char *"
+
+   * mhflux/MMcSpectrumWeight.cc:
+     - Use TString::Data() for second argument in TF1 constructor.
+       Otherwise it is ambiguous in root 5.18
+
+   * mhbase/MH.cc:
+     - adde missing includes of TColor, TMath and TClass (root 5.18)
+     - implemented a workaround which always uses the correct
+       CreateGradientColorTable (root 5.18)
+
+   * Makefile:
+     - linking of the shared object is now done in /tmp
+     - replaced = by := where possible
+
+   * mjobs/MJCalibrateSignal.cc:
+     - do not invert contcoscal, that's wrong
+
+   * mmovie/MMovieWrite.cc:
+     - added a #if-directive to use either gStyle or TColor
+       for CreateGradientColorTable depending on root-version
+
+   * mimage/MStereoPar.[h,cc], mimage/MStereoCal.[h,cc]:
+     - replaced Monate Carlo container by MPointingPos
+     - made every algorithm unique
+
+
+
+ 2008/06/01 Thomas Bretz
+
+   * callisto.cc, star.cc:
+     - renamed new option to "--null-dev" (clashes with MLog options)
+
+   * mbase/MContinue.cc:
+     - improved output
+
+   * mbase/MTaskList.cc:
+     - fixed broken FindTaskList
+
+
+
+ 2008/05/31 Thomas Bretz
+
+   * callisto.cc, star.cc:
+     - added new option "--null" to suppress run-wise output files
+
+   * mjobs/MJob.h:
+     - added new data-member fNullOut to flag suppression of
+       run-wise output files
+
+   * mjobs/MJCalibrateSignal.cc, mjobs/MJStar.cc:
+     - use new option HasNullOut from base class
+
+   * mbase/MClone.cc:
+     - fixed Init (still had a constructor like initializer)
+
+   * mtrigger/MFTriggerPattern.h:
+     - included missing MTripperPattern
+
+   * mtrigger/MFTriggerPattern.cc:
+     - removed default arguments
+     - exchanged ^ by ~ 
+     - fixed a few typos in function names
+
+
+
+ 2008/05/27 Stefan Ruegamer
+
+   * datacenter/scripts/filesondisk
+     - changed the search for raw files to not search in hidden folders
+
+
+
+ 2008/05/25 Thomas Bretz
+
+   * mtrigger/MTriggerPattern.cc:
+     - fixed a typo in a comment 
+
+   * mtrigger/MFTriggerPattern.[h,cc]:
+     - some code cleanup (mainly unified all the Require and Deny 
+       functions into one)
+     - added a DenyAll member function
+     - added Allow member functions including an AllowAll member function
+
+   * mjobs/MJPedestal.cc:
+     - To choose pedestals we now deny all other trigger bits except the
+       pedestal bit and in the case of data runs we deny all bits
+       except trigger lvl1 and trigger lvl2
+
+   * mjobs/MJCalibration.cc:
+     - In addition to denial of prescaled calibration events we
+       deny any bit in the unprescaled pattern but allow only
+       calibration events
+
+   * mjobs/MJCalibrateSignal.cc:
+     - Instead of the denial of only calibration and pedestal events,
+       we now deny any bit in the pattern, but allow Trigger Lvl1
+       and Trigger Lvl2 events to choose cosmics
+     - Instead of the denial of only lvl1 and lvl2 events,
+       we now deny any bit in the pattern, but allow pedestal
+       events to choose pedestals
+     - Instead of requiring only calibration events,
+       we now deny any bit in the pattern, but require the calibration
+       bit to choose calibration events
+
+   * mbase/MClone.[h,cc]:
+     - instead of cloning the object again and again we now clone
+       it once and then just copy the contents. A new option has
+       been introduced to switch back to the old behaviour
+
+   * mbase/MStatusDisplay.[h,cc]:
+     - changed the argument of GetEmbeddedCanvas from a pointer 
+       to a reference
+
+   * macros/rootlogon.C:
+     - switched on optimization (-O3) for ACLIC
+
+
+
+ 2008/05/24 Thomas Bretz
+
+   * mjobs/MJCalibrateSignal.cc:
+     - removed the obsolete fconsmics (what the hell did it do...
+       it removed the largest events?)
+     - added a cosmics trigger for calibration events instead
+
+
+
+
+ 2008/05/20 Thomas Bretz
+
+   * mjobs/MJCalibrateSignal.cc:
+     - added a MH3-histogram to be filled. It contains the
+       rate of the trigger pattern per run.
+     - the filter selecting the calibration or pedestal
+       events has been renamed from ftp to fcalped
+     - the MContinue rejecting these events has been renamed
+       from conttp to contcalped
+     - the filter selecting the pedestal events have been 
+       renamed from ftp2 to fped
+     - In the case of MUX data (no lo-gain) this filter
+       is now also rejecting lvl1 and lvl2 triggered events
+     - the ftp2-filter for the pedestal extraction tasks and
+       the corresponding histogram fillers is obsolete
+     - the previouls "PedestalFilter" is obsolete.  
+     - it doesn't make sense not to extract the signal (filter
+       of teskenv1, taskenv2 and taskenv3) but process the 
+       rest of the tasklist
+     - the pedestal extraction (as the calibration was already)
+       has been moved to its own tasklist with the corresponding
+       filter applied.
+     - tlist3 has been renamed to tlist4
+     - contped has been removed from the tasklist
+
+   * mhbase/MH3.cc:
+     - fixed a bug introduced with the lables (it must be !(x&y) 
+       instead of !x&y
+
+   * mjobs/MDataSet.cc:
+     - shortened a line of output to fit into 80 characters
+
+
+
+ 2008/05/19 Thomas Bretz
+
+   * Makefile.conf.general, Makefile.conf.linux:
+     - distinguish between := (eval once) and = (eval every access)
+
+   * mbase/BaseLinkDef.h, mbase/Makefile:
+     - added MObjLookup
+
+   * mbase/MObjLookup.[h,cc]:
+     - added
+
+   * mbase/MEvtLoop.cc:
+     - set progress bar position to 0 before PreProcessing
+
+   * mdata/MDataMember.[h,cc]:
+     - added a member function to get a string
+
+   * mfilter/MFCosmics.cc:
+     - fixed a typo in a comment
+
+   * mhbase/MH.[h,cc]:
+     - improved SetBinning for newer root-versions
+     - improved SetBinning to correctly support axis with labels
+       (keeps the binning unchanged)
+
+   * mhbas/MH3.[h,cc], mhbase/MHn.[h,cc]:
+     - support for axis labels was added.
+     - a possibility to set an additional weight has been added
+     - the version number has been increased accordingly
+
+   * mjobs/MJPedestal.cc:
+     - deny level1 and level2 triggers choosing pedestal events
+
+   * mraw/MRawRunHeader.h:
+     - added a member function returning the RunLength (stop-start)
+
+   * mtrigger/MTriggerPattern.[h,cc]:
+     - wrapped some comments
+     - improved comments
+
+
+
+ 2008/05/15 Thomas Bretz
+
+   * mfilter/MFMagicCuts.[h,cc]:
+     - fixed a few typos in comments and in the output
+     - added an option kAreaLin with a linear cut in area for special
+       studies
+
+   * mbase/MStatusDisplay.cc:
+     - if no MStatusArray is found, keys which store a TCanvas object
+       are displayed instead if available
+
+   * mhcalib/MHCalibrationPulseTimeCam.[h,cc]:
+     - the extraction range to get the maximum is now determined
+       automatically from the MExtractedSignalCam
+
+   * mpedestal/MPedestalSubtract.cc, msignal/MExtractTimeAndCharge.cc:
+     - raise an error if there is a mismatch in the number of samples
+
+
+
+
+ 2008/05/14 Thomas Bretz
+
+   * mhbase/MH3.[h,cc], mhbase/MHn.[h,cc]:
+     - enhanced to allow direct filling of Profile histograms
+
+   * mjobs/MDataSet.h:
+     - fixed a bug in Print() causing an infinite loop
+
+   * mjtrain/MJTrainDisp.cc, mjtrain/MJTrainSeparation.cc:
+     - write the dataset(s) to the output file
+
+   * mjtrain/MJTrainEnergy.cc
+     - write the dataset to the output file
+     - added new plots to show the resolution versus several different
+       parameters
+
+   * mpedestal/MPedestalSubtract.[h,cc]:
+     - added an additional check to compate the number of hi-/lo-gain
+       slices in the run- and event-header
+
+   * mpointing/MPointingDevCalc.cc:
+     - added the 14th Jan 08 to the list of new pointing models
+
+
+
+ 2008/05/07 Stefan Ruegamer
+
+   * datacenter/scripts/checkmd5sum
+     - implemented check of files from /magic and /data
+
+   * datacenter/scripts/checktransfer
+     - changed the search for temporary zipfiles to not search in hidden
+       directories
+
+   * datacenter/scripts/movingrawfiles2
+     - movingrawfiles to move raw files from /data/fromtape
+
+   * datacenter/scripts/runcallisto
+     - changed default callisto.rc to callisto_mux_new.rc
+
+   * datacenter/scripts/zipscript
+     - changed the script due to the fact that /magic/data/rawfiles is
+       now a link
+     - changed the find to not search in hidden directories
+     - added the -n option to ssh
+
+   * resources/calibration_spline.rc
+     - added calibration factors for periods 62-66 but these are not
+       newly calculated, simply pasted from previous periods!
+
+
+
+ 2008/04/08 Thomas Bretz
+
+   * mreport/MReportDrive.cc:
+     - implemented changes of Version 20080220
+
+
+
+ 2008/03/19 Thomas Bretz
+
+   * mjobs/MJSpectrum.cc:
+     - fixed a bug introduced yesterday. The overflow bin was not
+       correctly referenced
+
+
+
+ 2008/03/18 Thomas Bretz
+
+   * sponde.cc:
+     - added new option "--force-runtime"
+
+   * mbase/MEnv.h:
+     - added WriteFile to context menu
+
+   * mjobs/MJSpectrum.[h,cc]:
+     - added a new option to force using the runtime instead of the 
+       effective observation time (this might bw wrong for very
+       short datasets)
+     - added a check if the effective observation time is out of
+       the histogram range... print a warning if so and include
+       the overflow bins into the eff. obs time
+     - added an estimated sensitivity curve for high and low za
+       to the spectrum plots
+     - added description text for 1553 and crab spectrum
+     - write out the MC events after cuts including their weights
+     - do not fit at 1TeV but 500GeV instead
+
+   * mjobs/MJob.cc:
+     - check in WriteContainer whether the file is already open
+
+   * mpointing/MPointingDevCalc.cc:
+     - added some more comments
+
+   * mhflux/MMcSpectrumWeight.[h,cc]:
+     - added the possibility to extend a spectrum by "fake" statistics
+
+
+
+ 2008/03/14 Daniel Hoehne
+
+   * datacenter/macros/filldotrun.C:
+     - inserted new arehucas version
+
+
+
+ 2008/03/04 Thomas Bretz
+
+   * condor/program.submit, condor/macro.submit, condor/script.submit:
+     - added
+
+
+
+ 2008/03/03 Thomas Bretz
+
+   * mhflux/MHAlpha.[h,cc]:
+     - allow to project individual bins in DrawNicePlot
+
+
+
+ 2008/02/24 Thomas Bretz
+
+   * mbase/MLog.h:
+     - added a getter for the OutputLevel (for debugging)
+
+   * mpointing/MPointing.h:
+     - added a memberfunction to calculate the Abs-value
+
+   * mpointing/PointingLinkDef.h:
+     - added RaDec
+
+
+
+ 2008/02/21 Daniela Dorner
+
+   * datacenter/db/builddatasets.php:
+     - display 'Remark' only in case of errors
+
+
+
+ 2008/02/08 Stefan Ruegamer
+
+   * datacenter/scripts/checkmd5sum
+     - added check to prevent that checksums of files not read from tape
+       enter the .lapalma file
+
+   * datacenter/scripts/dbchk
+     - added check for crashed runs, sequences and datasets
+     - corrected bugs in find command and $dir-loops
+     - adapted to the automatic concept and added it to the cronjobs
+
+
+
+ 2008/02/01 Stefan Ruegamer
+
+   * datacenter/macros/filldotrun.C
+     - added default entry for fCompmux for new runs
+
+   * datacenter/macros/checkfileavail.C
+     - added checking of fCompmux
+
+
+
+ 2008/02/01 Daniel Hoehne
+
+   * datacenter/db/runinfo-aio.php:
+     - fixed 'bug' with query. Now runs are displayed in ascending order
+
+
+
+ 2008/01/31 Thomas Bretz
+
+   * mbase/MThread.[h,cc]:
+     - imported from Cosy
+
+   * mbase/Makefile:
+     - added MThread
+
+   * mbase/BaseLinkDef.h:
+     - added MThread
+
+
+
+ 2008/01/27 Thomas Bretz
+
+   * .rootrc:
+     - updated with the correct path to the ViewCVS
+
+
+
+ 2008/01/24 Thomas Bretz
+
+   * mpointing/MPointing.cc:
+     - added ClassImp for RaDec
+
+   * mpointing/MPointing.h:
+     - added code for classes AltAz and RaDec deriving from TVector2
+       not to be used in Mars and Cosy
+
+
+
+ 2008/01/24 Daniel Hoehne
+
+   * scripts/preparemc:
+     - adapted to new rawfile/camera structure in /magic/montecarlo
+
+
+
+ 2008/01/14 Thomas Bretz
+
+   * mpointing/MPointing.h:
+     - added enumeration operator[]
+
+
+
+ 2008/01/11 Thomas Bretz
+
+   * mbase/MLog.cc:
+     - correctly use delete[] instead of delete for fGuiLInes as 
+       suggested by valgrind.
+
+
+
+ 2008/01/09 Thomas Bretz
+
+   * mbadpixels/MBadPixelsTreat.[h,cc]:
+     - removed obsolete fRawHeader
+
+   * mpointing/MSrcPosCam.[h,cc]:
+     - added Paint member function
+
+   * mpointing/MSrcPosRndm.[h,cc]:
+     - also produce a antio source position for wobble observations
+
+   * mraw/MRawRunHeader.cc, mjobs/MJCalibration.cc, 
+     mpedestal/MPedestalCam.cc:
+     - some cosmetics

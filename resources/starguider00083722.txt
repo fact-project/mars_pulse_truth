@@ -1,0 +1,28 @@
+MAGIC1 27.08.2007 15:55:24.179
+S   00   000000   000000  0000000
+     IA             0             0
+     IE             0             0
+   FLOP             0             0
+     AN             0             0
+     AW             0             0
+   NPAE   0.071971096   0.041230194
+     CA  -0.034559807   0.031805296
+     TF             0             0
+     TX             0             0
+   ECES  -0.017263112   0.018334716
+   ACES             0             0
+   ECEC   -0.04393912   0.022381297
+   ACEC             0             0
+    NRX             0             0
+    NRY             0             0
+    CRX             0             0
+    CRY             0             0
+ MAGIC1             0             0
+ MAGIC2             0             0
+END
+
+# This is identical with the later pointing model applied since
+# run 85420, which is done with TPoints taken after 18.3.2006 and
+# in April 2006. It seems that is already valid earlier. 
+# (For unknown reasons that pointing model made from the TPoints 
+#  before 18.3.2006 doesn't seem to givbe a reasonable pointing model)

@@ -1,0 +1,8 @@
+MAGIC1 27.08.2007 15:55:24.179
+S   00   000000   000000  0000000
+     DX             0             1
+     DY             0             1
+END
+
+# starguider was not working because the LEDs failed.
+# we fix the pointing to the camera center.

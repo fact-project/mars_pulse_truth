@@ -1,0 +1,47 @@
+#DataRunWithTTPed:
+key2:    RunType.fRunType='data' AND L2TriggerTable.fL2TriggerTableName='PED' 
+
+#ProjectLikeCL:
+key3:    Project.fProjectName like binary '%CL%' or CalibrationScript.fCalibrationScriptName like '%ContinuosLight'
+
+#ProjectLikeClose:
+key4:    Project.fProjectName like '%close%' 
+
+#TriggerTableNA:
+key6:    L2TriggerTable.fL2TriggerTableName='n/a' AND L1TriggerTable.fL1TriggerTableName='n/a'
+
+#ProjectLikeCurtain:
+key10:   Project.fProjectName like '%curtain%' 
+
+#PedRunWithNoPedTT:
+key11:   RunType.fRunTypeName='pedestal' AND NOT (L2TriggerTable.fL2TriggerTableName='PED') AND fRunNumber<35659
+
+#SourceLikePark:
+key12:   Source.fSourceName like '%park%'
+
+#SourceLikeDummy:
+key14:   Source.fSourceName like '%dummy%'
+
+#NumEventsSmaller10:
+key15:   fNumEvents between 2 and 9 
+
+#ProjectLikeDummy:
+key16:   Project.fProjectName like '%dummy%'
+
+#ProjectLikeTest:
+key17:   Project.fProjectName like '%test%'
+
+#NumEventsSmaller2:
+key18:   fNumEvents < 2 
+
+#ProjectLikeMovetel:
+key20:   Project.fProjectName like binary 'movetel%' 
+
+#DTTableAsTriggerDelay:
+key21:   TriggerDelayTable.fTriggerDelayTableName like 'thresh%' 
+
+#ProjectLikeFFweak:
+key23:   Project.fProjectName like binary '%FFweak%' or CalibrationScript.fCalibrationScriptName='Flatfielding_weak'
+
+#FlagIsTest:
+key24:   TestFlag.fTestFlagName='Test'

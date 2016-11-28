@@ -1,0 +1,91 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  04/2009 <mailto:daniela.dorner@unige.ch>
+#
+#   Copyright: MAGIC Software Development, 2000-2009
+#
+#
+# ========================================================================
+#
+# script to insert new runs into mc database
+#
+
+
+#
+# to be given by user
+#
+
+# number of runs to be inserted
+#numruns=300
+numruns=2700
+# number of events per run
+numevts=200000
+# particle type: 
+#   1 = gamma
+#  14 = proton
+#   6 = muon
+#particlekey=1
+particlekey=14
+
+obslevel=3700
+
+#
+# infos concerning DB:
+# table names: MCRunData, MCRunProcessStatus
+#     primary: fMCRunNumber
+#
+# currently working for CTA_MC
+#
+
+
+
+# begin of script
+
+source `dirname $0 `/sourcefile
+
+query="SELECT Max(fMCRunNumber)+1, Max(fMCRunNumber)+"$numruns" FROM MCRunData"
+echo $query
+# get next runnumber from db
+runs=( `sendquery "$query"` )
+if [ "${runs[0]}" == "NULL" ]
+then
+   runs[0]=1
+   runs[1]=$numruns
+fi
+
+
+echo "Inserting "$numruns" runs with "$numevts" events each and particle number "$particlekey" and observation level "$obslevel" m."
+echo "Next runs in DB from run number "${runs[0]}" to run number "${runs[1]}"."
+if [ "$1" == "-n" ]
+then 
+   echo "Dummy-Mode => exit"
+   exit
+fi
+
+for i in `seq ${runs[0]} ${runs[1]}` 
+do 
+   query="INSERT MCRunData SET fNumEvents=$numevts, fParticleTypeKEY=$particlekey, fObsLevel=$obslevel, fMCRunNumber=$i"
+   echo $query
+   sendquery "$query"
+   query="INSERT MCRunProcessStatus SET fMCRunNumber=$i, fPriority=$i"
+   echo $query
+   sendquery "$query"
+done
+

@@ -1,0 +1,3092 @@
+                                                 -*-*- END OF LINE -*-*-
+
+ 2009/12/23 Thomas Bretz
+
+   * macros/dohtml.C:
+     - added missing paths
+
+
+
+ 2009/12/23 Thomas Bretz
+
+   * Release 2.4
+
+
+
+ 2009/12/23 Thomas Bretz
+
+   * mbase/MStatusArray.[h,cc]:
+     - implemented a special treatment for TGraphs in RecursiveRemove 
+       to make sure that the fHistogram pointer doesn't get deleted
+       twice.
+     - implemented a small fix to make sure an object which is more than
+       once in a list of primitives gets really removed.
+
+   * resources/calibration_spline.rc:
+     - updated calibration constants of period 62, 63, 72-75
+     - added more dummy constants
+
+
+
+ 2009/12/21 Thomas Bretz
+
+   * mjobs/MJCalibration.cc:
+     - allow unprescaled Calibration instead of requiring it (needed
+       for MCs)
+     - changed the default for "no pattern" so that events with file
+       format <5 are correctly treated. This might result in a small 
+       bias in the case newer files miss the calibration pattern, but
+       that's unavoidable
+
+   * mtrigger/MTriggerPatternDecode.cc:
+     - decode trigger pattern for files older than format version 5
+       according to the file type
+
+   * resources/calibration_spline.rc:
+     - added dummy periods up to 89
+
+   * mmc/MMcFadcHeader.hxx:
+     - changed version to 10 (got a warning for newer MCs)
+
+
+
+ 2009/12/16 Stefan Ruegamer
+
+   * datacenter/scripts/read_lapalma-tapes
+     - important output is now also written to shell
+
+
+
+ 2009/12/11
+  
+   * mfileio/FileIOLinkDef.h, mfileio/Makefile:
+     - removed MReadRflFile
+
+
+
+ 2009/12/10 Thomas Bretz
+
+   * ceres.rc:
+     - added line for new option
+
+   * mhflux/MAlphaFitter.cc:
+     - added "Sensitivity" to output
+     - prevent zero or negative divisor
+
+   * msim/MSimMMCS.h:
+     - removed pointers from i/o
+
+   * msimcamera/MSimCamera.h:
+     - fixed a typo in a comment
+
+   * msimcamera/MSimRandomPhotons.[h,cc]:
+     - changed to allow simulation of a nsb spectrum
+
+   * mjobs/MJSimulation.cc:
+     - added cone transmission
+     - plotted cone transmission
+
+   * resmc/night-sky-la-palma.txt
+     - added
+
+
+
+ 2009/12/01 Thomas Bretz
+
+   * mastro/MObservatory.cc:
+     - set fObservatoryKey when a new location is set.
+       Be careful, it is not overwritten if a location is set
+       manually (long, lat)
+
+   * mcorsika/MCorsikaEvtHeader.cc:
+     - initialize fX and fY with 0
+
+
+
+ 2009/10/26 Thomas Bretz
+
+   * Makefile:
+     - moved definition of OSTYPE to Makefile.conf.general
+     - removed mreflector 
+
+   * Makefile.conf.general:
+     - added definition of OSTYPE
+
+   * callisto.cc:
+     - added option for test mode
+
+   * ceres.rc:
+     - fixed a typo 
+     - added a line for the cone transmission
+
+   * condor/program.submit:
+     - Out shell be Output 
+     - Log is now set automatically by condor
+
+   * mastro/MAstroCatalog.cc:
+     - added a trailing / to the default path
+
+   * mbase/MAGIC.cc:
+     - added a warning when using root versions which contain a projection
+        bug which doesn't allow to reuse plotted histograms as expected
+
+   * mbase/MEnv.h:
+     - added a default to GetValue
+
+   * mbase/MLut.cc:
+     - added a validity check for the line data
+
+   * mbase/MParSpline.[h,cc]:
+     - added RecursiveRemove 
+     - added destructor
+
+   * mbase/MSpline3.[h,cc]:
+     - renamed overloaded Integral to avoid confusions in the interpreter
+
+   * mcalib/MCalibrationChargeCalc.cc:
+     - tiny cosmetics (a/=b instead of a=a/b)
+
+   * mcorsika/MCorsikaRead.h, mdata/MDataMember.h,
+     mhbase/MFillH.h, msim/MSimMMCS.h:
+     - excluded pointers from I/O, this causes some (the last) event 
+       to be stored, which could be quite large
+
+   * mfilter/MFSoftwareTrigger.cc:
+     - added some informal output to the log-stream
+
+   * mhbase/MH3.cc:
+     - added a sanity if when deleting fHist
+
+   * mhbase/MHn.[h,cc]:
+     - added RecursiveRemove
+
+   * mhist/MHCamEvent.cc:
+     - check for fSum in RecursiveRemove
+
+   * mjobs/MJCalibration.cc:
+     - write commandline to output
+
+   * mpointing/MPointingDevCalc.cc:
+     - added new pointing informations
+
+   * msimcamera/MSimAPD.cc:
+     - added the 3600 cell APD type
+
+   * msimcamera/MSimBundlePhotons.cc:
+     - improved a comment
+
+   * msimcamera/MSimExcessNoise.[h,cc]:
+     - changed size of excess noise to be variable
+
+   * msimcamera/MSimTrigger.cc:
+     - print some information if electronics is "switched off"
+
+   * msimreflector/MReflector.cc:
+     - improved a comment
+
+   * mbase/MStatusArray.[h,cc]:
+     - tried to improved stability by a completely self made deletion
+       scheme for the canvases
+
+   * mgeom/MGeomPix.h:
+     - replaced tan(60)/2 by sin(60)
+
+   * mjobs/MJCalibrateSignal.[h,cc]:
+     - added test mode to allow calibration of calibration files
+
+   * Makefile, */Makefile:
+     - brought includes in the correct order
+
+   * msimcamera/MSimRandomPhotons.cc:
+     - added the Cone transmission
+     - added a lot of comments
+
+
+
+ 2009/09/11 Daniela Dorner
+
+   * datacenter/db/include.php:
+     - implemented Select-all functionality for builddatasets.php
+     - improved function for 'Next/Prev/First/Last' links: regexp 
+       instead of selfmade building of link
+     - added removing of fNumStart from link in function GetClearedURL()
+     - added removing of DisplaySelected=inverse from link in function 
+       GetClearedURL()
+     - implemented 'Display Not-Selected Sequences' Button
+     - changed text on buttons
+
+   * datacenter/db/builddatasets.php:
+     - added possibility to update data set in database: update queries,
+       interface to select data set, check if user is the same
+     - bugfix: changed some $_SESSION back to $_GET (selection in the 
+       menu were treated wrongly)
+     - commented resetting of 'name' and 'comment' out
+     - implemented 'Display Not-Selected Sequences' Button
+     - changed text on buttons
+     - changed column 'Links' to the same like in sequinfo-aio.php
+     - implemented possibility to choose data set number for data set
+       file 
+
+   * datacenter/db/menu.js:
+     - implemented function for Select-all functionality
+
+
+
+ 2009/09/08 Daniela Dorner
+
+   * datacenter/db/include.php:
+     - exchanged ON/Off checkboxes with ON/Off/Not radio-buttons for 
+       builddatasets.php
+     - bugfix for display of total number of displayed results
+     - added button for displaying all not-selected sequences (also for
+       builddatasets.php)
+
+   * datacenter/db/builddatasets.php:
+     - adapted to usage of radio buttons
+     - adapted to usage of 'Display Not-Selected Sequences' button
+     - improvement of WARN and ERROR messages
+     - bugfix for observation mode display in data set summary
+     - added remark that pressing 'Get Data Set' button is neccessary
+
+
+
+ 2009/08/31 Daniela Dorner
+
+   * datacenter/scripts/setup:
+     - removed 
+
+   * datacenter/scripts/sourcefile:
+     - small fix in function makedir()
+
+   * datacenter/scripts/fillmcdb:
+     - added (script to add run in mc db (cta))
+
+   * datacenter/scripts/runsimtel:
+     - added (script to run corsika and simtelarray for cta)
+
+   * datacenter/scripts/runchimp:
+     - added (script to run coverter from simtel to mars format for cta)
+
+   * datacenter/scripts/runctastar:
+     - added (script to run star (macro) for cta)
+
+   * datacenter/scripts/runstereo:
+     - added (script to macro to calculate stereo parameters for cta)
+
+
+
+ 2009/08/21 Daniela Dorner
+
+   * datacenter/db/menu.php:
+     - added functions needed for mcinfo.php
+
+   * datacenter/db/menu.php, datacenter/db/magicdefs.php:
+     - added limit for cloudiness
+
+   * datacenter/db/sequinfo-aio.php:
+     - removed $_GET from some functions
+
+   * datacenter/db/db.php, datacenter/db/datasetinfo.php, 
+     datacenter/db/dbstatus.php, datacenter/db/findoffdata.php, 
+     datacenter/db/index.html, datacenter/db/index.php, 
+     datacenter/db/querycal.php, datacenter/db/queryseq.php, 
+     datacenter/db/querystar.php, datacenter/db/runinfo.php, 
+     datacenter/db/sequinfo.php, datacenter/db/statusrps.php, 
+     datacenter/db/statussps.php:
+     - removed 
+
+
+
+ 2009/08/20 Daniela Dorner
+
+   * datacenter/db/include.php:
+     - implemented 'First' and 'Last' links for the table, moved 
+       creation of link into function ReplaceInUri()
+     - added display of total number of results (without LIMIT) at end 
+       of table
+     - changed CheckBox2() to use SESSION variables
+     - added new buttons for builddatasets.php in PrintMagicTable() 
+       (above and below the table in case form with POST is used), 
+       function PrintDisplaySequencesButtons()
+     - added function GetClearedURL() to ensure that variables for 
+       insert, display of selected sequences and download of files, are
+       removed in the case POST and not GET is used (needed only for
+       additional buttons in builddatasets.php)
+     - removed $_GET from some functions
+
+   * datacenter/db/menu.php:
+     - removed $_GET from Init functions
+     - moved init-function of builddatasets.php here: 
+       InitBuildDataSets()
+     - adapted init of builddatasets
+     - added init of fOnlySum
+     - fixed typo in init of fProposalName
+     - changed input of Star-Done Range from 10 to 19 digits
+
+   * datacenter/db/ctamcinfo.php, datacenter/db/magicdefs.php, 
+     datacenter/db/mcdefs.php, datacenter/db/ctadefs.php:
+     - removed $_GET from some functions
+
+   * datacenter/db/builddatasets.php:
+     - changed from $_GET and $_POST to $_SESSION to avoid interaction
+       problems between GET and POST
+     - provide possibility to select sequences from several pages 
+       (Next/SortBy/...)
+     - new buttons: 'Display Selected/All Sequences', 'Get Dataset File'
+     - bugfix in download of txt-File
+     - removed $_GET from some functions
+     - added user management
+     - updated and enhanced lower part (information about data set)
+
+   * datacenter/db/builddatasets.php, datacenter/db/ctamcinfo.php, 
+     datacenter/db/datacheck.php, datacenter/db/datasetinfo.php,
+     datacenter/db/datasetinfo-aio.php, datacenter/db/dbstatus.php,
+     datacenter/db/findoffdata.php, datacenter/db/index.php,
+     datacenter/db/mcinfo.php, datacenter/db/opticaldata.php,
+     datacenter/db/printtable.php, datacenter/db/querycal.php,
+     datacenter/db/querymc.php, datacenter/db/queryrbk.php,
+     datacenter/db/queryseq.php, datacenter/db/querystar.php,
+     datacenter/db/runinfo.php, datacenter/db/runinfo-aio.php,
+     datacenter/db/sequinfo.php, datacenter/db/sequinfo-aio.php,
+     datacenter/db/sources.php, datacenter/db/statusrps.php,
+     datacenter/db/statussbs.php, datacenter/db/statussps.php:
+     - changes needed for 'Last' link and display of total number of 
+       results
+
+
+
+ 2009/08/18 Thomas Bretz
+
+   * Makefile:
+     - replaced $OSTYPE by a call to "uname -s" converted to lower
+       case for compatibility
+
+   * mjobs/MJob.cc:
+     - output the name of the resource file in SetupEnv for convinience
+
+   * mjobs/MJCut.cc:
+     - write command line to output
+
+   * mbase/MEvtLoop.cc:
+     - improved some output
+
+
+
+ 2009/08/14 Daniela Dorner
+
+   * datacenter/scripts/sourcefile:
+     - function getstatus: return 0, if variable $numprocs is empty
+     - moved call of getdbinfo() to function getstepinfo where possible
+     - enhanced function getstepinfo: implemented retrieving variable
+       NodeRestricted from steps.rc
+       In steps.rc a line 'Table.Column.NodeRestricted: yes' has to be
+       added when a step has to be executed on a certain node (stored 
+       in the database in MCRunProcessStatus.fProductionHostKEY)
+
+   * datacenter/scripts/jobmanager:
+     - implemented possibility to send certain jobs to certain nodes
+       of the cluster (currently implemented only for sun grid engine)
+     - fix for greping the scriptname from the qstat output (needed
+       for scripts with commandline option)
+     - bugfix: pass environment variable AUTOMATIONSETUP to sun grid
+       engine
+     - pass environment variable AUTOMATIONSETUP also in the case of 
+       condor (macro $automationsetup)
+
+   * datacenter/scripts/setup.isdc.cta:
+     - added analysis scripts for jobmanager
+     - added variables concerning the cluster: number of nodes and 
+       excluded nodes (needed in the jobmanager for the changes 
+       above)
+
+   * datacenter/scripts/run.condor:
+     - added definition of environment variable using macro 
+       $automationsetup
+
+
+
+ 2009/08/14 Daniel Hoehne-Moench
+
+   * datacenter/scripts/mcsequences:
+     - included display of azimuth range in sequence file
+     - changed sequencing to one sequence per mc run
+
+
+
+ 2009/08/13 Thomas Bretz
+
+   * mbase/Margs.cc:
+     - fixed a problem returning 0 instead of "" for TString
+
+   * mbase/MLut.h, mbase/MStatusArray.h:
+     - added new overloads for Print to make it compile with newer root
+       versions without warning
+
+   * msimreflector/MReflector.cc:
+     - replaced ForEach to make it compile with newer root versions
+
+   * mtrigger/MTriggerPatternDecode.cc:
+     - removed some accidental debug output
+
+
+
+ 2009/08/13 Daniela Dorner
+
+   * datacenter/scripts/setup.isdc.cta, 
+     datacenter/scripts/setup.wue.magic.data, 
+     datacenter/scripts/setup.wue.magic.mc:
+     - added (setup files with different default settings for usage with
+       $AUTOMATIONSETUP)
+
+   * datacenter/scripts/sourcefile:
+     - moved variables for resourcefiles steps.rc and sql.rc to setup.*
+     - removed function cont()
+     - added check if setup.* is existing
+
+   * datacenter/scripts/jobmanager:
+     - removed command line options (done now via environment variable
+       $AUTOMATIONSETUP)
+     - moved arrays $scripts, $scriptscolname, $pnosweek, $pnoswe to
+       setup.*
+
+
+
+ 2009/08/12 Daniela Dorner
+
+   * datacenter/scripts/jobmanager:
+     - improved logging (new layout and more information)
+     - moved sleep to end of loop (function nextscript())
+
+
+
+ 2009/08/12 Daniel Hoehne-Moench
+   * datacenter/macros/filldotrun.C:
+     - inserted Arehucas versions 090625-0, 0907[02,06,31]-0 including
+       the new columns L3TriggerRate, L3TriggerTable, WheelPos1,
+       WheelPos2, Cycle, PI, WorkingGroup and Proposal
+     - implemented MAGIC 2 run file handling
+     - removed readout of columns by ReadToDelim(); now the columns are
+       filled into an TObjArray
+
+
+
+ 2009/08/11 Daniela Dorner
+
+   * datacenter/db/menu.php:
+     - added mc function (corsika production)
+
+   * datacenter/db/magicdefs.php:
+     - added $timelimits array
+
+   * datacenter/db/include.php:
+     - added usage of $timelimits array in function StatusQuery(), i.e.
+       provides possibility to set different values for time after 
+       which job is marked as 'crashef' for diffent steps
+
+   * datacenter/db/builddatasets.php, datacenter/db/datacheck.php, 
+     datacenter/db/datasetinfo-aio.php, datacenter/db/datasetinfo.php, 
+     datacenter/db/dbstatus.php, datacenter/db/findoffdata.php, 
+     datacenter/db/runinfo-aio.php, datacenter/db/runinfo.php, 
+     datacenter/db/sequinfo-aio.php, datacenter/db/sequinfo.php, 
+     datacenter/db/statusrps.php, datacenter/db/statussbs.php, 
+     datacenter/db/statussps.php, datacenter/db/ctamcinfo.php:
+     - added $timelimits to function StatusQuery()
+
+   * datacenter/db/ctamcinfo.php:
+     - bugfix: combining of normal and status group-by is possible now
+     - added # of events and # of kilo-events in 'group-by'
+
+   * datacenter/db/ctadefs.php:
+     - changed time limit for corsika from 30 to 48 hours
+     - added # of events and # of kilo-events for 'group-by'
+
+   * datacenter/db/mcinfo.php:
+     - added (interface to monitor mc production (up to now only test
+       version for corsika))
+
+   * datacenter/db/mcdefs.php:
+     - added (definition of variables for mc production)
+
+
+
+ 2009/08/03 Daniel Hoehne-Moench, Stefan Ruegamer
+
+   * datacenter/db/menu.php, magicdefs.php:
+     - added new columns L3TriggerTable, WheelPos1, WheelPos2 as well as
+       the KEY tables Cycle, PI, WorkingGroup and Proposal
+
+
+
+ 2009/08/03 Daniela Dorner
+
+   * datacenter/db/menu.php:
+     - bugfix: query for NightRange field only date from database
+
+
+
+ 2009/07/29 Thomas Bretz
+
+   * callisto.cc, ceres.cc, ganymed.cc, sponde.cc, star.cc:
+     - pipe command line to job
+
+   * mbase/MArgs.[h,cc]:
+     - added getter for command line
+
+   * mjobs/MJCalibration.cc, mjobs/MJSpectrum.cc,
+     mjobs/MJStar.cc, mjobs/MJCalibrateSignal.cc:
+     - write command line to output
+
+   * mjobs/MJob.[h,cc]:
+     - added data member to store the command line
+
+   * mtrigger/MTriggerPattern.h:
+     - added efault argumtn to Print()
+
+   * mjobs/MJStar.cc:
+     - added a sanity check for empty sequences
+     - write MCorsikaEvtHeader and MCorsikaRunHeader to output
+
+   * mjobs/MJSimulation.cc:
+     - use a MParameterCalc to calculate and later store the
+       incident angle
+
+
+
+ 2009/07/28 Thomas Bretz
+
+   * mjobs/MJCalibration.cc:
+     - we have to allow all kind of triggers together with a 
+       calibration trigger, otherwise we never have enough 
+       calibration events if the trigger signals haven't been
+       switched off (prescaled)
+
+   * mtrigger/MTriggerPatternDecode.cc:
+     - when we move L1TPU to L1 as a workaround we now really "move"
+       the bit instead of just copy it (this is better for filters
+       like "deny all")
+
+
+
+ 2009/07/04 Daniela Dorner
+
+   * datacenter/db/ctamcinfo.php, datacenter/db/ctadefs.php, 
+     datacenter/db/menu.php, datacenter/scripts/jobmanager:
+     - changed fCorsikaSimtelArray to fCorsikaSimTelarray
+
+
+
+ 2009/07/02 Thomas Bretz
+
+   * manalysis/MGeomApply.cc:
+     - cosmetics to a comment
+
+   * melectronics/ElectronicsLinkDef.h, melectronics/Makefile:
+     - removed MPulseShape
+
+   * mhbase/MHMatrix.cc:
+     - improved memeory managment when matrix size is growing
+
+   * mjobs/MJCalibrateSignal.cc:
+     - added MCorsikaRunHeader and MCorsikaEvtHeader to output
+       for completeness
+
+   * mjobs/MJCalibration.cc:
+     - improved the filter for the trigger pattern
+
+
+
+ 2009/07/01 Thomas Bretz
+
+   * mreport/MReportDrive.cc:
+     - fixed typo in version number
+
+   * mjobs/MJob.cc:
+     - improved check for write permissions
+
+   * mfileio/MWriteRootFile.cc:
+     - option should not only contain "memory" it should be identical
+       to "memory"
+
+
+
+ 2009/06/28 Daniel Hoehne-Moench
+
+   * datacenter/macros/filldotrun.C
+     - fixed typo in Arehucas Version: 090661-0 -> 090616-0
+
+
+
+ 2009/06/26 Daniel Hoehne-Moench
+
+   * datacenter/macros/filldotrun.C
+     - inserted Arehucas version 090616-0
+
+   * datacenter/macros/fillcamera.C:
+     - changed number of digits for thetamin, thetamax, pmin, pmax
+     - fPhiMin (pmin) and fPhiMax (pmax) are now filled into 
+       MyMagicMonteCarlo
+
+
+
+ 2009/06/22 Daniela Dorner
+
+   * datacenter/db/showplots.php, datacenter/db/showplots-ds.php, 
+     datacenter/db/showplots-seq.php:
+     - additional information on the sequence is displayed on mouse-over
+       on the path of the file
+
+   * datacenter/db/plotinclude.php:
+     - implemented function for mouse-over in showplots*.php
+
+   * datacenter/db/showplots.php:
+     - adapted layout of menu to new feature
+
+
+
+ 2009/06/20 Thomas Bretz
+
+   * mbase/MLut.[h,cc]:
+     - renamed Default to DefaultCol
+     - added DefaultRow
+     - added Print
+     - added some const qualifiers
+
+   * mbase/MParList.cc:
+     - make sure a parlist is not added to itself
+     - improved some debug output
+
+   * melectronics/MAvalanchePhotoDiode.[h,cc]:
+     - keep a time-stamp fTime
+     - added functions to "relax/evolve" the apd over a given time
+
+   * mgeom/MGeomCamDwarf.cc:
+     - fixed a broken comment
+
+   * mjobs/MJPedestal.cc:
+     - improved output in case of error
+
+   * mjobs/MJSimulation.cc:
+     - implemented a PreCut (to gain processing time)
+     - implemented the correct type id in the file name
+
+   * mpedestal/MPedCalcPedRun.cc:
+     - check for the run-number only if real data
+
+   * mraw/MRawRunHeader.[h,cc]:
+     - added GetRuntypeChar
+     - fixed a bug which returned the runtype instead of the
+       telescopenumber
+
+   * mreport/MReport.cc:
+     - added a new report version number 200905170 (preliminray!)
+
+   * mreport/MReportDrive.cc:
+     - added a fix for the starguider sttaus in the report
+
+   * msimcamera/MSimAPD.cc:
+     - instead of a full initialization of the APD before each event
+       we now only simulate a time evolution which is needed to relax
+       a cell to one permille error. This is much faster.
+
+   * msimcamera/MSimTrigger.[h,cc]:
+     - allow switching off of the electronics trigger
+     - replaced the real coincidence by better and faster algorithm
+     - the new algorithm also supports multiplicity triggers
+     - therefore added fMinMultiplicity
+     - updated the handling and ouput in case of empty coincidence maps
+
+   * mtrigger/MTriggerPattern.h:
+     - added some information in the bit description
+
+   * mtrigger/MTriggerPatternDecode.cc:
+     - fixed the decoding for runs for which L1TPU was connected
+       instead of L1
+
+   * megom/MGeomCamFact.[h,cc]:
+     - added
+
+   * megom/Makefile, mgeom/GeomLinkDef.h:
+     - added MGeomCamFact
+
+
+
+ 2009/06/18 Daniela Dorner
+
+   * mjobs/MDataSet.h:
+     - fixed typo in comment
+
+
+
+ 2009/06/16 Daniela Dorner
+
+   * datacenter/db/plotinclude.php, datacenter/db/plotdb.php:
+     - implemented feature to query/plot only data of one source (with
+       regular expressions)
+
+
+
+ 2009/06/12 Daniela Dorner
+
+   * datacenter/db/include.php:
+     - adapted path of plus.png and minus.png
+
+   * datacenter/db/index-footer.html:
+     - adapted footer
+
+   * datacenter/db/menu.php:
+     - added functions for CTA MC
+
+   * datacenter/db/ctadefs.php:
+     - added (analog file to magicdefs.php for CTA)
+
+   * datacenter/db/ctamcinfo.php:
+     - added (website to display info about produced CTA MC)
+
+   * macros/starvisyear.C:
+     - added includes for compiling
+
+   * datacenter/scripts/sourcefile:
+     - replaced case- by if-statement in checklock()
+     - added more information to the output to the lockfile
+     - added processlog in makedir()
+     - improved processlog output and layout of queries
+     - added option to query only jobs for one node
+
+   * datacenter/scripts/jobmanager:
+     - added option for production of cta mc
+
+   * datacenter/scripts/jobmanager, datacenter/scripts/setup:
+     - added $totalmax which can overwrite $pnototal[$hour]
+
+
+
+ 2009/06/09 Daniela Dorner
+
+   * mbase/MSpline3.cc:
+     - added include of TMath
+
+
+
+ 2009/06/05 Stefan Ruegamer, Daniel Hoehne-Moench
+
+   * Mars-2.3/datacenter/macros/filldotrun.C
+     - inserted Arehucas versions 090522-0 and 090525-0
+
+
+
+ 2009/05/15 Thomas Bretz
+
+   * ganymed.rc, ganymed_wobble.rc, ganymed_onoff.rc:
+     - fixed names for Hadronness Cut
+
+
+
+ 2009/05/15 Thomas Bretz
+
+   * ganymed.rc, ganymed_wobble.rc, ganymed_onoff.rc:
+     - fixed names for Hadronness Cut
+
+
+
+ 2009/05/10 Thomas Bretz
+
+   * ceres.cc:
+     - added usage of sequence files
+     - added new options for pedestal and calibration mode
+
+   * mbase/MDirIter.[h,cc]:
+     - added AddFile member function
+
+   * mbase/MArgs.[h,cc]:
+     - added member function to remove an argument from the list
+
+   * mgeom/MGeomPix.h:
+     - added Getter for Width in x and y
+
+   * mjobs/MJSimulation.[h,cc]:
+     - added fOperationMode
+     - added use of sequence
+     - name ceres file according to sequence number
+     - changes to the binnings 
+
+   * mjobs/MSequence.[h,cc]:
+     - unified the usual and the default constructor
+     - don't output default values in Print
+     - added kCorsika files
+
+
+
+ 2009/04/29 Thomas Bretz
+
+   * msimcamera/Makefile:
+     - added -I../msimreflector
+
+
+
+ 2009/04/28 Thomas Bretz
+
+   * mjobs/MJStar.cc:
+     - allow to run thru even if discriminator threshold are missing
+
+
+
+ 2009/04/26 Thomas Bretz
+
+   * mraw/MRawFileRead.cc:
+     - added consistency check for two consecutive headers
+
+   * mraw/MRawRunHeader.[h,cc]:
+     - added copy constructor
+     - added member function for conistency check
+
+
+
+ 2009/04/16 Thomas Bretz
+
+   * mbase/MEvtLoop.cc:
+     - make sure that no negative values for the estimated time
+       is shown
+
+   * mcorsika/MCorsikaEvtHeader.cc:
+     - calculate impact in the telescope dish plane and not on the
+       ground
+
+   * mhflux/MHCollectionArea.cc:
+     - initialize more variables in the constructor as suggested
+       by valgrind
+
+   * mpointing/MHPointing.cc:
+     - set the maximum such that both axis are scaled correctly
+
+   * msimcamera/MSimBundlePhotons.cc:
+     - added some more output
+
+   * resmc/dwarf-pde-gapd.txt:
+     - used new curve from ETH
+     - extrapolated curve on both ends linearily
+
+   * resmc/dwarf-reflectivity.txt:
+     - extrapolated linearily to 980 nm
+
+   * resmc/magic-pde.txt:
+     - set to 0 at 900nm
+
+   * resmc/magic-reflectivity.txt:
+     - extrpolated to 900nm
+
+   * msimcamera/MSimReadout.cc:
+     - small improvement to sanity check to allow having less channels
+       than pixels
+
+   * mreport/MReport.cc:
+     - added once more a fix for a wrong Arehucas version
+
+   * mbase/MSpline3.[h,cc]:
+     - added functions to return the analytical integral
+       of the spline
+
+   * mjobs/MJSimulation.[h,cc]:
+     - replaced the 2D histogram with the impact on ground with
+       a 1D histogram with the impact perpendicular to Alt/Az
+     - Use a MParSline instead of MPulseShape
+     - Use MParSplines as input for MSimAbsorption
+     - increased the number of bins for the threshold histogram
+     - adapted BinningImpact
+     - added another histogram for the event distribution after cleaning
+     - changed the default number of the NSB to fit the new input
+       definition
+     - added histogram for MNewImagePar
+     - added tab "Info2"
+     - added all MHPhotonEvent to the paremeter list to allow access 
+       of the ReadEnv
+
+   * msim/MSimAbsorption.[h,cc]:
+     - moved the spline code to MParSpline
+     - use MParSpline as new input
+
+   * msimcamera/MSimCalibrationSignal.[h,cc], msimcamera/MSimCamera.[h,cc],
+     msimcamera/MSimGeomCam.[h,cc]:
+     - replaces MPulseShape by MParSpline
+
+   * msimcamera/MSimRandomPhotons.[h,cc]:
+     - scale NSB rates like it is done in Eckart's paper
+     - write rates to an output container
+
+   * ceres.rc:
+     - adapted
+
+   * msimcamera/MSimAPD.[h,cc]:
+     - take the acidental rate from a container
+
+   * mbase/Makefile, mbase/BaseLinkDef.h:
+     - added MParSpline
+
+   * mbase/MParSpline.[h,cc]:
+     - added
+
+   * msim/MSimAtmosphere.cc:
+     - fixed a bug which caused the aerosol coefficient to be
+       incorrectly initialized
+
+
+
+ 2009/04/01 Thomas Bretz
+
+   * Makefile.conf.linux:
+     - removed accidental '-g'
+
+   * Makefile.conf.linux:
+     - removed -Wconversion (produces too much output on newer
+       compilers)
+
+   * ceres.rc, mjobs/MJSimulation.cc:
+     - added a cut "Cut" after image parameter calculation
+     - updated noise numbers
+
+   * resmc/dwarf-pde-gapd.txt:
+     - upadted with a more reliable curve from theeth meeting page
+       (linear extrapolate below 350nm)
+
+
+
+ 2009/03/30 Thomas Bretz
+
+   * manalysis/MMcCalibrationUpdate.cc:
+     - fixed a conditional which prevented the display from
+       correctly process raw data
+
+   * mgeom/MGeomCamSquare.cc:
+     - shifted pixels to be centered around 0
+
+   * msimcamera/MSimCamera.cc:
+     - added an additional sanity check
+
+   * mhbase/MH.cc:
+     - added "temp" to palette
+
+
+
+ 2009/03/27 Stefan Ruegamer
+
+   * datacenter/scripts/checkstardone
+     - added missing ;; for the case-switching
+
+
+
+ 2009/03/24 Stefan Ruegamer
+
+   * mhflux/MHAlpha.cc
+     - changed in DrawAll the line color of on-off to blue
+
+
+
+ 2009/03/23 Thomas Bretz
+
+   * resources/starguider01000534.txt:
+     - added
+
+   * mbase/MStatusDisplay.cc:
+     - if no MStatusArray is found now all object are drawn
+
+   * mfileio/MWriteRootFile.[h,cc]:
+     - trees to be copied can now be made optional
+
+   * mhbase/MH.cc:
+     - included TProfile2D for newer root versions
+
+   * mjobs/MJCalibrateSignal.cc:
+     - made the copy of "OriginalMC" optional. Now it also works
+       for non-ceres (original MMCS) files again which don't 
+       have this tree.
+
+
+
+ 2009/03/19 Daniel Hoehne-Moench
+
+   * datacenter/scropts/mcsequences:
+     - bugfix: replaced $user by $us
+     - bugfix: fPriority is now inserted into the correct table
+
+
+
+ 2009/03/16 Thomas Bretz
+
+   * ganymed.rc, ganymed_onoff.rc, ganymed_wobble.rc:
+     - added new starguider calibration since 1000534
+
+   * datacenter/macros/plotdb.C, datacenter/macros/plotrundb.C:
+     - added option to set ds-number in datset
+
+   * mgeom/MGeomCamMagic.cc:
+     - fixed layout of the MII camera
+
+   * mpointing/MPointingDevCalc.cc:
+     - updated informations
+
+
+
+ 2009/03/16 Daniel Hoehne-Moench
+
+   * datacenter/scripts/fillcamera
+     - bugfix: the first line was moved by a tabulator
+
+
+
+ 2009/03/16 Stefan Ruegamer
+
+   * datacenter/scripts/makecallistolinks
+     - added >/dev/null in line 68 to prevent the mails to dc@astro
+     - removed the -v for the ln
+
+   * datacenter/scripts/sourcefile
+     - added printprocesslog for rm -v in the finish function (mails)
+
+
+
+ 2009/03/15 Thomas Bretz
+
+   * mgeom/MGeomCam.[h,cc]:
+     - added member function to get the total sensitive area of the
+       camera
+
+   * mgeom/MGeomCamMagic.cc:
+     - included TMath for newer root versions
+
+
+
+ 2009/03/07 Thomas Bretz
+
+   * RELEASE V2.3
+
+
+
+ 2009/03/06 Thomas Bretz
+
+   * datacenter/macros/plotrundb.C datacenter/macros/fillstar.C:
+     - added RunDataCheck access
+
+   * mreflector/MRflEventData.cc:
+     - replaced DistanceToPrimitive by IsInside
+
+
+
+ 2009/03/05 Thomas Bretz
+
+   * mreport/MReportCamera.cc:
+     - fixed a problem if the HVFIL section is empty
+
+   * merpp.cc:
+     - added --dev-null option to Usage output
+
+   * mjobs/MJMerpp.[h,cc]:
+     - fixed operation in --dev-null mode
+
+
+
+ 2009/03/04 Thomas Bretz
+
+   * datacenter/macros/plotdb.C:
+     - updated some binnings
+
+   * datacenter/macros/fillganymed.C:
+     - use the primary also when inserting
+
+   * mgeom/GeomLinkDef.h:
+     - added MGeomCamMagicII
+
+   * mgeom/MGeom.[h,cc]:
+     - added option to set position
+     - removed DistanceToPrimitive, use IsInside instead
+
+   * mgeom/MGeomCam.[h,cc]:
+     - added a virtual function to CreateNN
+     - added a workaround after reading by calling CreateNN
+       because with the last changes the pixel indices get lost
+
+   * mgeom/MGeomCamCT1.[h,cc]:
+     - now derives from MGeomCamDwarf
+     - accordingly increased version number
+
+   * mgeom/MGeomCamDwarf.[h,cc]:
+     - removed Clone -> now in MGeomCam
+
+   * mgeom/MGeomCamMagic.[h,cc]:
+     - added MGeomCamMagicII <preliminary>
+
+   * mgeom/MGeomCamSquare.[h,cc]:
+     - removed creation of next neighbors -> now automatic
+
+   * mgeom/MGeomPix.[h,cc]:
+     - added rotation angle in terms of cos(phi) and sin(phi)
+     - rotate in PaintPrimitive
+     - adapted IsInside accordingly
+
+   * mgeom/MGeomRectangle.[h,cc]:
+     - if only width is given assume a square
+     - make sure that the box is correctly painted for all root versions
+     - fixed distance to farthest point
+
+   * mgui/MHexagon.[h,cc]:
+     - removed obsolete dependence on MGeomPix
+
+   * mhist/MHCamera.cc, mtools/MagicJam.cc:
+     - replaced DistanceToPrimitive by IsInside
+
+   * mjobs/MJSimulation.cc:
+     - replaced accidental _I_ in file names by _Y_
+
+   * mreport/MReportCC.[h,cc]:
+     - added version >=200809030
+     - improved modularity of code
+
+
+
+ 2009/03/03 Thomas Bretz
+
+   * ceres.rc:
+     - added some more infomation
+     - updated paths
+
+   * mcorsika/MCorsikaRunHeader.[h,cc]:
+     - added atmospheric layers
+     - added interpretation of new XSCATT/YSCATT in newer corsikas
+
+   * msim/MSimAtmosphere.[h,cc]:
+     - changed path
+     - MAtmosphere doesn't search for any files per default anymore
+     - changed atmopsheric layers to the ones fitted by Corsika
+     - added possibility to change input files to ReadEnv
+
+   * msimcamera/MSimCalibrationSignal.cc:
+     - don't create a camera geometry yourself
+     
+   * resmc/atmosphere-aerosols.txt, resmc/atmosphere-ozone.txt,
+     resmc/ct1-pde.txt, resmc/dwarf-apdmap.txt, resmc/dwarf-cones.txt,
+     resmc/dwarf-pde-gapd.txt, resmc/dwarf-reflectivity.txt,
+     resmc/dwarf-reflector.txt, resmc/magic-cones-inner.txt,
+     resmc/magic-pde.txt, resmc/magic-reflectivity.txt,
+     resmc/magic-reflector-chessboard.txt, resmc/magic-reflector.txt,
+     resmc/magic-trigger-1NN.txt, resmc/magic-trigger-2NN.txt,
+     resmc/magic-trigger-3NN.txt, resmc/magic-trigger-4NN.txt:
+     - added
+
+   * mhist/Makefile:
+     - removed accidental MHQuality
+
+   * mhist/MHCamera.cc:
+     - fixed a warning when calling DistancetoPrimitive
+
+   * mgeom/MGeomCamSquare.cc:
+     - accidentaly used Double_t instead of Short_t when calling
+       SetNeighbors
+     - changed number of pixels from UInt_t to Short_t. It doesn't make
+       sense to support more pixels than we can store as index for
+       neighbors
+
+   * Makefile:
+     - added mreflector to resolve unresolved symbols
+
+
+
+ 2009/03/02 Daniela Dorner
+
+   * datacenter/db/plotdb.php:
+     - adapted width of table
+
+
+
+ 2009/03/02 Thomas Bretz
+
+   * mgeom/MGeomCam.[h,cc], msimreflector/MMirror.h,
+     msimreflector/MMirrorDisk.[h,cc], msimreflector/MMirrorHex.[h,cc],
+     msimreflector/MMirrorSquare.[h,cc], msimreflector/MReflector.[h,cc]:
+     - added GetA member function
+
+   * manalysis/MCameraData.cc, mbadpixels/MBadPixelsCalc.cc,
+     mbadpixels/MBadPixelsCam.cc, mbadpixels/MBadPixelsTreat.cc,
+     mcalib/MCalibrationCam.cc, mcalib/MCalibrationChargeCalc.cc,
+     mcalib/MCalibrationChargeCam.cc, mcalib/MCalibrationPulseTimeCam.cc,
+     mcalib/MCalibrationRelTimeCalc.cc, mcalib/MCalibrationRelTimeCam.cc,
+     mcalib/MCalibrationTestCalc.cc, mcalib/MCalibrationTestCam.cc,
+     mcorsika/MCorsikaEvtHeader.cc, mfilter/MFSoftwareTrigger.cc,
+     mgeom/MGeomCam.cc, mhcalib/MHCalibrationCam.cc,
+     mhcalib/MHCalibrationChargeCam.cc,  msignal/MSignalCam.cc,
+     mhcalib/MHCalibrationPulseTimeCam.cc, mpointing/MPointingPos.h, 
+     mhcalib/MHCalibrationRelTimeCam.cc, mhft/MHexagonalFTCalc.cc,
+     mhist/MHCamera.cc, mimage/MHillas.cc, mimage/MNewImagePar.cc,
+     mjobs/MJCut.cc, mjobs/MJSimulation.cc, mpedestal/MPedPhotCam.cc, 
+     mpedestal/MExtractPedestal.cc, mpedestal/MPedestalCam.cc, 
+     msimcamera/MSimGeomCam.cc, msimcamera/MSimRandomPhotons.cc:
+     - replaced MGeomPix by MGeom
+
+   * mjobs/MJStar.cc:
+     - added BinningDist
+     - converted Muon cuts from mm to deg
+
+   * mhflux/MHCollectionArea.cc:
+     - fixed a problem that a plot disappeared in old files
+
+   * mmuon/MMuonSearchPar.cc:
+     - switched off the check in Paint (this works only for MAGIC :( )
+
+   * datacenter/macros/fillganymed.C:
+     - simplified by using MSQLMagic instead of MSQLServer
+
+
+
+ 2009/03/01 Thomas Bretz
+
+   * ganymed.rc, ganymed_onoff.rc, ganymed_wobble.rc:
+     - added pointing model 328198
+
+   * mbase/MSpline3.h:
+     - added a cast to make it compile with root 5.18
+
+   * melectronics/MPulseShape.cc:
+     - included TH1 to make it compile with root 5.18
+
+   * mhflux/MAlphaFitter.[h,cc]:
+     - convert MString::Format to Data() 
+     - added type SignificanceSqrtExcess
+
+   * mhflux/MHFalseSource.cc, mjobs/MJSpectrum.cc:
+     - convert MString::Format to Data() 
+
+   * mhist/MHCamera.cc:
+     - changed some const TString to const char to resolve 
+       ambiguity in root 5.18 in TF1 constructor
+
+   * msim/MHPhotonEvent.cc:
+     - use TMath::Abs instead of abs 
+
+   * msim/MSimPointingPos.[h,cc]:
+     - moved getter and setter to source file to avoid including of
+       TMath
+
+   * mgeom/MGeom.[h,cc]:
+     - added
+
+   * mgeom/MGeomRectangle.[h,cc]:
+     - added
+
+   * mgeom/MGeomCamSquare.[h,cc]:
+     - added
+
+   * mgeom/Makefile, mgeom/GeomLinkDef.h:
+     - added MGeom
+     - added MGeomRectangle
+     - added MGeomCamSquare
+
+   * Makefile.rules:
+     - removed dependance on ROOTSYS from rmkdepend. It should be in 
+       the path anyway as rootcint
+
+   * ceres.rc:
+     - added an example of setting the APD type
+
+   * mbadpixels/MBadPixelsCam.[h,cc], mbadpixels/MBadPixelsTreat.cc,
+     mcalib/MCalibrationChargeCalc.cc, mcalib/MCalibrationTestCalc.cc,
+     mfilter/MFSoftwareTrigger.cc:
+     - replaced references to MGeomPix by references to MGeom
+
+   * mbase/MStatusDisplay.cc:
+     - evaluate the return code of fwrite as suggested by newer 
+       gcc versions
+     - set a paranthesis as suggested by a warning 
+
+   * mgeom/MGeomCam.[h,cc]:
+     - adapted to the changes in MGeomPix/MGeom
+     - added SetAt function for external setup
+     - added Copy constructor
+
+   * mgeom/MGeomCamCT1.cc, mgeom/MGeomCamDwarf.cc, 
+     mgeom/MGeomCamMagic.cc, mhft/MHexagonFreqSpace.cc,
+     mimage/MHillas.cc, mimage/MHillasExt.cc,
+     mimage/MImgCleanStd.[h,cc], mimage/MNewImagePar.cc,
+     mimage/MNewImagePar2.cc, mmuon/MHSingleMuon.cc,
+     msignal/MSignalCam.cc, mtools/MagicJam.cc,
+     
+     - adapted to the changes in MGeomPix/MGeom
+     - use SetAt for setup
+
+   * mgeom/MGeomPix.cc:
+     - moved most of the code to new base class MGeom
+     - now derives from MGeom
+     - increased version number accordingly
+
+   * mhbase/MBinning.cc:
+     - replaced a Int_t by UInt_t as suggested by a warning
+
+   * mhbase/MH.cc:
+     - added a const_cast for GetObjectInfo (should be const,
+       but isn't)
+
+   * mhbase/MHMatrix.cc, mhflux/MHAlpha.cc, mhflux/MHThetaSq.cc,
+     mhflux/MHThetaSqN.cc, mhist/MHCamEventRot.cc, hvstime/MHVsTime.cc,
+     mjobs/MJStar.cc, mraw/MRawEvtHeader.cc:
+     - added paranthesis as suggested by a warning
+
+   * mhft/MGeomCamMagicXT.[h,cc]:
+     - replaced by deriving from MGeomCamDwarf
+
+   * mhist/MHCamera.cc:
+     - adapted to the changes in MGeomPix/MGeom
+     - use SetAt for setup
+     - use new PaintPrimitive to skip the usage of MHexagon
+
+   * mmc/MMcTrigHeader.hxx:
+     - fixed wrong condition in SetTrigger
+
+   * msimcamera/MSimAPD.[h,cc]:
+     - added a possibility to switch between the 50mu and 100mu
+       Diodes
+
+   * mtools/MagicCivilization.[h,cc], mtools/MagicDomino.[h,cc],
+     mtools/MagicReversi.[h,cc], mtools/MagicShow.[h,cc],
+     mtools/MagicSnake.[h,cc], mtools/MineSweeper.[h,cc],
+     - adapted to the changes in MGeomPix/MGeom, therefore restructered
+       the code to get rid of MHexagon
+
+   *  mmovie/MMovieWrite.cc:
+     - allow to switch off timing via preprocessor directive
+     - replaced MGeomPix by MGeom
+     - slightly changed palette
+     - evaluate return of fwrite
+
+   * mbase/MQuaternion.h, msim/MPhotonData.h:
+     - added a workaround for sqrt in root 5.18/00
+
+
+
+ 2009/02/26 Daniel Hoehne-Moench
+
+   * datacenter/macros/filldotrun.C:
+     - implemented new SuperArehucas version
+
+
+
+ 2009/02/23 Thomas Bretz
+
+   * mcorsika/MCorsikaRunHeader.cc:
+     - switched off the impact max workaround - it doesn't work
+     - initialize fImpact Max
+     - print also number of used ATMEXT
+
+   * mhbase/MH.cc:
+     - improved setting of binning from the parameter list in the
+       n-D case
+
+   * mhbase/MH3.cc:
+     - imporved output
+
+   * mhflux/MHCollectionArea.cc:
+     - also collect the maximum impact while running for a nicer
+       behaviour of the plots
+
+   * mhflux/MHThreshold.cc:
+     - allow setting of a dedicated Threshold binning
+
+   * mimage/MHHillasExt.cc:
+     - converted slope binning to deg
+
+   * mjobs/MJSimulation.cc:
+     - write MMcCorsikaRunHeader
+     - changed binnings
+     - added new binning
+     - now display the signal unscaled
+     - show threshold and collection area only for data runs
+
+   * msim/MSimMMCS.cc:
+     - make setting of directions depending on view-cone option
+
+   * msim/MSimPointingPos.[h,cc]:
+     - added class description
+     - removed obsolete fPointingCorsika
+     - improved output
+     - added option for homogenous distribution
+
+   * mmuon/MMuonCalibParCalc.cc:
+     - converted cuts from mm to deg so they will work also for other
+       geometries
+
+
+
+ 2009/02/20 Thomas Bretz
+
+   * mmuon/MHMuonPar.[h,cc]:
+     - updated class version number after fMm2Deg got removed
+
+   * mpointing/MHSrcPosCam.cc:
+     - fixed the fill style of the ellipse to produce correct ps-files
+
+
+
+ 2009/02/19 Daniela Dorner
+
+   * datacenter/scripts/buildsequenceentries, 
+     datacenter/scripts/checkfilesforsequenceavail, 
+     datacenter/scripts/checkstardone, datacenter/scripts/correcttime,
+     datacenter/scripts/dbchk, datacenter/scripts/dodatacheck,
+     datacenter/scripts/doexclusions, datacenter/scripts/fillcallisto, 
+     datacenter/scripts/fillcamera, datacenter/scripts/fillganymed, 
+     datacenter/scripts/fillstar, datacenter/scripts/insertdatasets, 
+     datacenter/scripts/makecallistolinks, 
+     datacenter/scripts/mcsequences, datacenter/scripts/movingrawfiles, 
+     datacenter/scripts/movingrawfiles_OK, datacenter/scripts/runcamera,
+     datacenter/scripts/runcorsika, datacenter/scripts/runreflector,
+     datacenter/scripts/sourcefile, 
+     datacenter/scripts/writedatasetfiles, 
+     datacenter/scripts/writesequencefiles:
+     - removed scriptlog
+
+   * datacenter/scripts/jobmanager: 
+     - fixed typo
+
+
+
+ 2009/02/19 Thomas Bretz
+
+   * mcorsika/MCorsikaRunHeader.[h,cc]:
+     - reformatted output
+     - added "Options" to output
+     - made Has const
+     - added a workaround to get the maximum simulated impact
+       although it is not officially stored in the file
+
+   * msim/MHPhotonEvent.cc:
+     - improved automatic binning
+
+   * msim/MPhotonData.[h,cc]:
+     - added GetCosW2
+     - added GetSinW2
+     - added GetSinW
+
+   * msim/MSimAbsorption.cc:
+     - don't check wavelength range when theta should be used
+
+   * msimcamera/MSimAPD.cc:
+     - check for uninitialized indices
+
+   * msim/MPhotonEvent.[h,cc]:
+     - moved the code for MyClonesArray to the source file
+     - improved a lot the reading speed by reading larger blocks
+       of data from the file at once
+     - improved memory handling. This ensures that even the largest
+       events don't fill the memory forever and the allocated memory
+       is free'd again after some time
+
+   * msimreflector/MSimReflector.cc:
+     - Use the new Resize function of MPhotonEvent to make sure
+       that the memory is not allocated forever.
+
+   * mimage/MHHillas.cc, mimage/MMHillas.Ext.cc, mimage/MHHillasSrc.cc:
+     - converted default binning from mm to deg
+
+   * mraw/MRawRunHeader.cc:
+     - print less when values doen't have any meaning
+
+   * msim/MSimAtmosphere.[h,cc]:
+     - added
+
+   * msim/SimLinkDef.h, msim/Makefile:
+     - added MSimAtmosphere
+
+   * mjobs/MJSimulation.cc:
+     - added simulation of atmosphere
+     - clean isolated pixels away before calculating image parameters
+     - don't clean calibration runs
+     - correct displayed az by magnetic field
+     - added auto range for the 2D histograms
+     - set automatic binning for dist
+     - added tab with histogram for trigger area and threshold
+
+   * readcorsika.cc:
+     - implemented -ff option
+
+   * mcorsika/MCorsikaRunHeader.cc:
+     - improved Print output
+
+   * mimage/MImgCleanStd.cc:
+     - fixed the checks for the cleaning parameters there 
+       where some wrong conditions
+
+   * msim/MSimMMCS.cc:
+     - fixed typo in a comment
+
+   * ceres.rc:
+     - added units for psf
+     - some small updates
+
+   * msimreflector/MSimReflector.cc:
+     - convert units of psf from mm to cm
+     - Use MPointingPos instead of PointingCorsika, ARRANG already
+       rotates all vectors accrodingly
+
+   * msim/MSimPointingPos.cc:
+     - don't write PoinitingCorsika anymore. ARRANg already includes
+       the rotation
+
+   * mgeom/MGeomCamMagic.[h,cc]:
+     - added a constructor which allows to set the focal distance
+
+   * msimcamera/MSimAPD.cc, msimcamera/MSimGeomCam.cc,
+     msimcamera/MSimRandomPhotons.cc, msimreflector/MSimReflector.cc:
+     - don't create an object if MGeomCam not found, try "MGeomCam"
+       as default instead
+
+   * mhflux/MHCollectionArea.[h,cc]:
+     - added MMcRunHeader to data members to be able to check
+       the maximum impact in Finalize for the case the maximum
+       impect is collected "on-line" from the events
+     - if the event distribution comes just from the spectrum fill
+       the distribution event by event to get correct errors
+     - romved some old obsolete code
+
+   * msim/MSimMMCS.[h,cc]:
+     - added MMcRunHeader to data members to allow to collect the
+       maximum impact from the events
+
+
+
+ 2009/02/18 Thomas Bretz
+
+   * datacenter/scripts/runcorsika:
+     - added a comment
+
+   * mbase/MParList.cc:
+     - when adding a TCollectionn only add MParContainers
+
+   * mcorsika/MCorsikaRunHeader.[h,cc]:
+     - added reading of Atmospheric coefficients
+     - added reading of Cherenkov Flag
+     - added corsika's Earth Radius
+
+   * melectronics/MDigitalSignal.[h,cc]:
+     - added and initialized an index to allow to "connect"
+       the digital signal to a channel
+
+   * mjtrain/MJTrainSeparation.cc:
+     - replaced kGreen by kBlue
+
+   * mmain/MEventDisplay.cc:
+     - added a type==3 which is for ceres-reflector files
+
+   * mmain/Makefile:
+     - added -I../mcorsika
+     - added -I../msim
+     - added -I../msimcamera
+
+   * msim/MHPhotonEvent.[h,cc]:
+     - set the binning more automatically from the run-headers
+       where possible
+     - added RadEnv
+     - added Clear function for external access
+
+   * msim/MSimAbsorption.cc:
+     - addec const-qualifier for photon
+
+   * msimcamera/MSimGeomCam.cc:
+     - allow usage also without pulse and pulse position (for display)
+
+   * msimcamera/MSimSignalCam.cc:
+     - allow usage also without TriggerPos
+     - added a check whether MSignalCam was correctly initialized
+
+
+
+ 2009/02/16 Thomas Bretz
+
+   * mimage/MHHillas.cc, mimage/MHHillasExt.cc, mimage/MHHillasSrc.cc,
+     mimage/MHImagePar.cc:
+     - replaced green by blue for better readability on projectors
+
+   * mbase/MEnv.[h,cc]:
+     - added the option of a default name to allow i/o more similar
+       to MParContainer
+     - improved Print()
+
+   * ceres.cc, callisto.cc, star.cc, ganymed.cc, sponde.cc:
+     - make use of the new default name of MEnv
+
+   * mjobs/MJSpectrum.cc:
+     - read and write ganymed.rc
+
+   * mbase/MParList.cc:
+     - if adding a TObjArray add only MParContainers (for sanity)
+
+   * mjobs/MJob.cc:
+     - when reading read also TObjects
+
+   * mjobs/MJSpectrum.cc:
+     - now read the ganymed.rc and write it to the output
+
+   * mhflux/MHEffectiveOnTime.h:
+     - increased class version by 1
+
+   * mhflux/MHAlpha.cc:
+     - removed erronornously comittet SetSumw2
+     - don't output the numbe rof excess events vs time
+
+
+
+ 2009/02/15 Thomas Bretz
+
+   * ceres.rc:
+     - added the MAGIC I high gain pulse as example
+
+   * sponde.cc:
+     - redirect root error handler
+     - added new option to force on-time fit
+
+   * datacenter/scripts/runcorsika:
+     - added a comment
+     - remove empty dat file after corsika finished
+
+   * mbase/MLog.cc:
+     - added several more log-levels to handling root's error handler
+
+   * mbase/MPrint.cc:
+     - flush buffer before printing
+     - set output level to all
+
+   * melectronics/MPulseShape.h:
+     - let clone also clone the spline
+
+   * mfileio/MWriteRootFile.cc:
+     - don't output title if empty
+
+   * mhflux/MHEffectiveOnTime.[h,cc]:
+     - added new data mebers to store the result of the overall-fit
+       which is now done in Finalize
+     - output the results of the effective on-time fit as inf2
+     - increased clas version accordingly
+
+   * mjobs/MJSimulation.[h,cc]:
+     - simplified setting up the file structure
+
+   * mjobs/MJSpectrum.[h,cc]:
+     - added the possibility to force a new on-time fit.
+     - a MHEffectiveOnTime histogram is now always displayed 
+       for manual cross checks
+
+   * mjobs/MJStar.cc:
+     - added MSrcPosCam for Monte Carlos to output
+
+   * mpointing/MSrcPosCalc.cc:
+     - ignore the WobbleMode from the MMcCorsikaRunHeader 
+       if it is a ceres file
+
+   * msim/MPhotonEvent.[h,cc]:
+     - added function GetTimeFirst
+     - added function GetTimeLast
+     - added function GetTimeMedianDev
+     - added fLength to MPhotonStatistics
+
+   * msimcamera/MSimGeomCam.cc:
+     - make use of the new functions
+     - set length to statistics container
+
+   * mpointing/MHSrcPosCam.[h,cc], mpointing/MSrcPosRndm.[h,cc],
+     mfilter/MFMagicCuts.[h,cc], mmuon/MHMuonPar.[h,cc],
+     mhflux/MHThetaSqN.[h,cc]:
+     - support changing geometries (conversion factors) reading
+       a new geometry from a run header
+
+   * mimage/MHVsSize.[h,cc], mimage/MHNewImagePar.[h,cc],
+     mimage/MHHillasSrc.[h,cc], mimage/MHHillasExt.[h,cc],
+     mimage/MHHillas.[h,cc], mimage/MNewImagePar2.[h,cc]:
+     - removed option to set conversion factor manually
+     - support changing geometries (conversion factors) reading
+       a new geometry from a run header
+     - increased class version by one
+
+   * mhflux/MMcSpectrumWeight.cc:
+     - replaced Form by MString::Format
+
+     - made sure that nobody is mixing different energy-range monte
+       carlos and normalizes by integral (to be implemented)
+
+   * manalysis/MMcCalibrationUpdate.cc:
+     - switched off file Ceres files (this might only be temporary
+       but it makes the display work quite well even without
+       calibrated units.
+
+   * mjobs/MJCalibrateSignal.cc:
+     - updated the rule to allow for file names without the leading date
+
+   * mjobs/MJSpectrum.[h,cc]:
+     - set the kMustCleanup bit for sanity
+     - replaced a lot of Form by MString::Format
+     - moved the getting of the right Alpha-histogram to GetHAlpha
+     - the tlist2 doesn't neet to replace anything because all previous
+       tasklists added to the list have been removed again
+     - "DataType" already in parlist? Don't add a second one
+     - replaced some gLog by fLog
+     - make sure that the "Done." message is printed even in case
+       no output is written at the end
+
+   * ceres.rc:
+     - added some more info
+
+   * datacenter/scripts/runcorsika:
+     - added magnetic field Azimuth direction (ARRANG), currently
+       at ~ -7deg at La Palma
+
+   * mbase/MLog.cc:
+     - finallyadded a really stupid hack/workaround to suppress these
+       annoying errors in case of a log-scale set too early
+
+   * mbase/MTask.[h,cc]:
+     - Replaced OverwritesProcess by Overwrites
+
+   * mcorsika/MCorsikaEvtHeader.cc:
+     - fixed particle momentum coordinate system
+
+   * mcorsika/MCorsikaRunHeader.[h,cc]:
+     - added magnetic field values
+     - improved output
+
+   * mjobs/MJSimulation.cc:
+     - updated height scale
+     - use MPhotonStatistics.fLength
+     - plot median dev of photon arrival times
+
+   * mmc/MMcRunHeader.hxx:
+     - added a getter IsCeres
+     - added a setter for the Corsika Version
+
+   * mpedestal/MMcPedestalCopy.cc:
+     - use the new IsCeres
+
+   * msim/MSimMMCS.[h,cc]:
+     - use the telescope pointing in telescope coordinates for MMcEvt
+     - correct the shower direction by the magnetic field azimuth
+     - set corsika program version
+
+   * msim/MSimPointingPos.[h,cc]:
+     - splitted the output into coordinated in the corsika frame
+       (module the magnetic field) and the poiting direction in
+       telescope coordinates
+     - added possibility to "observe" in off-target mode
+
+   * msimreflector/MSimReflector.cc:
+     - use new pointing direction in the corsika frame
+
+
+
+
+ 2009/02/13 Thomas Bretz
+
+   * mcorsika/MCorsikaEvtHeader.h:
+     - added some comments on the coordinate system
+
+   * ceres.rc:
+     - added some comments 
+     - setup a psf for the dwarf mirror
+
+   * mcorsika/MCorsikaRunHeader.h:
+     - added some comments
+
+   * mjobs/MJSimulation.cc:
+     - added some histogram titles
+     - fixed the x, y coordinates of the impact histogram
+     - write "ElectronicNoise"
+
+   * mjobs/MJStar.cc:
+     - don't force writing of containers which are not filles by ceres
+     - updated rule to support files without date
+
+   * mpedestal/MPedestalPix.[h,cc]:
+     - added Print() function
+
+   * mraw/MRawFileRead.cc:
+     - added a comment
+
+   * msim/MPhotonData.h:
+     - added comments about coordinate system
+
+   * msimcamera/MSimGeomCam.cc:
+     - when looking for the pixels convert from ceres-coordinates
+       to GeomCam camera-coordinates
+
+   * msimreflector/MMirror.h:
+     - added Setter for SigmaPSF
+
+   * msimreflector/MMirrorDisk.cc, msimreflector/MMirrorHex.cc,
+     msimreflector/MMirrorSquare.cc:
+     - now start counting in ReadM with 0
+
+   * msimreflector/MReflector.[h,cc]:
+     - added some documentation
+     - added function to set psf of all mirrors
+     - added psf optional to input file
+     - remove already evaluated tokens from TObjArray
+     - added reading of a default psf from the input file
+
+   * mjobs/MSequence.cc:
+     - fixed a bug in GetArrays which could cause seg-faults
+     - added a sanity check
+
+
+
+ 2009/02/12 Thomas Bretz
+
+   * datacenter/macros/fillsources.C:
+     - updated
+
+   * mfileio/MWriteRootFile.[h,cc]:
+     - added some comments
+     - renamed GetNewFileName to SubstituteName
+     - made SubstituteName static
+
+   * mhist/MHCamera.cc:
+     - fixed the number in the legend (was wrong since last update)
+
+   * mjobs/MDataSet.cc:
+     - replaced From by MString::Format
+
+   * mjobs/MJSimulation.cc:
+     - a lot of things were renamed
+     - the refelctor can now be set from the setup file
+     - changed the binning for the event width
+     - removed plot "CamShadow"
+     - changed rules for file names
+
+   * ceres.rc:
+     - updated according to the changes in MJSimulation
+
+   * mjobs/MSequence.cc:
+     - replaced use of Form by MString::Format
+     - allow non-setting of fNight
+     - don't print period if -1
+
+   * mmain/MEventDisplay.cc:
+     - decode trigger pattern for display 
+
+   * mmain/Makefile:
+     - included mtrigger
+
+   * msim/MHPhotonEvent.cc:
+     - search Reflector instead of MReflector
+
+   * msim/MSimAbsorption.cc:
+     - added some info output
+
+   * msimcamera/MSimAPD.[h,cc]:
+     - added an option to set the geom cam name. Can be used to skip 
+       this task
+
+   * msimcamera/MSimCamera.[h,cc]:
+     - allow to set BaselineGain from resource file
+
+   * msimreflector/MSimReflector.cc:
+     - removed CamShadow container
+     - search Reflector instead of MReflector
+
+   * Makefile:
+     - removed mreflector
+
+   * mcalib/MCalibrationPatternDecode.cc:
+     - in case of pattern==0 and MCs set the color to CT1. This is
+       a workaround because the bits don't allow to set is explicitly
+     - removed the check for the kCT1Pulser bit. It can never be true
+     - consequently removed the kCT1Pulser bit
+
+  * mpedestal/MMcPedestalCopy.[h,cc]:
+    - fixed for MUX MCs (the pedestal has to be scaled)
+    - added option to process ceres data
+
+
+
+ 2009/02/11 Thomas Bretz
+
+   * mcalib/MCalibColorSet.[h,cc]:
+     - removed some obsolete break statements
+     - removed obsolete gkMCRunLimit
+     - fixed setting of signal strength for extremely old
+       runs (I think we don't have them anyway)
+
+   * mcalib/MCalibrateData.cc:
+     - improved output
+
+   * mcalib/MCalibrationChargeCalc.cc:
+     - stop if no valid pulser colors have been found
+
+   * mcorsika/MCorsikaRunHeader.h:
+     - some cosmetics
+     - added some getter
+
+   * mhist/MHEvent.[h,cc]:
+     - some improvements to output
+     - implemented display for trigger pattern
+
+   * mtrigger/MTriggerPattern.[h,cc]:
+     - added Copy-function
+
+   * mhist/Makefile:
+     - added -I../mtrigger
+
+   * mmc/MMcEvtBasic.[h,cc]:
+     - moved the getter returning a TString to the source file
+     - replaced Form by MString::Format
+
+   * mraw/MRawRunHeader.cc:
+     - initialize fSourceEpochChar[1]
+     - initialize fNumEventsRead
+     - suppress more output which has not been initialized
+     - removed run-type from SetRunInfo
+     - added new function SetRunType
+     - use strncpy instead of memcpy
+     - replaced const char[] arguments by TString
+
+   * msimreflector/MReflector.[h,cc]:
+     - added Print
+     - added a circle around the mirror showing fMaxR
+
+   * mastro/MAstro.cc:
+     - updated some typos in comments
+
+   * mbase/MEnv.cc:
+     - replaced Form by MString::Format
+
+   * mbase/MTask.cc:
+     - made the total number of executions really count the total 
+       number
+
+   * mcalib/MCalibrationPatternDecode.cc:
+     - some cosmetics
+     - corrected the use of a wrong FindCreateObj
+
+   * mcorsika/MCorsikaRead.cc:
+     - added a comment
+
+   * mfileio/MWriteRootFile.cc:
+     - improved output
+     - improved the copy of a tree (now done without unpacking)
+     - made sure that copied trees are shown in the summary
+     - made sure that the copied trees are nevertheless deleted
+
+   * mfilter/MFDeltaT.cc:
+     - adapted to change in GetNumExecutions
+
+   * mhbase/MFillH.cc:
+     - set the number of executions (as it is in MTask) before the
+       execution
+
+   * mhbase/MH.cc:
+     - improved the statistics output
+
+   * mhist/MHCamera.[h,cc]:
+     - don't create an own pad anymore
+     - removed SetRange
+     - SetRange now done via MH::SetPadRange
+     - some sanity checks if fGeomCam is set
+     - some adaptions to the new layout scheme without
+       an own pad
+     - Changed DrawProjection to a more commonly usable scheme
+     - Removed all dependencies from MGeomCamMagic
+     - start the gaus fit with the maximum not the integral
+
+   * mjobs/MJCalibrateSignal.cc:
+     - If the input files contain an OriginalMC tree 
+       copy it
+     - consequently we make the MMcEvtBasic from the 
+       parameter-list optional
+     - fixed the rule (MC files with .root as extension could not 
+       be processed)
+
+   * mjobs/MJCalibration.[h,cc], mjobs/MJPedestal.[h,cc]:
+     - Use MHCamera::CamDraw more extensively
+     - replace use of Form by MString::Format
+
+   * mjobs/MJSimulation.cc:
+     - added an option to switch the cmaera electronics off
+     - write some more containers to output file (for easy access)
+     - set the MC bit in the header
+     - now use MSimMMCS to "fake" the correct file structure
+     - added three new writers to write the MMcEvtBasic information
+     - added a display of the most important things
+
+   * mmain/MEventDisplay.cc:
+     - don't change into the not more existing pad of a MHCamera
+
+   * msimcamera/MSimCalibrationSignal.cc:
+     - adapted GetNumExecution
+     - SetReadyToSave for the run header
+     - jitter the number of emitted photons
+     - corrected the emitted trigger positon
+     - (re)set calibration pattern
+
+   * mbase/MLut.[h,cc]:
+     - added overload of Delete() function
+     - added IsDefault
+     - added SetDefault
+
+   * mfileio/MWriteRootFile.cc:
+     - fixed output in OpenFile
+
+   * mjobs/MSequence.cc:
+     - allow the "Night" resource to be empty
+
+   * msimcamera/MSimBundlePhotons.cc:
+     - some small improvements in case of empty maps
+
+   * msimcamera/MSimReadout.[h,cc]:
+     - reset gain. Use the new fConversionFactor instead
+     - removed some setting of fRunHeader
+
+   * msimcamera/MSimTrigger.[h,cc]:
+     - on useer request now offset and gain can be used to 
+       convert the signal back into units of phe
+     - added possibility to use empty lookup tables
+     - added debug output
+
+   * msimcamera/MSimCamera.[h,cc]:
+     - outsourced the pedestal and gain numbers into ReInit
+     - use an MPedestalCam for Electronic Noise and Gain
+     - allow to switch ob whether the gain is applied to the 
+       electronic noise or not
+     - SetPhotElfromShower
+
+   * msim/Makefile. msim/SimLinkDef.h:
+     - added MSimMMCS
+
+   * msim/MSimMMCS.[h,cc]:
+     - added
+
+   * msimcamera/Makefile:
+     - added -I../mpedestal
+
+   * ceres.rc:
+     - added
+
+   * msimreflector/MMirrorSquare.cc, msimreflector/MMirrorHex.cc,
+     msimreflector/MMirrorDisk.cc:
+     - changed the grey colors
+
+   * msimreflector/MMirrorHex.cc:
+     - fixed bugs in CanHit and HasHit
+
+
+
+ 2009/02/10 Thomas Bretz
+
+   * manalysis/MMcTriggerLvl2Calc.cc:
+     - removed obsolete include of MmcRunHeader
+
+   * mbase/MSpline3.[h,cc]:
+     - improved the available constructors
+     - added some comments for future use
+     - added default constructor
+     - added GetHistogram()
+
+   * mcorsika/MCorsikaRunHeader.[h,cc]:
+     - added fImpactMax
+     - added some Getters
+
+   * melectronics/MPulseShape.[h,cc]:
+     - set class version to 1 to make it storable
+     - set a title for the splines
+     - implemented Paint function
+
+   * mhbase/MH.[h,cc]:
+     - added SetPadRange
+
+   * mhist/MHCamEvent.[h,cc]:
+     - Init the geometry in ReInit thus it can work with a geometry stored in a file
+     - Make sure that histogranms already drawn properly to a pad are found in Paint
+     - added RecursiveRemove for sanity
+
+   * mmc/MMcCorsikaRunHeader.h:
+     - added SetSpectrum
+
+   * mmc/MMcEvt.hxx:
+     - added SetEvtNumber
+     - added SetPhotElfromShower
+
+   * mmc/MMcEvtBasic.[h,cc]:
+     - added operator=
+
+   * mmc/MMcRunHeader.[hxx, cxx]:
+     - set default for the versions to UShort_t(-1)
+     - added some comments 
+     - added SetNumSimulatedShowers
+     - added SetImpactMax
+
+   * mraw/MRawRunHeader.cc:
+     - suppress some information in header if not valid
+
+   * msignal/MSignalCalc.cc:
+     - if (!fPedestal) we should return kTRUE not kFALSE
+
+   * msimreflector/MMirror.[h,cc], msimreflector/MMirrorDisk.[h,cc],
+     msimreflector/MMirrorHex.[h,cc], msimreflector/MMirrorSquare.[h,cc],
+     msimreflector/MReflector.[h,cc],
+     - added Print
+     - some cosmetics in header
+     - set class version to 1 to make it storable
+
+   * mtools/MagicJam.cc:
+     - updated
+
+
+
+ 2009/02/10 Daniela Dorner
+
+   * datacenter/db/tabs.php:
+     - if csv-file doesn't exist, only logs are displayed now
+
+
+
+ 2009/02/08 Thomas Bretz
+
+   * Makefile.conf.linux:
+     - added -Winit-self
+
+   * msimcamera/MSimCalibrationSignal.[h,cc]:
+     - account for the pulse shape/width
+     - make number of photons settable
+     - make time jitter settable
+     - renamned fNumEntries to fNumEvents
+     - don't set daq event number (should be set by the "daq")
+     - set trigger pattern
+     - print number of events in PreProcess
+
+   * msimreflector/MSimReflector.[h,cc]:
+     - made the detector margin settable
+
+   * datacenter/macros/insertcacofile.C, datacenter/macros/insertsequence.C:
+     - print an error and exit
+
+   * macros/optim/optimdisp.C:
+     - set the default values as default
+     - added a short summary what a good strategy for optimization is
+
+   * mastro/MAstro.cc:
+     - replaced Form by MString::Form
+
+   * mcorsika/MCorsikaEvtHeader.[h,cc], mcorsika/MCorsikaRunHeader.[h,cc]:
+     - moved fParticleID from event header to run header
+     - increased Class Version accordingly
+     - added an error if more than one observation levels are read
+
+   * mhcalib/MHGausEvents.cc:
+     - replaced Form by MString::Form
+     - handle the creating of the TF1 fExpFit a bit more "root-safe"
+
+   * mhist/MHCamEvent.[h,cc]:
+     - added a new option to collect the maximum or minimum contents
+
+   * mhist/MHCamera.[h,cc]:
+     - added new functions SetMax/MinCamContent
+
+   * mraw/MRawEvtHeader.cc:
+     - initialize the data members in constructor
+
+   * mraw/MRawEvtHeader.h:
+     - removed bits for trigger type they were never used
+
+   * mraw/MRawRunHeader.cc:
+     - tiny cosmetics
+
+   * msim/MHPhotonEvent.[h,cc]:
+     - added a histogram to display the height
+     - don't fill kNightSky photons
+
+   * msim/MPhotonData.h:
+     - added getter for fProductionHeight
+
+   * msim/MPhotonEvent.h:
+     - commented IsValid (was not used anyhow)
+
+   * msimcamera/MSimGeomCam.[h,cc]:
+     - added one sample to the window to allow for time jitter of one sample
+     - make the code for the window indentical to MSimCalibrationSignal
+
+   * msimcamera/MSimReadout.[h,cc]:
+     - Set the daq event number (readout number)
+
+   * msimcamera/MSimTrigger.[h,cc]:
+     - added comments
+     - made the signal length settable
+     - made the coincidence time settable
+     - removed setting of the daq event number (should be done by the "daq")
+     - changed the trigger output from all to inf/inf2
+
+   * msimcamera/Makefile:
+     - added -I../mtrigger
+
+   * mjobs/MJSimulation.[h,cc]:
+     - added new mode to force the use of the trigger "electronics"
+     - moved setup of the fadc to the resource file
+     - added a new histogram to show the maximum signal in all pixels
+     - automatically setup the range of the TrigPos histogram
+     - don't show all histograms in all run conditions
+
+   * mraw/MRawRunHeader.[h,cc]:
+     - added ReadEnv for a setup from a resource file in ceres
+
+   * msimcamera/MSimAPD.cc:
+     - added a sanity check if ReInit has not been called
+
+
+
+ 2009/02/07 Thomas Bretz
+
+   * sponde.rc:
+     - fixed a typo
+
+   * datacenter/scripts/runcorsika:
+     - added a comment
+
+   * mbase/MContinue.h:
+     - changed a comment
+
+   * mbase/MEnv.h, mbase/MMath.cc:
+     - Do not assign a temporary TString to const char *
+
+   * mcamera/MCameraCentralPix.[h,cc]:
+     - changed fDC from Float_t to Int_t 
+
+   * mhflux/MHCollectionArea.cc, mhflux/MHDisp.cc, mhflux/MHEnergyEst.cc,
+     mhflux/MHFalseSource.cc, mhflux/MHThreshold.cc, mhbase/MFillH.cc,
+     mastro/MAstroCamera.cc, mastro/MAstroCatalog.cc, mbase/MContinue.cc,
+     mbase/MFilter.cc, mbase/MLog.cc, mbase/MParContainer.cc, mhbase/MH.cc,
+     mbase/MParEmulated.cc, mbase/MStatusDisplay.cc, mbase/MTime.cc,
+     mhbase/MH3.cc, mhbase/MHn.cc,mhflux/MHAlpha.cc, mhist/MHCamera.cc,
+     mhflux/MHEffectiveOnTime.cc, mmuon/MHMuonPar.cc, mmovie/MMovieWrite.cc,
+     mhflux/MHFalseSource.cc, mhist/MHCamEvent.cc, 
+     mmain/MEventDisplay.cc, mreflector/MHReflector.cc:
+     - use MString::Format instead of Form
+
+   * msim/MHPhotonEvent.cc:
+     - don't fill kNightSky primaries
+
+   * msim/MPhotonEvent.[h,cc]:
+     - return the number of non NightSky photons
+
+   * msimcamera/MSimPSF.cc:
+     - changed default for fSigma from 1 to -1
+
+   * mbase/MContinue.cc:
+     - changed default title
+
+   * mfileio/MWriteRootFile.cc:
+     - set kMustCleanup bit, otherwise it is not correctly deleted from
+       the list of cleanups
+
+   * mhbase/MH3.[h,cc]:
+     - added RecursiveRemove
+
+   * mhflux/MAlphaFitter.[h,cc]:
+     - moved code to source file
+     - improved setting of a new fFunc
+
+   * mhflux/MHAlpha.[h,cc], mhvstime/MHSectorVsTime.[h,cc]
+     - added RecursiveRemove
+
+   * mjobs/MJSimulation.cc:
+     - added MSimPSF
+     - Show only the non NightSky photons in the size plot
+     - changed the binning of BinningEvtWidth
+
+
+
+ 2009/02/06 Daniela Dorner
+
+   * datacenter/db/include.php:
+     - adapted status-query
+
+
+
+ 2009/02/05 Daniel Hoehne-Moench
+
+   * datacenter/macros/filldotrun.C:
+     - implemented new SuperArehucas version
+
+
+
+ 2009/02/03 Thomas Bretz
+
+   * mastro/MAstroCatalog.[h,cc]:
+     - searches now all catalogs also in the datacenter default path if
+       the file could not be found
+
+   * mbase/MStatusDisplay.cc:
+     - also print information about added tabs in batch mode
+
+   * mcorsika/MCorsikaEvtHeader.h:
+     - fixed a comment
+
+   * mfileio/MWriteRootFile.cc:
+     - added some more log-output
+     - open a new /dev/null only if none with the same title already exists
+     - added some comments
+
+   * mhflux/MHEffectiveOnTime.cc:
+     - Don't call PaintText if FitH failed (as suggested by valgrind)
+
+   * mjobs/MJStar.cc, mjobs/MJCalibrateSignal.cc:
+     - added a title to all MWriteRootFile
+
+   * mreport/MReportCC.cc:
+     - added more comments
+     - improved log-output
+
+
+
+ 2009/02/03 Daniela Dorner
+
+   * datacenter/db/plotdb.php:
+     - sequence as default when startup
+
+   * datacenter/db/plotdb.php, datacenter/db/plot.php:
+     - added possibility to set size of plot
+
+
+
+ 2009/02/03 Stefan Ruegamer
+
+   * datacenter/scripts/budb:
+     - added getdbsetup
+
+
+
+ 2009/02/02 Thomas Bretz
+
+   * mcamera/MCameraCentralPix.[h,cc]:
+     - added data member fDC
+     - increased class version number accordingly
+
+   * mreport/MReportCC.cc:
+     - improved debug output
+     - remove minus from the third argument in SCHEDULE
+
+   * mreport/MReportCamera.[h,cc]:
+     - fixed for ver>=200812140
+     - added InterpretePSSEN
+     - added InterpreteLIQ
+
+   * msimcamera/MSimCamera.cc:
+     - added a time-shift uniformly according to the bin-width
+
+
+
+ 2009/01/30 Thomas Bretz
+
+   * RELEASE V2.2
+
+
+ 2009/02/02 Thomas Bretz
+
+   * mjobs/MJCalibrateSignal.cc, mjobs/MJStar.cc:
+     - fixed the regular expresssion
+
+
+
+ 2009/01/30 Thomas Bretz
+
+   * datacenter/macros/fillcmt.C:
+     - added
+
+   * datacenter/macros/plotstat.C:
+     - extended loop to show all periods again
+
+   * msim/MPhotonData.cc:
+     - don't change the sign of the cosines. The direction of the
+       particle doesn't neet to be changed
+
+   * msimreflector/MSimReflector.cc:
+     - change the rotation matrix to fit the change in MPhotonData
+
+
+
+ 2009/01/29 Thomas Bretz
+
+   * melectronics/MPulseShape.cc:
+     - changed spline range from -25/25 to -8/8
+
+   * mhflux/MAlphaFitter.cc, mhflux/MHAlpha.cc, mhflux/MHDisp.cc:
+     - for sanity (thread safety) replaced Form by MString::Format
+
+   * mhflux/MHDisp.cc:
+     - initialize fHalf as suggested by valgrind
+
+   * datacenter/macros/plotdb.C:
+     - updated comments
+
+   * resources/calibration_spline.rc:
+     - updated
+
+
+
+ 2009/01/27 Thomas Bretz
+
+  * macros/rootlogon.C:
+     - added new subdirectories
+
+   * melectronics/MAnalogSignal.[h,cc]:
+     - added the posssibility to add a pulse from a TF1
+     - removed the printout if out of range
+     - returns whether the range had to be adapted
+     - changed the Discriminate function to allow for giving a start
+       and end time of the search
+     - imporved the fining of the falling and rising edge
+     - removed the printout in Discriminate
+
+   * msimcamera/MSimCamera.[h,cc]:
+     - moved the pulse shape specific code into a new class MPulseShape
+     - Fixed the range of the digitization
+
+   * melectronics/MPulseShape.[h,cc]:
+     - added
+
+   * melectronics/Makefile, melectronics/ElectronicsLinkDef.h:
+     - added MPulseShape
+
+   * msimcamera/MSimGeomCam.[h,cc]:
+     - Fixed the time window for random photons (Maybe move to a later
+       step in the analysis?)
+
+   * msimcamera/MSimReadout.cc:
+     - call SetReadyToSave for the run-header
+     - added some debug output in case of failure
+
+   * msimcamera/MSimSignalCam.[h,cc]:
+     - subtract the trigger position of any
+
+   * msimcamera/MSimTrigger.cc:
+     - some changes to the debug output
+
+   * mjobs/MJSimulation.[h,cc]:
+     - added
+
+   * mjobs/Makefile, mjobs/JobsLinkDef.h:
+     - added MJSimulation
+
+   * ceres.cc, showlog.cc, callisto.cc, star.cc, ganymed.cc, sponde.cc:
+     - added parenthesis suggested by compiler
+
+   * mbase/MParEnv.cc:
+     - included TClass for newwer root versions
+
+   * msimreflector/MReflector.cc:
+     - fixed return if read file was not existing
+
+   * msimrelfector/MSimReflector.cc:
+     - added sanity check if reflector is valid
+
+   * datacenter/macros/insertdataset.C:
+     - added fPriority
+
+   * datacenter/macros/plotoptical.C:
+     - write a root-file as the other plot-macros do
+
+   * mreflector/MHReflector.cc:
+     - added some SetDirectory(NULL), although this class is a candidate
+       for removal
+
+   * mjobs/MJCut.cc, mjobs/MJCalibrateSignal.cc:
+     - make the CheckEnv fail if kFALSE is returned
+
+
+
+ 2009/01/26 Thomas Bretz
+
+   * Makefile:
+     - added mcorsika, msim, msimreflector, msimcamera and
+       msimelectronics
+     - added readcorsika
+
+   * mbase/Makefile, mbase/BaseLinkDef.h:
+     - added MParEnv
+
+   * mbase/MParEnv.[h,cc]:
+     - added
+
+   * mbase/MParameters.[h,cc]:
+     - added ReadEnv to all classes
+
+   * mbase/MParList.cc:
+     - return the container within MParEnv if MParEnv found 
+
+   * mbase/MParContainer.cc:
+     - fixed a typo
+
+   * manalysis/MEventRateCalc.cc:
+     - added a comment
+
+   * melectronics/MAnalogChannels.[h,cc]:
+     - made the GetNum* unsigned
+     - added new member functions to just initialize one size
+
+   * mraw/MRawRunHeader.[h,cc]:
+     - added a possibility to just init the number of pixels
+
+   * msimcamera/MSimReadout.[h,cc]:
+     - get the number of output channels from the camera geometry
+     - initialize the runheader in ReInit
+     - initialize the data arrays from the run-header in reinit
+
+   * mimage/MHHillas.cc:
+     - the default binning is not scales by 0.9 anymore
+
+   * mmc/MMcEvtBasic.h:
+     - added new type "artificial" 
+
+   * mraw/MRawRunHeader.cc:
+     - set header size in constructor to 0
+
+   * msimcamera/MSimCalibrationSignal.[h,cc]:
+     - we need fEvt and fTrigger always
+     - renamed ReInit to CallReInit
+     - set photon primary type
+     - set number of photons from 50 to 5
+
+   * msimcamera/MSimRandomPhotons.cc:
+     - explicitly set weight to 1
+
+   * mjobs/Makefile:
+     - added msim, msimreflector, msimcamera and mcorsika
+
+
+
+ 2009/01/25 Thomas Bretz
+
+   * mbase/Makefile, mbase/BaseLinkDef.h:
+     - added MLut
+
+   * mbase/MLut.[h,cc]:
+     - added
+
+   * msimcamera/MSimCamera.[h,cc], msimcamera/MSimTrigger.[h,cc],
+     msimcamera/MSimRadout.[h,cc], msimcamera/SimCameraLinkDef.h,
+     msimcamera/Makefile, msimcamera/MSimCalibrationSignal.[h,cc],
+     msimcamera/SimCameraIncl,h:
+     - added
+
+   * mjobs/MJob.cc:
+     - included TClass for newer root versions
+
+   * mreflector/MRflEvtData.cc:
+     - repaced a use of MHexagon by a direct use of MGeomCam
+
+   * melectronics/MAvalanchePhotoDiode.[h,cc]:
+     - added some getters
+     - remobved some obsolete comment
+     - set entries to 1 by default
+
+   * mgeom/MGeomCam.[h,cc]:
+     - split the Get[Max,Min]Radius into two member functions
+     - added the HitDetector based on the maximum radius calculated
+
+   * mgeom/MGeomCamDwarf.[h,cc], mgeom/MGeomCamMagic.[h,cc]:
+     - removed overloading of the new HitDetector
+
+   * mgeom/MGeomPix.[h,cc]:
+     - reset fUserBits in constructor according to a suggestion by valgrind
+     - added GetT member function
+
+   * mjobs/MJSpectrum.cc:
+     - replaced some Form calls for sanity by MString::Format
+     - check the result of CheckEnv
+
+   * mjobs/MJStar.cc:
+     - check the result of CheckEnv
+
+   * mjobs/MJob.cc:
+     - fixed a typo in the name for the seed value resource
+
+   * mraw/MRawRunHeader.h:
+     - added a getter for run type point run
+
+   * msignal/MSignalCalc.cc:
+     - don't execute Process at all if fPedestal==NULL
+
+   * msignal/MSignalCam.cc:
+     - aded case 10 and 11 to GetPixelContent
+
+   * msim/MHPhotonEvent.cc:
+     - replaced case 4 by using the traversal distance in the 0-pixel
+
+   * msimcamera/MSimSignalCam.cc:
+     - set pixel only to used if contents>0
+
+   * msimcamera/MSimTrigger.[h,cc]:
+     - added ReadEnv for setup from a resource file
+     - compress the trigger list after deleting slots
+     - initialize descriminator threshold with -1
+     - check for the validity of the discr. th in PreProcess
+
+   * msimreflector/MReflector.[h,cc]:
+     - store file name in title
+     - added ReadEnv for setup from a resource file
+
+   * msimreflector/MSimReflector.[h,cc]:
+     - changed copyright notice
+     - added fDetectorMargin
+
+
+
+
+ 2009/01/24 Thomas Bretz
+
+   * mbase/MMath.cc:
+     - added two explicit conversion to make it compile on my Ubuntu
+     - Replaced some Form by MString::Format
+     - included MString
+
+
+
+ 2009/01/23 Daniela Dorner
+
+   * datacenter/db/showplots-ds.php, datacenter/db/tabs.php, 
+     datacenter/db/plot.php:
+     - adapted path to new web file structure
+
+   * datacenter/db/sequinfo-aio.php, datacenter/db/runinfo-aio.php:
+     - added option to group by date (year, month, night): pulldown in
+       menu and adapted query
+
+   * datacenter/db/sequinfo-aio.php, datacenter/db/runinfo-aio.php
+     datacenter/db/datasetinfo-aio.php:
+     - enabled possibility to combine all group-bys 
+
+   * datacenter/db/datasetinfo-aio.php:
+     - enhances information printed in table in case of group-by
+
+   * datacenter/db/include.php:
+     - adapted pulldown of status-group-by
+
+   * datacenter/db/menu.php:
+     - added pulldown for sumtrigger-flag to sequinfo-menu
+     - added function to print pulldown for group-by date
+
+
+
+ 2009/01/23 Thomas Bretz
+
+   * mcorsika/MCorsikaEvtHeader.[h,cc], msim/MPhotonData.[h,cc],
+     msimcamera/MSimExcessNoise.cc, msimreflector/MMirrorDisk.cc,
+     msimreflector/MMirrorHex.cc, msimreflector/MMirrorSquare.[h,cc],
+     msimreflector/MReflector.cc, msimreflector/MSimReflector.cc,
+     melectronics/MAnalogSignal.cc:
+     - moved code which needs TMath to source file
+     - included TMath for newer root versions
+     - included TObjArray for newer root versions
+
+   * msimcamera/MSimAPD.[h,cc], msimcamera/MSimBundlePhotons.[h,cc], 
+     msimcamera/MSimRandomPhotons.[h,cc]:
+     - added
+
+   * melectronics/Makefile, melectronics/MAnalogChannels.[h,cc],
+     melectronics/ElectronicsIncl.h, melectronics/ElectronicsLinkDef.h, 
+     melectronics/MDigitalSignal.[h,cc],  
+     melectronics/MAnalogSignal.[h,cc], 
+     melectronics/MAvalanchePhotoDiode.[h,cc]:
+     - added
+
+   * msim/M*.cc, msimreflector/M*.cc, msimcamera/M*.cc:
+     - changed copyright notice
+
+   * mjobs/MJob.[h,cc]:
+     - for convinience replaced GetEnvValue by GetEnvValue2
+     - added initialization of the random number generator
+
+   * ceres.cc, mcorsika/CorsikaIncl.h:
+     - added
+
+
+
+ 2009/01/22 Thomas Bretz
+
+   * mraw/MRawRunHeader.h:
+     - added new functions to access the runtype
+
+   * msim/MPhotonData.cc:
+     - removed some obsolete comments
+
+   * msim/MPhotonEvent.[h,cc]
+     - added some comments
+     - added new member function GetFirst and GetLast
+     - UnSort the array after reading new data
+     - removed some old obsolete code
+     - added new meber function Sort and IsSorted
+
+   * msimreflector/MSimReflector.cc:
+     - force sorting of the array
+
+  * msimcamera/MSimPSF.[h,cc], msimcamera/MSimGeomCam.[h,cc], 
+    msimcamera/MSimExcessNoise.[h,cc], msimcamera/MSimSignalCam.[h,cc]:
+    - added
+
+
+
+ 2009/01/21 Thomas Bretz
+
+   * mbase/BaseLinkDef.h, mbase/Makefile:
+     - added MQuaternion
+     - added MReflection
+
+   * mbase/MQuaternion.[h,cc], mbase/MReflection.[h,cc]:
+     - added
+
+   * mbase/MArrayI.[h,cc]:
+     - added a few new functions (ReSort, Add, Find and AddUniq)
+
+   * mbase/MMath.cc:
+     - replaced delete by delete[] where appropriate
+
+   * mgeom/MGeomCam.h:
+     - added new virtual functions HitFrame and HitDetector
+     - included MQuaternion
+
+   * mgeom/MGeomCamDwarf.[h,cc], mgeom/MGeomCamMagic.[h,cc]:
+     - added new functions HitFrame and HitDetector:
+
+   * msim/MHPhotonEvent.cc:
+     - removed the reference to MCamera
+
+   * mgeom/MGeomPix.[h,cc], mgui/MHexagon.[h,cc]:
+     - moved DistanceToPrimitive from MHexagon to MGeomPix
+     - moved the funtions to calculate overlapping areas 
+       also, but they are still in a comment
+
+   * mgui/MHexagon.[h,cc]:
+     - started implementing a rotation angle
+     - added data meber fPhi
+     - increased class version number
+
+   * mhist/MHCamera.cc, mtools/MagicJam.cc:
+     - we don't have to use a MHexagon anymore caluclating 
+       DistanceToPrimitive
+
+   * msimreflector/MMirror.[h,cc], msimreflector/MMirrorSquare.[h,cc],
+     msimreflector/MMirrorHex.[h,cc], msimreflector/MMirrorDisk.[h,cc],
+     msimreflector/MReflector.[h,cc], msimreflector/MSimReflector.[h,cc],
+     msimreflector/Makefile, msimreflector/SimReflectorLinkDef.h, 
+     msimreflector/SimReflectorIncl.h:
+     - added
+
+
+
+ 2009/01/21 Stefan Ruegamer
+
+   * datacenter/scripts/read_lapalma-tapes:
+     - added check of the tape slot when exporting the tapes
+
+
+
+ 2009/01/20 Thomas Bretz
+
+   * mjobs/MJob.h:
+     - added Esc member function
+
+   * msim/MPhotonData.[h,cc], msim/MPhotonEvent.[h,cc], 
+     msim/MSimAbsorption.[h,cc], msim/MSimPointingPos.[h,cc],
+     MHPhotonEvent.[h,cc], msim/Makefile, msim/SimIncl.h 
+     msim/SimLinkDef.h:
+     - added
+
+
+ 2009/01/19 Thomas Bretz
+
+   * mfileio/MWriteRootFile.cc:
+     - simplified how the rules are evaluated using TPregexp
+     - by this the rules got more powerful
+
+   * mjobs/MJCalibrateSignal.cc, mjobs/MJStar.cc:
+     - changed ols style rule to new style
+
+
+
+ 2009/01/18 Thomas Bretz
+
+   * mbase/BaseLinkDef.h, mbase/Makefile:
+     - added MSpline3
+
+   * mcorsika/MCorsikaEvtHeader.cc:
+     - some little cosmetics
+
+   * mcorsika/MCorsikaEvtHeader.h:
+     - added some missing getters
+
+   * mcorsika/MCorsikaRunHeader.cc:
+     - removed some obsolete comments
+     - reordered some comments
+
+   * mextralgo/MExtralgoSpline.h:
+     - changed default in GetIntegral from true to false
+
+   * mraw/MRawEvtHeader.h:
+     - added Setter for DAQEventNumber
+
+   * mraw/MRawRunHeader.cc:
+     - start pixel hardware indices with 1 not with 0
+
+
+
+ 2009/01/17 Thomas Bretz
+
+  * mbase/MMath.[h,cc]:
+     - added a new function RndmExp which should be a tiny bit faster than
+       root's own implementation because it ises Rndm() instead of Uniform()
+
+   * mextralgo/ExtralgoIncl.h:
+     - added MArrayF
+
+   * mextralgo/MExtralgoSpline.[h,cc]:
+     - divided FindY into FindYup and FindYdn to avoid an obsolete if-clause
+     - added a new member function to return the integral function of the
+       spline. This is useful to init a new spline and use it for 
+       producing the proper random distribution.
+
+   * mpedestal/MPedestalSubtractedEvt.[h,cc]:
+     - added Print() function
+
+   * mraw/MRawEvtData.[h,cc]:
+     - added a member function to Reset the arrays
+     - added member function to set the pixel indices
+     - Improved the new Set function
+
+  * readcorsika.cc:
+    - added
+
+
+
+ 2009/01/16 Daniel Hoehne-Moench
+
+   * datacenter/scripts/mcsequences:
+     - implemented sumtrigger -> modes, fTriggerFlagKEY
+     - fPriority(MCSequenceProcessStatus) is now filled into the mcdb
+
+   * datacenter/scripts/fillmccallisto, fillmcstar:
+     - bugfix: changed argument of $primaries from [$s+$s] to [$s]
+
+   * datacenter/macros/fillcamera.C:
+     - changed NumPheFromDNSB to float(7,3)
+     - fPriority(MCRunProcessStatus) is now filled into the mcdb
+
+   * datacenter/macros/fillmccalib.C:
+     - minor changes, bugfix (wrong column name for mcdb)
+
+   * datacenter/macros/fillmcsignal.C:
+     - definition of some parameters changed according to fillsignal.C
+     - minor changes, deleted unnecessary code
+     - implemented if clause for HiLo-Parameters. Instead of 
+       seqno<200000 the fAmplFadcKEY is queried in the mcdb for each
+       sequence. For MUX MCs the HiLo-Parameters are not calculated.
+
+
+
+ 2009/01/15 Thomas Bretz
+
+   * callisto.cc:
+     - cosmetics to output
+
+   * mcorsika/MCorsikaRunHeader.cc:
+     - cosmetics (removed a ;;)
+
+   * mhist/MHEvent.[h,cc]:
+     - ReInit to allow the change of the camera geoemtry in ReInit
+
+
+
+ 2009/01/15 Stefan Ruegamer
+
+   * datacenter/scripts/dodatacheck:
+     - removed the _E in the find command; files from 2008/06/04 on do
+       not have it any more
+
+
+
+ 2009/01/14 Daniel Hoehne-Moench
+
+   * datacenter/scripts/sourcefile:
+     - extended errorcoding on mc run process status
+
+   * datacenter/scripts/runmccallisto, runmcstar:
+     - deleted unnecessary lines, adapted to primary structure
+
+   * datacenter/macros/fillmcsignal.C, fillmccalib.C, fillmcstar.C:
+     - added
+
+   * datacenter/scripts/fillmccallisto, fillmcstar:
+     - added
+
+
+
+ 2009/01/14 Thomas Bretz
+
+   * readraw.cc:
+     - check first whether the file exist before adding the extension
+
+   * mbase/MMath.[h,cc]:
+     - added function to Re-sort an array
+
+   * mfileio/MReadMarsFile.cc, mfileio/MWriteRootFile.cc:
+     - Improved output
+
+   * mfileio/MWriteRootFile.cc:
+     - fixed a problem which prevented to open more than one /dev/null
+       devices independantly
+
+   * mgeom/MGeomCam.cc:
+     - cosmetics
+
+   * mgeom/MGeomCamDwarf.h:
+     - fixed a typo in an ifdef
+
+   * mgeom/MGeomPix.[h,cc]:
+     - added funtion to return positon as TVector2
+     - slightly improved the algorithm to check IsInside
+     - fixed the conditional signs for the orientation of pixels
+       in GetDirection
+
+   * mmain/MEventDisplay.cc:
+     - Give different names to the MPedestalSubtract tasks
+     - fixed buttons
+     - call AddGeometryTags after ReInit to allow reading new geometries in
+       ReInit
+
+   * mmc/MMcEvtBasic.h:
+     - added a new primary type kNightSky
+
+   * mraw/MRawEvtPixelIter.h:
+     - replaced type of the number of bytes by UInt_t
+
+   * mraw/MRawRunHeader.h:
+     - allow to validate the magic-number from outside (for MCs)
+
+   * datacenter/scripts/runcorsika:
+     - added a lot of comments
+     - reordered values in input card
+     - switched off a lot of obsolete output
+     - changed the Magnetic field to a value corresponding to the location of
+       MAGIC at 2200m height valid for January 2009. (The old value never took
+       place there?!) The value was taken from www.noaa.gov/geomagmodels
+
+
+
+ 2009/01/12 Daniel Hoehne-Moench
+
+   * datacenter/db/menu.php:
+     - bugfix: now the SumTriggerFlag is correctly displayed in the web
+       interface
+
+
+
+ 2009/01/09 Daniel Hoehne-Moench
+
+   * datacenter/macros/fillcamera.C
+     - implemented new variables: zbinmin, zbinmax, number of 
+       sumtriggers, sum trigger flag
+     - bugfix: for P and C runs the mirror fraction and the impact
+       parameter had unreasonable values (negative) which were filled
+       into the mcdb, now->0
+
+   * datacenter/scripts/fillcamera, mcsequences:
+     - implemented call of getdbsetup
+
+
+
+ 2009/01/09 Stefan Ruegamer
+
+   * datacenter/scripts/buildsequenceentries
+     - corrected IFS argument
+
+
+
+ 2009/01/08 Stefan Ruegamer
+
+   * datacenter/scripts/filesondisk
+     - added S and N runs
+
+
+
+ 2009/01/07 Daniel Hoehne-Moench
+
+   * datacenter/macros/filldotrun.C:
+     - updated column counting numbers
+     - included a check for the number of columns in the runfiles
+   
+   * datacenter/macros/buildsequenceentries.C:
+     - implemented SumTriggerFlagKEY for sequence building
+
+
+
+ 2009/01/06 Thomas Bretz
+
+   * mbase/MArrayB.h, mbase/MArrayD.h, mbase/MArrayF.h,
+     mbase/MArrayI.h, mbase/MArrayS.h:
+     - removed GetSize
+
+   * mbase/MArrayF.h:
+     - added Add()
+     - added AddClipped
+
+  * mbase/MMath.[h,cc]:
+     - implemented ReSort
+
+   * mcorsika/MCorsikaEvtHeader.cc:
+     - removed obsolete comments
+
+   * mcorsika/MCorsikaRead.cc:
+     - cosmetics
+
+   * mcorsika/MCorsikaRunHeader.[h,cc]:
+     - added comments about file contents
+     - added fWavelengthMin/Max
+
+   * mextralgo/MExtralgoSpline.[h,cc]:
+     - renamed SearchY to SearchYdn
+     - fixed a problem in SearchYup (must be ++i instead of i++)
+       (this is relatively unimportant because it was only used
+        in the determination of the pulse width which we never
+        really used)
+     - added a sanity/range-check to SearchYup and SearchYdn
+     - added a comment
+     - changed the order of arguments in EvalDeriv1
+     - changed the order of arguments in EvalDeriv2
+     - accelerated EvalDeriv1 (one multiplication less)
+     - added Deriv1 function 
+     - made SearchYup and SearchYdn public
+
+   * mjobs/MDataSet.cc:
+     - removed an obsolete return statement
+
+   * mraw/MRawEvtData.[h,cc]:
+     - changed pointer in AddPixel to reference
+     - added a Set function
+
+   * mraw/MRawRunHeader.[h,cc]:
+     - added a lot of fixes for wrong run numbers written by Arehucas
+     - added a fix for strange file numbers written by Arehucas
+     - added functions as monta carlo interface to set contents
+
+   * msignal/MSignalCam.cc:
+     - defined a case 9
+
+
+
+ 2009/01/05 Thomas Bretz
+
+   * mhbase/MH.h:
+     - commited missing changes from last year
+
+   * merpp.cc:
+     - fixed a description
+
+   * sponde.cc:
+     - added "Multiple dataset at once"
+
+   * star.cc:
+     - removed obsolete -ff option from output
+
+   * mbase/MTime.[h,cc]:
+     - added GetBinary
+     - added WriteBinary
+
+   * mbase/MEvtLoop.cc:
+     - display paused status in status line
+     - improved pause handling

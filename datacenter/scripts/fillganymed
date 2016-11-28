@@ -1,0 +1,86 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2004 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2007
+#
+#
+# ========================================================================
+#
+# This script launches the filling of the results of ganymed into the db 
+# for all datasets of which the results are not yet in the database.
+#
+# After checking if the script is already running the todolist is written. 
+# Then for each dataset in the todo list the ganymed results are filled 
+# into the table Ganymed in the database using the macro fillganymed.C
+# If this was successful, the status is inserted into the database using 
+# the function setstatus.
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=fillganymed
+column=fFillGanymed
+
+set -C
+
+# check if script is already running
+lockfile=$lockpath/lock-$program.txt
+checklock 
+
+# get todo list
+gettodo 
+
+cd $mars
+
+# run fillganymed for datasets
+for (( s=0 ; s < $num ; s++ ))
+do
+   dataset=${primaries[$s]}
+   printprocesslog "INFO starting $program for dataset $dataset"
+   no=`printf %08d $dataset | cut -c 0-5`
+   no2=`printf %08d $dataset`
+   path="$datapath/ganymed/$no/$no2"
+   ganymedfile=$path/ganymed$no2.root
+   fillganymedlogpath=$logpath/$program/$no
+   makedir $fillganymedlogpath 
+   fillganymedlog=$fillganymedlogpath/$program-$dataset.log
+
+   printprocesslog "INFO run $program for dataset $dataset" 
+   setstatus "start" 
+
+   check2=`root -q -b $macrospath/fillganymed.C+\("\"$ganymedfile\""\,kFALSE\) | tee $fillganymedlog | intgrep`
+   case $check2 in
+      1)   printprocesslog "INFO done fillganymed successfully for dataset $dataset (check2=$check2)"
+           ;;
+      0)   printprocesslog "WARN connection to DB failed (check2=$check2)"
+           check="no"
+           ;;
+      *)   printprocesslog "ERROR fillganymed failed for dataset $datset (check2=$check2)"
+           com=$Ffillganymed
+           check=$check2
+           ;;
+   esac
+
+   setstatus "stop" 
+done
+
+finish 
+

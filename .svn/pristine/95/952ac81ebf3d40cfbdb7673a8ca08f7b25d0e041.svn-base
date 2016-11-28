@@ -1,0 +1,109 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2004 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2007
+#
+#
+# ========================================================================
+#
+# This script runs the timing correction for all run, that need the timing
+# correction
+#
+# After checking if the script is already running the todolist is written.
+# Then for each run the timing correction is done 
+# If this was successful, the status is inserted into the database using 
+# the function setstatus.
+#
+# This script was needed for the data between 06/2004 and 02/2005 (including
+# this months). 
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+echo "This script has not been adapted to the new file structure (MAGIC II) and new logging. "
+echo "Please adapt it before using it."
+exit
+
+program=correct_raw_time
+column=fTimingCorrection
+
+scriptlog=$runlogpath/$program-$datetime.log
+date >> $scriptlog 2>&1
+
+if [ -e $todofile ]
+then 
+   echo "$program is already running -> exit" >> $scriptlog 2>&1
+   exit
+fi
+
+# get todo list
+getdolist  >> $scriptlog 2>&1
+
+# retrieving runs from todo file
+runs=(`cat $listpath/ToDo-$table-$column.txt`)
+if [ "$runs" = "" ]
+then 
+   echo "nothing to do -> exit" >> $scriptlog 2>&1
+   finish >> $scriptlog 2>&1
+fi
+echo "runs: "${runs[@]} >> $scriptlog 2>&1
+
+cd $mars
+
+for run in ${runs[@]}
+do 
+   printprocesslog "INFO run correct_raw_time for run $run"
+   no=`printf %08d $run | cut -c 1-5`
+   echo "getting path for run $run ... " >> $scriptlog 2>&1
+   infile=`find $datapath/rawfiles-wrong-timing/ -name *${run}_[DCPS]_*`
+   echo "infile:"$infile >> $scriptlog 2>&1
+   outfile=`echo $infile | sed -e 's/-wrong-timing//g'`
+   echo "outfile:"$outfile >> $scriptlog 2>&1
+   outpath=`dirname $outfile`
+   echo "outpath:"$outpath >> $scriptlog 2>&1
+   makedir $outpath >> $scriptlog 2>&1
+
+   timecorrpath=$outpath"/timecorrlogs"
+   echo "timecorrpath: "$timecorrpath >> $scriptlog 2>&1
+   makedir $timecorrpath >> $scriptlog 2>&1
+
+   check1=0
+   echo "run $program..." >> $scriptlog 2>&1
+   primvar=$run
+   setstatus "start" >> $scriptlog 2>&1
+
+   /home/tape/MagicReadout/correct_raw_time $infile $outfile > $timecorrpath/$program-$run.log
+   check1=$?
+
+   case $check1 in
+      1)   echo " check1=$check1 -> everything ok -> setting status..." >> $scriptlog 2>&1 ;;
+      *)   echo " check1=$check1 -> ERROR -> step has to be repeated" >> $scriptlog 2>&1
+           printprocesslog "ERROR $program failed"
+           com=$Ftimecorr
+           check=$check1
+           ;;
+   esac
+   
+   setstatus "stop" >> $scriptlog 2>&1
+done
+
+finish >> $scriptlog 2>&1
+

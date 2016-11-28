@@ -1,0 +1,77 @@
+#
+# Reference lines for the data check, valid from for data
+# from Nov. 04 on
+#
+######################################################################
+######################################################################
+#
+# Histogram Limits:
+# 
+######################################################################
+#
+# Converstion factors:
+#
+ConvFADC2PheMin:          0.
+ConvFADC2PheMax:          1.8
+ConvFADC2PhotMin:         0.
+ConvFADC2PhotMax:         15.
+#
+# Quantum Efficiencies:
+#
+QEMin:                    -0.05
+QEMax:                    3.
+#
+# Relative Time Calibration:
+#
+TimeOffsetMin:           -3.
+TimeOffsetMax:            3.
+TimeResolutionMin:        0.
+TimeResolutionMax:        1.
+#
+# Arrival Times from Max. bin:
+#
+ArrivalTimeMin:           1.
+ArrivalTimeMax:           10.
+######################################################################
+######################################################################
+#
+# Reference Lines:
+# 
+######################################################################
+#
+# Converstion factors:
+#
+RefFADC2PheInner:         0.3
+RefFADC2PheOuter:         0.6
+RefConvFADC2PhotInner:    1.7
+RefConvFADC2PhotOuter:    6.55
+RefConvFADC2PheInner:     0.31
+RefConvFADC2PheOuter:     1.26
+#
+# Quantum Efficiencies:
+#
+RefQEInner:               0.18
+RefQEOuter:               0.12
+#
+# Arrival Times from Max. bin:
+#
+RefArrivalTimeInner:      5.4
+RefArrivalTimeOuter:      6.0
+RefArrivalTimeRmsInner:   0.58.
+RefArrivalTimeRmsOuter:   0.57.
+#
+# Relative Time Calibration:
+#
+RefTimeOffsetOuter:       0.62
+RefTimeResolutionInner:   0.12
+RefTimeResolutionOuter:   0.09
+#
+# Mean Absolute Time:
+#
+InnerRefCharge:           115.
+OuterRefCharge:           110.
+#
+# Mean Absolute Charge:
+#
+InnerRefTime:             4.5
+OuterRefTime:             5.0

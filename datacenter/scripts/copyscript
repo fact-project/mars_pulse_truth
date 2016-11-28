@@ -1,0 +1,361 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2004 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2007
+#
+#
+# ========================================================================
+#
+#
+# This script handles the subsystem logfiles, which are copied every
+# day automatically from /local/ on pc15 in La Palma to 
+# /home/lapalma/transfer/ on coma in the datacenter in Wuerzburg
+# The structure in this directory is: subsystem/date/logfile.*
+# The logfiles are from CC (*.rep, CC*.dbg, CC*.rbk, CC*.rep, CC*.run,
+# CC*.run.html), Cosy (cosy*.log, cosy*.rep, tpoint*.txt/starg*.txt) 
+# AMC (AMC*.log, AMC*.info, AMC*.lut) and CaCo (dc*.txt) 
+#
+# the script performs the following steps:
+# ----------------------------------------
+# - filling the information from the *.rbk and *.run files into the DB
+# using the macros filldotrbk.C and filldotrun.C
+# - moving all logfiles to the correct directory:
+# /subsystemdata/subsystem/YYYY/MM/DD/file.*
+# - building the sequences for the standard analysis in the database
+#   (for each day of which a file was copied) 
+# - if a new catalogfile has been copied, it is installed as standard in the
+#   setup directory /magic/datacenter/setup and the new lines are sent to 
+#   the adresses specified in the script
+# 
+# -- to make sure that no file is copied twice there's a textfile
+# (.processed), to which every file, that was processed, is added 
+# .processed is copied to La Palma, so that it is possible to copy
+# only new files
+# -- to make sure that a file was copied completely before it is
+# processed, a file with the checksum of all files is also copied from
+# La Palma and the checksum is checked with this script for each file
+# before processing it. 
+# 
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=copyscript
+
+set -C
+
+umask 0002
+
+transdir=/home/lapalma/transfer
+char=24
+datetime=`date +%F-%H-%M-%S`
+lockfile=$lockpath/lock-$program.txt
+
+scriptlog=$runlogpath/$program-$datetime.log
+date >> $scriptlog 2>&1
+
+# check if the script is already running
+checklock  >> $scriptlog 2>&1
+
+cd $transdir
+
+#check the checksums, write output into file
+md5sum -c .checksums | tee $transdir/.check  >> $scriptlog 2>&1 
+
+if ! test -e $transdir/.check
+then
+   echo "couldn't create checkfile -> exit script" >> $scriptlog 2>&1
+   finish >> $scriptlog 2>&1
+else
+   echo "checkfile created" >> $scriptlog 2>&1
+fi
+
+
+ssh lapalma@dc09 chmod -R g+w $transdir/* >> $scriptlog 2>&1
+
+
+cd $mars 
+
+echo "remove empty directories: "  >> $scriptlog 2>&1 
+rmdir -pv $transdir/*/*  >> $scriptlog 2>&1 
+
+#find all dates in transfer-directory
+dates=`find $transdir/*/ -type d | grep -o --regexp=20[0-9][0-9]_[0-1][0-9]_[0-3][0-9] | sort | uniq` >> $scriptlog 2>&1
+if ! [ "$dates" = "" ]
+then 
+   echo "dates found: "$dates  >> $scriptlog 2>&1 
+   #loop over dates 
+   for date in ${dates[@]}
+   do 
+      printprocesslog "INFO processing files for $date"
+      #find all files for this date
+      files=`find $transdir/*/$date/ -name "*.*"`  >> $scriptlog 2>&1
+      if [ "$files" = "" ]
+      then
+         echo "no files found for $date"  >> $scriptlog 2>&1
+         continue
+      else
+         echo "files found for $date"  >> $scriptlog 2>&1
+      fi
+
+      date2=`echo $date | sed -e 's/_/\//g'`
+      copylogpath=$logpath/$program/$date2
+      echo "copylogpath: "$copylogpath >> $scriptlog 2>&1
+      makedir $copylogpath >> $scriptlog 2>&1
+
+      #loop over all files in the directories for this date
+      for file in $files
+      do
+         echo "file: "$file  >> $scriptlog 2>&1
+         filename=`basename $file`
+
+         #check for each file whether it has to be processed
+         if grep -i "$filename: OK" $transdir/.check  >> $scriptlog 2>&1
+         then
+            newfile=`echo $file | sed -e 's/home\/lapalma\/transfer/magic\/subsystemdata/' -e 's/ccdata/cc/' -e 's/cacodata/caco/' -e 's/drivelogs/drive/' -e 's/_/\//1' -e 's/_/\//1' `
+            echo "file (new path): "$newfile >> $scriptlog 2>&1
+            newpath=`dirname $newfile`
+            #make sure, that the needed directories are available
+            makedir $newpath >> $scriptlog 2>&1
+
+            #run macros if the file is a *.rbk or a *.run file to
+            #fill the information into the db
+            if echo $filename | grep \\\.rbk$  >> $scriptlog 2>&1
+            then
+               echo "found rbk-file $filename"  >> $scriptlog 2>&1
+
+               checkfillrbk=`root -q -b $macrospath/filldotrbk.C+\("\"$file\""\,kFALSE\) | tee $copylogpath/filldotrbk-$filename-log.txt | intgrep`
+
+               case $checkfillrbk in
+                  1) echo " checkfillrbk=$checkfillrbk -> everything ok " >> $scriptlog 2>&1
+                     echo "  -> go on with moving file" >> $scriptlog 2>&1
+                     ;;
+                  *) echo " checkfillrbk=$checkfillrbk - Error -> go on with next file" >> $scriptlog 2>&1
+                     printprocesslog "ERROR filldotrbk.C failed for $file"
+                     continue
+                     ;;
+               esac
+            fi
+
+            if echo $file | grep 'CC_.*.run' >> $scriptlog 2>&1  && ! echo $file | grep .run.html >> $scriptlog 2>&1
+            then
+               echo "found run-file $filename" >> $scriptlog 2>&1
+
+               fillrunlog=$copylogpath"/filldotrun-$filename-log.txt"
+               checkfillrun=`root -q -b $macrospath/filldotrun.C+\("\"$file\""\,kFALSE\) | tee $fillrunlog | intgrep`
+               if grep WARN $fillrunlog >/dev/null
+               then 
+                  printprocesslog "WARN found in logfile "$fillrunlog
+               fi
+               
+               if grep ERROR $fillrunlog >/dev/null
+               then 
+                  printprocesslog "ERROR found in logfile "$fillrunlog
+               fi
+
+               case $checkfillrun in
+                  1) echo " checkfillrun=$checkfillrun -> everything ok " >> $scriptlog 2>&1
+                     echo "  -> insert date in SequenceBuildStatus for $date" >> $scriptlog 2>&1
+
+                     checkinsertdate=`root -q -b $macrospath/insertdate.C+\("\"$date\""\) | tee $copylogpath/insertdate-$date-log.txt | intgrep`
+
+                     case $checkinsertdate in
+                        1) echo "date inserted" >> $scriptlog 2>&1 ;;
+                        *) echo " checkinsertdate=$checkinsertdate -> ERROR - insert date didn't work" >> $scriptlog 2>&1
+                           printprocesslog "ERROR insertdate.C failed for $date"
+                           continue
+                           ;;
+                     esac
+                     echo " -> go on with moving file" >> $scriptlog 2>&1
+                     ;;
+                  *) echo " checkfillrun=$checkfillrun Error -> go on with next file" >> $scriptlog 2>&1
+                     printprocesslog "ERROR filldotrun.C failed for $file"
+                     continue
+                     ;;
+               esac
+            fi
+
+            if mv -v $file $newpath >> $scriptlog 2>&1
+            then
+               #add file to donelist
+               filename3=`echo $file | cut -c $char-999`
+               echo "$filename3 processed" >> $transdir/.processed
+               echo $filename" moved and added to .processed" >> $scriptlog 2>&1
+            else
+               echo $file" couldn't be moved!!!!!" >> $scriptlog 2>&1
+               printprocesslog "WARN moving of file $file didn't work"
+            fi
+
+         else
+            #if the checksum for the file is not ok or the file was
+            #already processed (entry in donelist) -> go on with next file
+            echo $file": checksum not ok " >> $scriptlog 2>&1
+            printprocesslog "WARN checksum for file $file is not ok"
+         fi
+      done
+   done
+fi
+
+
+echo "remove empty directories: "  >> $scriptlog 2>&1 
+rmdir -pv $transdir/*/*  >> $scriptlog 2>&1 
+
+rm -v $transdir/.check >> $scriptlog 2>&1 
+
+
+# second part of the script
+#searching optical data files, inserting the information into the db and
+#moving the files
+file=""
+printprocesslog "INFO processing optical files"
+echo "processing optical files..." >> $scriptlog 2>&1
+opticalfiles=`find $transdir/optical -regextype posix-egrep -regex "^$transdir/optical/20[0-9][0-9]_[0-1][0-9]_[0-3][0-9]_.*_[RV][_]?[12]?[.]instr$"`
+for opticalfile in $opticalfiles
+do
+   printprocesslog "INFO process "$opticalfile
+   file=`basename $opticalfile`
+   year=`echo $file | cut -c 0-4`
+   opticallogpath=$logpath/filloptical/$year
+   makedir $opticallogpath >> $scriptlog 2>&1
+   opticallogfile=$opticallogpath/filloptical-$file.log
+  
+   checkfilloptical=`root -q -b $macrospath/filloptical.C+\("\"$opticalfile\""\,kFALSE\) | tee $opticallogfile | intgrep`
+            
+   case $checkfilloptical in
+      1) echo " checkfilloptical=$checkfilloptical -> everything ok -> go on with moving file" >> $scriptlog 2>&1 
+         newdir=$subsystempath/optical/$year
+         newfile=$newdir/$file
+         makedir $newdir >> $scriptlog 2>&1
+         
+         if mv -v $opticalfile $newfile >> $scriptlog 2>&1 
+         then
+            echo "moved "$opticalfile" successfully" >> $scriptlog 2>&1 
+            printprocesslog "INFO moved "$opticalfile" successfully"
+         else
+            echo $opticalfile" couldn't be moved!!!!!" >> $scriptlog 2>&1 
+            printprocesslog "WARN moving of file $opticalfile didn't work"
+         fi
+         ;;
+      3) echo " checkfilloptical=$checkfilloptical - ERROR filloptical.C failed for $opticalfile: position of one object is missing in the database" >> $scriptlog 2>&1 
+         printprocesslog "ERROR filloptical.C failed for $opticalfile: position of one object is missing in the database"
+         continue ;;
+      4) echo " checkfilloptical=$checkfilloptical - ERROR filloptical.C failed for $opticalfile: telescope line with more or less than 2 arguments" >> $scriptlog 2>&1 
+         printprocesslog "ERROR filloptical.C failed for $opticalfile: telescope line with more or less than 2 arguments"
+         continue ;;
+      5) echo " checkfilloptical=$checkfilloptical - ERROR filloptical.C failed for $opticalfile: timestamp line with more or less than 4 arguments" >> $scriptlog 2>&1 
+         printprocesslog "ERROR filloptical.C failed for $opticalfile: timestamp line with more or less than 4 arguments"
+         continue ;;
+      6) echo " checkfilloptical=$checkfilloptical - ERROR filloptical.C failed for $opticalfile: object line with more or less than 8 arguments" >> $scriptlog 2>&1 
+         printprocesslog "ERROR filloptical.C failed for $opticalfile: object line with more or less than 8 arguments"
+         continue ;;
+      *) echo " checkfilloptical=$checkfilloptical - ERROR filloptical.C failed for $opticalfile -> go on with next file" >> $scriptlog 2>&1 
+         printprocesslog "ERROR filloptical.C failed for $opticalfile (returned $checkfilloptical)"
+         continue ;;
+   esac
+done
+
+
+# third part of the script:
+#update the catalog file magic_favorites.edb
+printprocesslog "INFO processing new catalog files"
+echo "Processing new catalog files" >> $scriptlog 2>&1
+magfav=magic_favorites.edb #catalog filename
+catalog=$setuppath/$magfav #current catalogfile
+diff=/tmp/magic_favorites_diff #file to store difference
+
+#getting new catalogfiles 
+for (( i=0 ; i < 31 ; i++ ))
+do
+   date=`date --date "-${i}day" +%Y/%m/%d`
+   path=$subsystempath/cc/$date
+   catfiles=$catfiles" "`find $path -name $magfav -newer $catalog`
+done
+
+for catfile in ${catfiles[@]}
+do
+   printprocesslog "INFO processing catalog file $catfile"
+   #write information into .diff
+   echo "diff $catfile $catalog" >| $diff
+   diff $catfile $catalog >> $diff
+   #getting differences
+   ins=`cat $diff | grep '>'`  #what has been inserted
+   outs=`cat $diff | grep '<'` #what has been removed
+   
+   #check if lines have been inserted
+   if ! [ "$ins" == "" ]
+   then 
+      echo "--> catalogfile: "$catfile >> $scriptlog 2>&1 
+      echo "the following lines were added:" >> $scriptlog 2>&1 
+      cat $diff | grep '>'  >> $scriptlog 2>&1 
+   
+      #check if lines have been removed
+      if ! [ "$outs" == "" ]
+      then 
+         echo "the following lines have been removed" >> $scriptlog 2>&1 
+         cat $diff | grep '<'  >> $scriptlog 2>&1 
+         echo " -> please check the file $catfile" >> $scriptlog 2>&1 
+         #inform $adrs about removed lines
+         nail -s 'catalogfile - removed lines' $adrs < $diff
+         printprocesslog "NEWS catalog file: lines have been removed ($catfile)"
+         finish >> $scriptlog 2>&1
+      fi
+      
+      #getting date of new catalogfile from path
+      date=`echo $catfile | cut -d/ -f5-7 | sed -e 's/\///g'`
+
+      oldcatalogpath=$setuppath/oldcatalogs
+      makedir $oldcatalogpath >> $scriptlog 2>&1
+      #rsync current catalogfile to directory with old catalogfiles including the date of the new catalogfile into the filename
+      if ! rsync -av $catalog $oldcatalogpath/$magfav.$date >> $scriptlog 2>&1 
+      then 
+         echo "could not do 'rsync -av $catalog $setuppath/oldcatalogs/$magfav.$date' -> exit" >> $scriptlog 2>&1 
+         printprocesslog "ERROR rsync of catalog file ($catalog -> $oldcatalogpath/$magfav.$date) didn't work"
+         finish >> $scriptlog 2>&1
+      fi
+      #rsync new catalogfile to current catalogfile
+      if ! rsync -av $catfile $catalog >> $scriptlog 2>&1 
+      then 
+         echo "could not do 'rsync -av $catfile $catalog' -> exit" >> $scriptlog 2>&1 
+         printprocesslog "ERROR rsync of catalog file ($catfile -> $catalog) didn't work"
+         finish >> $scriptlog 2>&1
+      fi
+      #inform $adrs about changes
+      echo "file has been rsynced sucessfully -> sending email" >> $scriptlog 2>&1 
+      nail -s 'new catalogfile installed - new lines'  $adrs < $diff
+      printprocesslog "NEWS there are new lines in the catalogfile (see $catalog)"
+      continue
+   fi
+   #check if lines have been removed
+   if ! [ "$outs" == "" ]
+   then 
+      echo "the following lines have been removed" >> $scriptlog 2>&1 
+      cat $diff | grep '<'  >> $scriptlog 2>&1 
+      echo " -> please check the file $catfile" >> $scriptlog 2>&1 
+      #inform $adrs about removed lines
+      nail -s 'catalogfile - removed lines' $adrs < $diff
+      printprocesslog "NEWS catalog file: lines have been removed ($catfile)"
+      finish >> $scriptlog 2>&1
+   fi
+#   echo "nothing has changed ($catfile)"  >> $scriptlog 2>&1 
+done
+
+finish >> $scriptlog 2>&1
+

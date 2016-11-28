@@ -1,0 +1,84 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2004 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2007
+#
+#
+# ========================================================================
+#
+# This script launches the inserting of sequences into the db.
+# It is not used in the automatic processing of data, but only for 
+# inserting of manual written sequences. 
+#
+# Find manual written sequence files and insert information into the 
+# database using the macro insertsequence.C 
+# 
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=insertsequences
+
+set -C
+
+scriptlog=$runlogpath/$program-$datetime.log
+date >> $scriptlog 2>&1
+
+# check if script is already running
+lockfile=$lockpath/lock-$program.txt
+checklock  >> $scriptlog 2>&1
+
+# finding manual written sequence files (marked by the comment '#manually changed')
+# for test reasons there has to be cut from 1-47 (not as for operator from 1-42) because of
+# sequpath=/magic/test/sequences (not /magic/sequences)
+sequencefiles=(`grep -R '#manually changed' $sequpath/ | cut -c 1-42`)
+echo "sequencefiles: "${sequencefiles[@]}  >> $scriptlog 2>&1 
+echo "" >> $scriptlog 2>&1 
+
+cd $mars
+
+# process sequencefiles: insert information into the database
+for sequencefile in ${sequencefiles[@]}
+do 
+   printprocesslog "INFO inserting sequence from file $sequencefile"
+   echo "file: "$sequencefile >> $scriptlog 2>&1 
+   no=`echo $sequencefile | cut -c 31-38`
+   no2=`echo $no | cut -c 1-4`
+   insertsequencepath=$logpath/$program/$no2
+   makedir $insertsequencepath >> $scriptlog 2>&1
+   insertsequencelog=$insertsequencepath/$program-$no.log
+
+   check0=`root -q -b $macrospath/insertsequence.C+\("\"$sequencefile\""\,kFALSE\) | tee $insertsequencelog | intgrep`
+   case $check0 in 
+      1)   echo "check0=$check0 -> everything ok " >> $scriptlog 2>&1 
+           printprocesslog "INFO sequence $no2 successfully inserted"
+           ;;
+      0)   echo " check1=$check1 -> no connection to db -> continue..." >> $scriptlog 2>&1 
+           printprocesslog "WARN connection to DB failed"
+           check="no"
+           ;;
+      *)   echo "check0=$check0 -> ERROR " >> $scriptlog 2>&1 
+           printprocesslog "ERROR $program.C failed for sequence $no2"
+           ;;
+   esac
+done
+
+finish >> $scriptlog 2>&1
+

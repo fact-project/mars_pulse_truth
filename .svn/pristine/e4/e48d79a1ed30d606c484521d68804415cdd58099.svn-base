@@ -1,0 +1,20 @@
+
+Corsika.MainTable: Ceres
+Corsika.Primaries: fRunNumber, fFileNumber
+
+Ceres.MainTable: Ceres
+Ceres.Primaries: fRunNumber, fCeresSetupKEY
+Ceres.Needs: Corsika 
+Ceres.SpecialJoin: LEFT JOIN CeresInfo USING(fRunNumber, fCeresSetupKEY)
+
+SequenceFile.MainTable: Ceres
+SequenceFile.Primaries: fSequenceNumber
+
+Callisto.MainTable: Ceres
+Callisto.Primaries: fSequenceNumber, fCeresSetupKEY
+Callisto.Needs: SequenceFile Ceres Corsika 
+
+Star.MainTable: Ceres
+Star.Primaries: fSequenceNumber, fCeresSetupKEY
+Star.Needs: Callisto SequenceFile Ceres Corsika 
+

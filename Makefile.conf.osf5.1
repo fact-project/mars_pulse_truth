@@ -1,0 +1,41 @@
+##################################################################
+#
+# config.mk
+#
+# @file        config.mk
+# 
+##################################################################
+# @maintitle
+
+# @code
+
+#
+# compilers
+#
+
+CC       = cc
+CXX      = cxx
+F77      = f77
+AR       = ar -c -r
+
+#
+#  ----->>>   settings for compilation
+#
+
+OPTIM    = -O2 -ieee -arch host
+DEBUG    = -g3  -w0 -msg_display_tag -msg_disable castqualtyp,undpreid,unrfunprm,extrasemi,intconlosbit,nonfundec,partovrd,stoclsnotfirst,boolexprconst
+ARCHDEF  = -D__OSF__ -D__USE_STD_IOSTREAM -DR__ANSISTREAM
+DYNLIB   = -shared
+
+#MARS_LIB = -Llib $(SUBDIRS/*/-l&)  $(MARSLIBS)
+MARS_LIB = -Llib $(MARSLIBS)
+INCLUDES = -I. $(SUBDIRS/*/-I&)
+
+# uncomment this for quiet compilation
+
+.SILENT:
+
+# @endcode
+##EOF
+
+

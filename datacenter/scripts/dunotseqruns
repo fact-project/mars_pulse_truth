@@ -1,0 +1,23 @@
+#!/bin/sh
+#
+
+query="select concat('/magic/data/rawfiles', Date_Format(adddate(fRunStart, interval 12 HOUR), '/%Y/%m/%d/'),'*', fRunNumber, '*.raw.gz')  from RunData where fSequenceFirst='0' and fRunStart > '2004-08-20'"
+
+files=`mysql -u MAGIC --host=vela --password=d99swMT! MyMagic -s -e " $query"`
+
+sum=0
+
+for file in $files
+do 
+   name=`basename $file`
+   dir=`dirname $file`
+   num=`find $dir -name $name -printf '%k '`
+   if [ "$num" = "" ]
+   then
+      echo "num is empty for $file"
+      continue
+   fi
+   sum=`expr $sum + $num`
+done
+echo $sum
+

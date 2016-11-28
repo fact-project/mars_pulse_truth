@@ -1,0 +1,89 @@
+# -------------------- Define your energy estimator -------------------
+
+# Manually optimized (for example using trainenergy.C)
+EstimateEnergy.Rule: MHillas.fSize^0.906*pow(10, -0.831*(MHillasSrc.fDist*3.37e-3-0.161)^2*(MHillasSrc.fDist*3.37e-3>0.161) + 2.21*(MHillasSrc.fDist*3.37e-3-0.493)^2*(MHillasSrc.fDist*3.37e-3>0.493) + 8.18e-6*MPointingPos.fZd^2.82 - 0.1*MNewImagePar.fLeakage1^0.2)
+
+# You can use instead the Random Forest energy estimator
+#  (for example trained by trainenergy.C)
+#EstimateEnergy: MRanForestCalc
+#EstimateEnergy.NameOutput: MEnergyEst
+#EstimateEnergy.FileName: rf-energy.root
+#EstimateEnergy.Debug: No
+
+# ------------------------ Define your binnings -----------------------
+
+# The energy binning is mandatory
+BinningEnergyEst.Raw:   18   53   35800 log
+
+# Binnings used for the Energy- and Disp-tab
+#BinningSize.Raw:            50  10  100000  log
+#BinningLeakage.Raw:         50   0     0.3  lin
+#BinningEnergyResidual.Raw:  51  -1       1  lin
+#BinningResidualDist.Raw:    51  -1       1  lin
+
+# A change of the theta binning must be done in ganymed (see below) :(
+#BinningTheta.Raw: 101 -0.005 0.505 asin
+
+# --------------- Setup the weighting for your spectrum ---------------
+#            For more details see MMcSpectrumWeight::ReadEnv
+
+# A simple power law with a differential spectral index of -4
+#MMcSpectrumWeight.NewSlope: -4
+
+# Give a formula for the spectrum. Capital X is a place-holder
+# for the energy (eg. the crab-spectrum from our publication)
+#MMcSpectrumWeight.Formula: pow(X/300, -2.31-0.26*log10(X/300))
+
+# ----------------------- Additional setup ----------------------------
+
+# In the loop filling the ThetaSq histogram the theta cut is switched off
+# and the theta-cut is implicitly done in the histogram. Reading the
+# Monte Carlo for determining the collection area there is no theta-
+# histogram involved, thus you need the theta cut switched on
+Spectrum.Cut1.ThetaCut: On
+
+# You may want to change the scale region to a different region than
+# previously used in your ganymed-file. This might be usefull for
+# on/off-data. Note, that the result can also depend on what else
+# was setup for your MAlphaFitter in ganymed.
+#MAlphaFitter.ScaleMin: 0.137
+#MAlphaFitter.ScaleMax: 0.500
+
+# You may use this to change the scale and/or fit region for
+# determination of the excess vs energy (can be usefull in On/Off mode)
+#MAlphaFitter.ScaleMode: Fixed
+
+# You may want to allow scaling of each energy bin individually. (This
+# can be useful if on- and off- data in wobble mode do not agree well)
+#MAlphaFitter.ScaleMode: background
+#MAlphaFitter.BackgroundFitMin: 0.09
+#MAlphaFitter.BackgroundFitMax: 0.25
+
+# ------------------------- Additional cut ----------------------------
+
+# You can apply a cut in addition to all other cuts to your data and
+# MOnte Carlos. This can be usefull for example to setup a second
+# MFMagicCuts with a tighter behaviour assuming that your ganymed
+# was written with a really loose cut.
+#CutS.Inverted:  Yes
+#CutS.Condition: MFMagicCuts
+#CutS.ThetaCut: None
+#CutS.HadronnesCut: Area
+# Parametrization of Area
+#CutS.Param2:   0.215468
+#CutS.Param3:   5.63973
+#CutS.Param4:   0.0836169
+
+# --------------------------- Other binnings --------------------------
+
+# Binnings that are used by sponde but can not/shoud not be changed
+# because they are taken from the ganymed file
+#BinningTheta
+#BinningWidth
+#BinningLength
+#BinningDist
+#BinningM3Long
+#BinningM3Trans
+#BinningSlope
+#BinningAsym
+#BinningConc1

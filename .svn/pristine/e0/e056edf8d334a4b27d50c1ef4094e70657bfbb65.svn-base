@@ -1,0 +1,49 @@
+# reflectivity file
+# reflectivity for each mirror in the frame
+# J C Gonzalez, 1998
+#
+# Modified Jan 2003, A. Moralejo: data from measurements of real mirror.
+# Modified Dec 2006, A. Moralejo: extended data up to 850 nm.
+#
+# number of datapoints
+# datapoints
+270 0.861
+280 0.864
+290 0.860
+300 0.849
+310 0.835
+320 0.819
+330 0.804
+340 0.799
+350 0.803
+360 0.811
+370 0.823
+380 0.840
+390 0.849
+400 0.860
+410 0.869
+420 0.882
+430 0.883
+440 0.887
+450 0.893
+460 0.893
+470 0.897
+480 0.902
+490 0.898
+500 0.899
+510 0.902
+520 0.897
+530 0.899
+540 0.898
+550 0.894
+560 0.893
+570 0.889
+580 0.885
+590 0.884
+600 0.878
+610 0.877
+650 0.86
+700 0.84
+750 0.81
+800 0.77
+900 0.69

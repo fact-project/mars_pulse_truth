@@ -1,0 +1,21 @@
+# DO NOT DELETE
+
+ReportDep.d MReport.o: MReport.h ../mbase/MParContainer.h ../mbase/MAGIC.h ../mbase/MTime.h ../mbase/MLogManip.h ../mbase/MLog.h ../mbase/MParList.h
+ReportDep.d MReportCC.o: MReportCC.h MReport.h ../mbase/MParContainer.h ../mbase/MAGIC.h ../mbase/MTime.h ../mcore/fits.h ../mcore/FITS.h ../mcore/checksum.h ../mbase/MLogManip.h ../mbase/MLog.h ../mbase/MParList.h MReportRec.h ../mcamera/MCameraTH.h ../mgui/MCamEvent.h ../mcamera/MCameraTD.h ../mcamera/MCameraRecTemp.h
+ReportDep.d MReportRec.o: MReportRec.h MReport.h ../mbase/MParContainer.h ../mbase/MAGIC.h ../mbase/MTime.h ../mbase/MLogManip.h ../mbase/MLog.h ../mbase/MParList.h ../mcamera/MCameraTH.h ../mgui/MCamEvent.h ../mcamera/MCameraTD.h ../mcamera/MCameraRecTemp.h
+ReportDep.d MReportRun.o: MReportRun.h MReport.h ../mbase/MParContainer.h ../mbase/MAGIC.h ../mbase/MTime.h ../mbase/MLogManip.h ../mbase/MLog.h
+ReportDep.d MReportDAQ.o: MReportDAQ.h MReport.h ../mbase/MParContainer.h ../mbase/MAGIC.h ../mbase/MTime.h ../mbase/MLogManip.h ../mbase/MLog.h ../mastro/MAstro.h
+ReportDep.d MReportHelp.o: MReportHelp.h ../mbase/MLog.h ../mbase/MLogManip.h MReport.h ../mbase/MParContainer.h ../mbase/MAGIC.h ../mbase/MTime.h ../mbase/MParList.h
+ReportDep.d MReportDrive.o: MReportDrive.h MReport.h ../mbase/MParContainer.h ../mbase/MAGIC.h ../mbase/MTime.h ../mcore/fits.h ../mcore/FITS.h ../mcore/checksum.h ../mbase/MLogManip.h ../mbase/MLog.h ../mastro/MAstro.h
+ReportDep.d MReportCamera.o: MReportCamera.h MReport.h ../mbase/MParContainer.h ../mbase/MAGIC.h ../mbase/MTime.h ../mbase/MLogManip.h ../mbase/MLog.h ../mastro/MAstro.h ../mbase/MParList.h ../mcamera/MCameraCalibration.h ../mcamera/MCameraCooling.h ../mcamera/MCameraDC.h ../mgui/MCamEvent.h ../mcamera/MCameraHV.h ../mcamera/MCameraLV.h ../mcamera/MCameraPowerSupply.h ../mcamera/MCameraAUX.h ../mcamera/MCameraActiveLoad.h ../mcamera/MCameraCentralPix.h ../mcamera/MCameraLids.h ../mcamera/MCameraLid.h
+ReportDep.d MReportTrigger.o: MReportTrigger.h MReport.h ../mbase/MParContainer.h ../mbase/MAGIC.h ../mbase/MTime.h ../mbase/MParList.h ../mbase/MLogManip.h ../mbase/MLog.h ../mtrigger/MTriggerIPR.h ../mgui/MCamEvent.h ../mtrigger/MTriggerCell.h ../mtrigger/MTriggerBit.h ../mtrigger/MTriggerPrescFact.h ../mtrigger/MTriggerLiveTime.h MReportFileRead.h ../mbase/MTask.h ../mbase/MInputStreamID.h
+ReportDep.d MReportCurrents.o: MReportCurrents.h MReport.h ../mbase/MParContainer.h ../mbase/MAGIC.h ../mbase/MTime.h ../mbase/MLogManip.h ../mbase/MLog.h ../mbase/MParList.h ../mcamera/MCameraDC.h ../mgui/MCamEvent.h
+ReportDep.d MReportFitsRead.o: MReportFitsRead.h ../mbase/MTask.h ../mbase/MInputStreamID.h ../mbase/MParContainer.h ../mbase/MAGIC.h ../mbase/MTime.h ../mcore/fits.h ../mcore/FITS.h ../mcore/checksum.h ../mbase/MLog.h ../mbase/MLogManip.h ../mbase/MParList.h MReport.h
+ReportDep.d MReportFileRead.o: MReportFileRead.h ../mbase/MTask.h ../mbase/MInputStreamID.h ../mbase/MParContainer.h ../mbase/MAGIC.h ../mbase/MTime.h ../mbase/MLog.h ../mbase/MLogManip.h ../mbase/MParList.h MReportHelp.h
+ReportDep.d MReportFileReadCC.o: MReportFileReadCC.h MReportFileRead.h ../mbase/MTask.h ../mbase/MInputStreamID.h ../mbase/MParContainer.h ../mbase/MAGIC.h ../mbase/MTime.h ../mbase/MLog.h ../mbase/MLogManip.h
+ReportDep.d MReportStarguider.o: MReportStarguider.h MReport.h ../mbase/MParContainer.h ../mbase/MAGIC.h ../mbase/MTime.h ../mbase/MLogManip.h ../mbase/MLog.h ../mastro/MAstro.h
+ReportDep.d MReportPyrometer.o: MReportPyrometer.h MReport.h ../mbase/MParContainer.h ../mbase/MAGIC.h ../mbase/MTime.h ../mbase/MLogManip.h ../mbase/MLog.h
+ReportDep.d MReportRates.o: MReportRates.h MReport.h ../mbase/MParContainer.h ../mbase/MAGIC.h ../mbase/MTime.h ../mcore/fits.h ../mcore/FITS.h ../mcore/checksum.h ../mbase/MLogManip.h ../mbase/MLog.h
+ReportDep.d MReportTemperatures.o: MReportTemperatures.h MReport.h ../mbase/MParContainer.h ../mbase/MAGIC.h ../mbase/MTime.h ../mcore/fits.h ../mcore/FITS.h ../mcore/checksum.h ../mbase/MLogManip.h ../mbase/MLog.h
+ReportDep.d MReportHumidity.o: MReportHumidity.h MReport.h ../mbase/MParContainer.h ../mbase/MAGIC.h ../mbase/MTime.h ../mcore/fits.h ../mcore/FITS.h ../mcore/checksum.h ../mbase/MLogManip.h ../mbase/MLog.h
+ReportDep.d: Makefile

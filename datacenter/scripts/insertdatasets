@@ -1,0 +1,102 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2004 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2007
+#
+#
+# ========================================================================
+#
+# This script launches the inserting of the datasets into the db.
+#
+# Extract information (dataset number, source name, comment, observation 
+# mode) from dataset file and insert it into the database in the table 
+# DataSets using the macro insertdataset.C
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=insertdatasets
+
+set -C
+
+# check if script is already running
+lockfile=$lockpath/lock-$program.txt
+checklock 
+
+# get all datasetfiles
+datasetfiles=(`ls $datasetpath/*/*.txt`)
+printprocesslog "INFO datasetfiles: "${datasetfiles[@]} 
+
+cd $mars
+
+# extract information from dataset file and insert it into db with the macro insertdataset.C
+printprocesslog "INFO inserting dataset information into db"
+for datasetfile in ${datasetfiles[@]}
+do 
+   # get datasetnumber from filename
+   no=`echo $datasetfile | cut -d/ -f5 | cut -c8-99 | cut -d. -f1`
+   # get datasetnumber from file and get it with 8 digits
+   no2=`grep 'AnalysisNumber:' $datasetfile | sed -e 's/AnalysisNumber://g' | sed -e 's/ //g'`
+   no3=`printf %08d $no2`
+   no4=`printf %08d $no2 | cut -c 1-5`
+   # compare the two datasetnumber 
+   # continue only if number is the same
+   if [ "$no" = "$no3" ]
+   then 
+      printprocesslog "INFO number in filename and in file are the same -> continue" 
+   else
+      printprocesslog "ERROR number in filename ($no) and file ($no3) are not the same for dataset $no2"
+      continue
+   fi
+   # get source name, comment and observation mode from dataset file
+   source=`grep 'SourceName:' $datasetfile | sed -e 's/SourceName://g' | sed -e 's/ //g' | sed -e 's/#//g'` 
+   comment=`grep 'Comment:' $datasetfile | sed -e 's/Comment://g'` 
+   mode=`grep 'WobbleMode:' $datasetfile` 
+   mode2=`echo $mode | grep ^\#` 
+   if [ "$mode2" = "" ]
+   then 
+      wobble="Y" 
+   else
+      wobble="N" 
+   fi
+   
+   insertdatasetpath=$logpath/insertdataset/$no4
+   makedir $insertdatasetpath 
+   insertdatasetlog=$insertdatasetpath/insertdataset-$no3.log
+
+   printprocesslog "INFO inserting dataset $no2"
+   # insert information into db
+   check0=`root -q -b $macrospath/insertdataset.C+\("\"$no2\""\,"\"$source\""\,"\"$wobble\""\,"\"$comment\""\,kFALSE\) | tee $insertdatasetlog | intgrep`
+   case $check0 in 
+      1)   printprocesslog "INFO dataset $no2 successfully inserted (check0=$check0)"
+           ;;
+      3)   printprocesslog "INFO dataset $no2 exists already (check0=$check0)"
+           ;;
+      0)   printprocesslog "WARN connection to DB failed (check0=$check0)"
+           check="no"
+           ;;
+      *)   printprocesslog "ERROR $program.C failed for dataset $no2 (check0=$check0)"
+           ;;
+   esac
+done
+
+finish 
+

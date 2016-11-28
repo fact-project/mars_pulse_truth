@@ -1,0 +1,319 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2010 <mailto:daniela.dorner@unige.ch>
+#
+#   Copyright: MAGIC Software Development, 2000-2010
+#
+#
+# ========================================================================
+#
+# script used to insert MC to the DB TestFACTSetup
+#   also inserts sequence information
+# 
+
+
+#
+# setup
+# to be filled by the user:
+#
+
+# to really insert information set insert="yes"
+insert="yes"
+insert=
+
+
+# give array of ceres keys
+# remark: in case you insert new ceres keys: 
+#  make sure that the information on the setup (i.e. table CeresSetup) 
+#  has been inserted before
+cereskeys=( 7 ) 
+cereskeys=( 1 2 3 4 5 6 7 8 9 10 11 12 ) 
+cereskeys=( 8 9 10 11 12 ) 
+
+
+# give run number range which you want to process with the new setup
+#   if one of these values is empty a new run is inserted with the setup given below
+# 423-960 corresponds to the range of runs used for the sensitivity curve
+#  gammas:  files 1300-1999 i.e. runs 423-630
+#  muons:   files 2400-2999 i.e. runs 753-930
+#  protons: files 2000-2399 i.e. runs 633-750
+#  protons: files 3000-3099 i.e. runs 933-960
+#  protons: new runs 1040-1070
+runmin=423
+runmax=960
+runmin=1040
+runmax=1070
+runmin=
+runmax=
+
+
+#
+# setup for a new run
+#
+
+# number of events per file
+numevents=35000  # Protons CSCAT=20
+#numevents=2000 # Gamma CSCAT=20
+
+# number of files per run
+#numfile=1 #
+numfile=50 # Protons CSCAT=20
+#numfile=10 # Gamma CSCAT=20
+
+numreuse=1
+numreuse=20
+
+# particle type
+#particle=1 # gamma
+particle=14 # proton
+#particle=6 # muon
+#particle=3 # electron
+#particle=402 # helium
+#particle=5626 # iron
+
+
+# zenith range
+zdmin=30
+zdmax=30
+# azimuth range
+azmin=180
+azmax=180
+
+# energy (in GeV)
+emin=20  # 20
+emax=200000  # 200000
+#emin=100 # Gamma
+#emax=50000 # Gamma
+#slope=-2.7 # for gammas, depends on source spectrum, or for test
+slope=-2.78 # for protons and muons and irons
+
+# impact
+impactmax=80000 # for protons (and irons ?)
+#impactmax=42500 # for gammas
+#impactmax=20000 # for muons
+
+# view cone
+viewconemax=5.0 # for protons and irons
+#viewconemax=4.5 # for muons 
+#viewconemax=0 # for gammas
+
+# starting altitude
+startalt=0 # for gammas and protons and irons
+#startalt=280 # for muons
+
+# mirror diameter
+mirrordia=1800
+mirrordia=900
+
+# wavelength range
+wavelengthmin=290
+wavelengthmax=900
+
+# observatory key
+obskey=1 # LP
+
+#
+# script - do not edit below
+#
+source `dirname $0`/sourcefile
+
+
+function sendquery2()
+{
+   if [ "$insert" = "yes" ]
+   then 
+      sendquery >/dev/null
+   else 
+      echo "Q: "$query
+   fi
+}
+
+# atmospheric model (at the moment only 11 to be used)
+#   will be moved to user settings later
+atm=11
+
+# switches for insert
+newrun=
+newceres=
+
+# get ceres setup name
+query="SELECT fCeresSetupName FROM CeresSetup WHERE fCeresSetupKEY in ("`echo ${cereskeys[@]} | sed -e 's/\ /,/g'`")"
+echo $query
+ceresnames=( `sendquery` )
+if [ ${#ceresnames[@]} -lt ${#cereskeys[@]} ]
+then
+   echo "Please insert first the information on all new ceres setups (keys: "${cereskeys[@]}") into the database."
+   echo "EXIT."
+   exit
+fi
+
+if [ "$runmin" == "" ] || [ "$runmax" == "" ]
+then 
+   newrun="yes"
+   # get next run number
+   query="SELECT Max(fRunNumber)+1 FROM CorsikaStatus"
+   prun=`sendquery`
+   crun=`echo " $prun + 1 " | bc -l`
+   drun=`echo " $prun + 2 " | bc -l`
+   runs=( $drun )
+   
+   # get particle type name
+   query="SELECT fParticleTypeName FROM ParticleType WHERE fParticleTypeKEY="$particle
+   pname=`sendquery`
+   
+   # get observatory name
+   query="SELECT fObservatoryName FROM Observatory WHERE fObservatoryKEY="$obskey
+   obsname=`sendquery`
+   
+   echo "Do you really want to insert the following run(s)?"
+   echo "  D-Run:             "$drun" ("$numfile" file(s))"
+   echo "  P-Run:             "$prun
+   echo "  C-Run:             "$crun
+   echo "  Particle:          "$particle" ("$pname")"
+   echo "  Number of events:  "$numevents
+   echo "  Energy:            "$emin" GeV - "$emax" GeV "
+   echo "  Slope:             "$slope
+   echo "  Maximum Impact:    "$impactmax" cm "
+   echo "  Maximum View Cone: "$viewconemax" deg "
+   echo "  Starting Altitude: "$startalt
+   echo "  Mirror Diameter:   "$mirrordia" cm "
+   echo "  Zenith Distance:   "$zdmin" deg - "$zdmax" deg "
+   echo "  Azimuth:           "$azmin" deg - "$azmax" deg "
+   echo "  Wavelength:        "$wavelengthmin" nm - "$wavelengthmax" nm "
+   echo "  Observatory:       "$obskey" ("$obsname")"
+else
+   newceres="yes"
+   echo "Do you really want to insert the following cereskey(s)?"
+   echo "  run number range:  "$runmin" - "$runmax
+   query="SELECT fRunNumber FROM CorsikaInfo WHERE fRunNumber BETWEEN "$runmin" AND "$runmax" GROUP BY fRunNumber"
+   runs=( `sendquery` )
+   echo "    i.e. the following runs: "${runs[@]}
+fi
+echo "  Ceres Setups:      "${cereskeys[@]}" ("${ceresnames[@]}") "
+echo ""
+if [ "$insert" = "yes" ]
+then
+   echo "You are NOT executing the script in dummy mode => the runs will be inserted. "
+else
+   echo "You are executing the script in dummy mode => nothing will be inserted. "
+fi
+
+echo "Please insert y, if you want to continue"
+echo "              n, if you want to exit the script"
+
+answer=`head -n 1`
+#answer=y
+echo "Your answer: "$answer
+
+case $answer in
+   y) ;;
+   n) echo "EXIT"
+      exit
+      ;;
+   *) echo "Your answer is not clear -> EXIT"
+      exit
+      ;;
+esac
+
+
+
+if [ "$newrun" = "yes" ]
+then 
+   echo "inserting new run "$drun" and according C-run, P-run and sequence information..."
+   #
+   # corsika information
+   #
+   for (( i=1 ; i<=$numfile ; i++ ))
+   do
+      seed1=`echo " $drun * 1000 + $i " | bc -l`
+      seed2=`echo " $drun * 1000 + $i + 1 " | bc -l`
+      seed3=`echo " $drun * 1000 + $i + 2 " | bc -l`
+
+      query="INSERT CorsikaStatus SET fRunNumber="$drun", fFileNumber="$i", fPriority="$drun
+      sendquery2 
+      query="INSERT CorsikaInfo SET fRunNumber="$drun", fFileNumber="$i
+      query=$query", fAtmosphericModelKEY="$atm", fParticleTypeKEY="$particle
+      query=$query", fCorsikaSeed1="$seed1", fCorsikaSeed2="$seed2", fCorsikaSeed3="$seed3
+      query=$query", fZenithDistanceMin="$zdmin", fZenithDistanceMax="$zdmax
+      query=$query", fAzimuthMin="$azmin", fAzimuthMax="$azmax", fNumEvents="$numevents
+      query=$query", fEnergyMin="$emin", fEnergyMax="$emax", fEnergySlope="$slope
+      query=$query", fImpactMax="$impactmax", fViewConeMax="$viewconemax
+      query=$query", fStartingAltitude="$startalt", fMirrorDiameter="$mirrordia
+      query=$query", fObservatoryKEY="$obskey", fNumReUseShowers="$numreuse
+      query=$query", fWavelengthMin="$wavelengthmin", fWavelengthMax="$wavelengthmax
+      sendquery2 
+   done
+
+   query="INSERT CorsikaStatus SET fRunNumber="$prun", fFileNumber=1, fStartTime='1970-01-01 00:00:00', fStopTime='1970-01-01 00:00:00', fAvailable='1970-01-01 00:00:00', fPriority="$prun
+   sendquery2 
+   query="INSERT CorsikaStatus SET fRunNumber="$crun", fFileNumber=1, fStartTime='1970-01-01 00:00:00', fStopTime='1970-01-01 00:00:00', fAvailable='1970-01-01 00:00:00', fPriority="$crun
+   sendquery2 
+
+   # sequence file
+   #   does not need ceres key as well
+   query="INSERT SequenceFileStatus SET fSequenceNumber="$drun", fPriority="$drun
+   sendquery2 
+fi
+
+#
+# further tables: CeresInfo, CeresStatus, Callisto, Calibration, Star, StarStatus, SequenceInfo
+#
+for run in ${runs[@]}
+do 
+   drun=$run
+   crun=`echo " $drun - 1 " | bc -l`
+   prun=`echo " $drun - 2 " | bc -l`
+   
+   for cereskey in ${cereskeys[@]}
+   do
+      query="SELECT fFileNumber FROM CorsikaInfo WHERE fRunNumber="$drun
+      files=`sendquery`
+      for file in ${files[@]}
+      do
+         query="INSERT CeresInfo SET fSequenceNumber="$drun", fRunNumber="$drun", fFileNumber="$file", fCeresSetupKEY="$cereskey", fRunTypeKEY=2"
+         sendquery2 
+      done
+
+      query="INSERT CeresInfo SET fSequenceNumber="$drun", fRunNumber="$prun", fFileNumber=1, fCeresSetupKEY="$cereskey", fRunTypeKEY=3"
+      sendquery2 
+      query="INSERT CeresInfo SET fSequenceNumber="$drun", fRunNumber="$crun", fFileNumber=1, fCeresSetupKEY="$cereskey", fRunTypeKEY=4"
+      sendquery2 
+      query="INSERT CeresStatus SET fRunNumber="$drun", fCeresSetupKEY="$cereskey", fPriority="$drun
+      sendquery2 
+      query="INSERT CeresStatus SET fRunNumber="$prun", fCeresSetupKEY="$cereskey", fPriority="$prun
+      sendquery2 
+      query="INSERT CeresStatus SET fRunNumber="$crun", fCeresSetupKEY="$cereskey", fPriority="$crun
+      sendquery2 
+      query="INSERT Star SET fSequenceNumber="$drun", fCeresSetupKEY="$cereskey
+      sendquery2 
+      query="INSERT StarStatus SET fSequenceNumber="$drun", fCeresSetupKEY="$cereskey", fPriority="$drun
+      sendquery2 
+      query="INSERT CallistoStatus SET fSequenceNumber="$drun", fCeresSetupKEY="$cereskey", fPriority="$drun
+      sendquery2 
+      query="INSERT Calibration SET fSequenceNumber="$drun", fCeresSetupKEY="$cereskey
+      sendquery2 
+      query="INSERT SequenceInfo SET fSequenceNumber="$drun", fCeresSetupKEY="$cereskey
+      sendquery2 
+   done
+done
+
+echo "To make sure that the inserted runs are processed also on callisto/star level, please run the following script: "`dirname $0`"/writemcsequencefile"
+
+

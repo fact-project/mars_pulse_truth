@@ -1,0 +1,267 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  12/2005 <mailto:dorner@astro.uni-wuerzburg.de>
+#   Author(s): Daniel Hoehne   06/2007 <mailto:hoehne@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2007
+#
+#
+# ========================================================================
+#
+# This script is linking the montecarlo files from the original structure
+# to a structure from which the files can be processed more easily with the
+# automatic analysis. 
+# Furthermore the content of the files is filled in the database running
+# fillcamera.C.
+# This script is not yet running automatically. 
+#
+# original structure:
+# /magic/montecarlo/camera/
+#
+# new structure: 
+# /magic/montecarlo/rawfiles/YYYY/MM/DD/file.root
+# more explanation concerning the file structure can be found in the file
+# /magic/montecarlo/rawfiles/README.txt
+#
+# First a file is linked and then fillcamera.C is executed. In case of an 
+# error in fillcamera.C the link is removed.
+# In each new directory also the pedestal and calibration file is linked. 
+#
+# ========================================================================
+
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=linkmc
+
+set -C
+
+scriptlog=$runlogpath/$program-`date +%F`.log
+date >> $scriptlog 2>&1
+
+# check if script is already running
+lockfile=$lockpath/lock-$program.txt
+checklock  >> $scriptlog 2>&1
+
+mccampath=$mcpath/camera
+next=$mcrawpath/.next #in .next the next runno is stored
+processed=$mcrawpath/.processed #in .processed the linked files are stored
+readme=$mcrawpath/README.txt #file in which the information about the modes is redirected to have always an updated explanation
+
+# check if file with next runnumber is available
+if ! ls $next >> $scriptlog 2>&1
+then
+   echo "file $next not found -> no start-runno -> exit" >> $scriptlog 2>&1
+   printprocesslog "ERROR file $next (last runno) not found"
+   finish >> $scriptlog 2>&1
+fi
+
+
+# observation modes 
+modes=("" "Gammawobble+" "Gammanowobble0" "GammawobbleHE+" "GammanowobbleHE0" "Gammawobble0" "GammawobbleHE0" "Gammadiffuse0" "Protonnowobble0" "ProtonnowobbleHE0")
+# be careful: 
+# w- not yet foreseen in this script
+
+# print information and explanation of structure into README.txt 
+date >| $readme 2>&1
+echo "" >> $readme 2>&1
+echo "Explanation for the structure in which the mc files are linked" >> $readme 2>&1
+echo "--------------------------------------------------------------" >> $readme 2>&1
+echo "" >> $readme 2>&1
+echo "the files are linked in a YYYY/MM/DD structure like the data files" >> $readme 2>&1
+echo "YYYY represents 19zbin" >> $readme 2>&1
+echo "MM represents the mode" >> $readme 2>&1
+echo "DD represents the psf in mm" >> $readme 2>&1
+echo "" >> $readme 2>&1
+echo "explanation of the modes" >> $readme 2>&1
+echo "modes: "${modes[@]} >> $readme 2>&1
+echo "" >> $readme 2>&1
+for (( i=1 ; i <= 12 ; i++ )) 
+do 
+   if [ "${modes[i]}" != "" ]
+   then 
+      numofmode=`printf %02d $i`
+      echo "mode (MM) = $numofmode means ${modes[$i]}" >> $readme 2>&1
+   fi
+done
+echo "" >> $readme 2>&1
+echo "the mode is indicating " >> $readme 2>&1
+echo " - the particle type" >> $readme 2>&1
+echo " - wobble/nowobble" >> $readme 2>&1
+echo " - HE" >> $readme 2>&1
+echo " - w+/w0 (as +/0)" >> $readme 2>&1
+echo " a combination of w0 and wobble means 'fake wobble'" >> $readme 2>&1
+echo "  (normal mc shifted by 0.4 deg -> abberation not taken into account)" >> $readme 2>&1
+echo "" >> $readme 2>&1
+
+
+
+runno=`cat $next`
+
+#get files, which have to be linked
+camfiles=`find $mccampath -type f | grep -v Cal_and_Ped | sort`
+
+printprocesslog "INFO linking new camerafiles starting with runno $runno"
+for camfile in ${camfiles[@]}
+do 
+
+
+   #continue, if file is already linked 
+   if find $mcpath/* -lname '$mccampath*.root' -printf %l'\n' | grep $camfile >> $scriptlog 2>&1
+#   if grep $camfile $processed >> $scriptlog 2>&1
+   then 
+      continue
+   fi
+
+
+   printprocesslog "INFO linking $file"
+   file=`basename $camfile` #filename
+   no=`printf %08d $runno | cut -c 0-5` #first 5 digits of a 8digit runno -> for path
+   no2=`printf %08d $runno` #runno with 8 digits
+   zbin=`echo $file | cut -d_ -f2 | cut -c 5-6` #zbin from filename 
+   zbin=`printf %02d $zbin` #2digit
+   wobble=`echo $file | cut -d_ -f6 | cut -c 2` #mode from filename
+   particle=`echo $file | cut -d_ -f1` #particle type from filename
+   psf=`echo $camfile | cut -d/ -f6 | cut -c 6,8` #psf from path
+   
+   particledir=`echo $camfile | cut -d/ -f5` #particletype from path
+   wobbledir=`echo $camfile | cut -d/ -f7` #mode from path
+   
+   #build mode name
+   testmode=$particle$wobbledir$wobble 
+
+   #get mode extension for filename
+   case $wobble in 
+       0)   wobblemode="";;
+       +)   wobblemode="W1";;
+       -)   wobblemode="W2";;
+       *)   echo "couldn't find any indication for mode (wobble)" >> $scriptlog 2>&1
+            ;;
+   esac
+   
+   #get no of mode from array $modes
+   for (( i=1 ; i <= 12 ; i++ )) 
+   do 
+      if [ "${modes[$i]}" == "$testmode" ]
+      then 
+         totalmode=$i
+         break
+      fi
+   done
+
+   totalmode=`printf %02d $totalmode` #2 digits
+
+   project=${particle}${zbin}${wobblemode} #build project name
+   #create new filename
+   newfile="$mcrawpath/19$zbin/$totalmode/$psf/19${zbin}${totalmode}${psf}_${no2}_D_${project}_E.root"
+   newdir=`dirname $newfile`
+   makedir $newdir >> $scriptlog 2>&1
+
+   runno=`expr $runno + 1` #next runnumber
+   echo $runno >| $next 
+
+   linkmclogpath=$logpath/$program/$no2
+   makedir $linkmclogpath >> $scriptlog 2>&1
+   linkmclog=$linkmclogpath/$program-$no2.log
+
+   #link file
+   echo "linking file $camfile"
+   ln -sv $camfile $newfile >> $scriptlog 2>&1 
+
+   # run fillcamera.C. In case of success the camfile is written to .processed. In case of an error the link is removed
+   echo "run fillcamera for mc run $no2" >> $scriptlog 2>&1
+   check2=`root -q -b $macrospath/fillcamera.C+\("\"$newfile\""\,kTRUE\) | tee $linkmclog | intgrep`
+   case $check2 in
+      1)   echo " check2=$check2 -> everything ok " >> $scriptlog 2>&1 
+           printprocesslog "INFO done fillcamera successfully for mc run $no2"
+           # add filename to .processed
+           echo $camfile >> $processed
+           ;;
+      0)   echo " check2=$check2 -> no connection to db -> continue..." >> $scriptlog 2>&1 
+           printprocesslog "WARN connection to DB failed, removing link"
+           check="no"
+           # remove link
+           rm $newfile >> $scriptlog 2>&1
+           ;;
+      *)   echo " check2=$check2 -> ERROR -> step has to be repeated" >> $scriptlog 2>&1
+           printprocesslog "ERROR fillcamera failed for mc run $no2, removing link"
+           check=$check2
+           # remove link
+           rm $newfile >> $scriptlog 2>&1
+           ;;
+   esac
+
+done
+
+printprocesslog "INFO linking cal and ped files"
+echo "linking cal and ped file" >> $scriptlog 2>&1
+#get files
+pedfile=`find $mccampath/Cal_and_Ped -name *_P_*.root`
+
+
+calfile=`find $mccampath/Cal_and_Ped -name *_C_*.root`
+
+
+echo "calfile"$calfile >> $scriptlog 2>&1
+echo "pedfile"$pedfile >> $scriptlog 2>&1
+#check number of files
+numfiles=`echo $pedfile $calfile | wc -w`
+if [ "$numfiles" != "2" ]
+then 
+   "too many files in the directory $mccampath/Cal_and_Ped -> exit" >> $scriptlog 2>&1
+
+
+   rm -v $lockfile >> $scriptlog 2>&1
+   exit
+   printprocesslog "ERROR too many ped and cal files found in $mccampath/Cal_and_Ped"
+   finish >> $scriptlog 2>&1
+fi
+
+#get all directories in the linked structure
+dirs=`find $mcrawpath -type d`
+
+for dir in ${dirs[@]}
+do 
+   #continue, if directory has already linked C and P run
+   cont=`ls $dir/*_0000000[12]_[CP]_MonteCarlo_E.root 2>/dev/null | wc -w`
+   if [ "$cont" == "2" ] >> $scriptlog 2>&1
+   then 
+      continue
+   fi
+
+   #continue, if directory is not at the lowest level of the structure
+   cont=`echo $dir | cut -d/ -f6`
+   if [ "$cont" == "" ]
+   then
+      continue
+   fi
+
+   #get date for filename from directory name
+   date=`echo $dir | cut -c 22-25,27,28,30,31`
+   
+   #create new filenames and link files
+   newcalfile="${dir}/${date}_00000002_C_MonteCarlo_E.root"
+   ln -sv $calfile $newcalfile >> $scriptlog 2>&1
+   newpedfile="${dir}/${date}_00000001_P_MonteCarlo_E.root"
+   ln -sv $pedfile $newpedfile >> $scriptlog 2>&1
+done
+
+finish >> $scriptlog 2>&1
+

@@ -1,0 +1,159 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2004 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2007
+#
+#
+# ========================================================================
+#
+# This script checks which files are on disk and updates the database 
+# accordingly. It is not yet running automatically. 
+# 
+# It is checking the:
+# - ccfiles
+# - cacofiles 
+#   this includes also the search for missing cacofiles:
+#   Sometimes the DAQ aborts a run and starts itself a new one. In this 
+#   cases the camera control doesn't start a new file, as the command to 
+#   start a new run was not sent by the central control. So the caco 
+#   information is stored in the previous caco file, which has a 
+#   different runnumber. To be able to merpp the information into the 
+#   calibrated data file, the runnumber of the file containing the 
+#   information has to be found.
+#   In this script the search and inserting into the database is done 
+#   using the macro findcacofiles.C 
+# - rawfiles
+# The update in the database is done using the macro resetallruns.C
+# 
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=filesondisk
+
+
+set -C
+
+
+scriptlog=$runlogpath/$program-$datetime.log
+date >> $scriptlog 2>&1
+
+# check if script is already running
+lockfile=$lockpath/lock-$program.txt
+checklock  >> $scriptlog 2>&1
+
+filesondisklogpath=$logpath/$program/`date +%Y/%m`
+makedir $filesondisklogpath >> $scriptlog 2>&1
+
+cd $mars
+
+
+# ---------------- check disk for cc-files --------------------
+
+echo "checking disk for ccfiles..."  >> $scriptlog 2>&1
+printprocesslog "INFO checking ccfiles"
+filename=$filesondisklogpath/ccfilesondisk-$datetime.txt
+find $subsystempath/cc/ -regextype posix-egrep -regex "^$subsystempath/cc/20[01][0-9]/[01][0-9]/[0-3][0-9]/20[01][0-9][01][0-9][0-3][0-9]_(M[0-9]_)?[0-9]{5,8}(\.[0-9]{3,5})?_[PCDSN]_.*.rep$" | grep -E -o "(_M[0-9])?_[0-9]{5,8}(\.[0-9]{3,5})?_" > $filename
+
+echo "resetting runs..." >> $scriptlog 2>&1
+check3=`root -q -b $macrospath/resetallruns.C+\("\"$filename\""\,"\"fCCFileAvail\"",kFALSE\) | tee -a $scriptlog | intgrep`
+
+case $check3 in 
+   1)   echo " check3=$check3 -> everything ok -> reset is done" >> $scriptlog 2>&1 
+        printprocesslog "INFO ccfiles resetted successfully"
+        ;;
+   0)   echo " check1=$check1 -> no connection to db -> continue..." >> $scriptlog 2>&1 
+        printprocesslog "WARN connection to DB failed"
+        ;;
+   *)   echo " check3=$check3 -> ERROR -> something went wrong while resetting" >> $scriptlog 2>&1 
+        printprocesslog "ERROR resettallruns.C failed for ccfiles"
+        ;;
+esac
+
+
+# ---------------- check disk for caco-files --------------------
+
+echo "checking disk for cacofiles..."  >> $scriptlog 2>&1 
+printprocesslog "INFO checking cacofiles"
+filename=$filesondisklogpath/cacofilesondisk-$datetime.txt
+
+find $subsystempath/caco/ -regextype posix-egrep -regex "^$subsystempath/caco/20[01][0-9]/[01][0-9]/[0-3][0-9]/dc_20[01][0-9]_[01][0-9]_[0-3][0-9]_[012][0-9]_[0-5][0-9]_[0-5][0-9]_[0-9]{5,8}_.*\.txt$" | grep -E -o "(_M[0-9])?_[0-9]{5,8}(\.[0-9]{3,5})?_" > $filename
+
+echo "resetting runs..." >> $scriptlog 2>&1 
+check0=`root -q -b $macrospath/resetallruns.C+\("\"$filename\""\,"\"fCaCoFileAvail\"",kFALSE\) | tee -a $scriptlog | intgrep`
+
+case $check0 in 
+   1)   echo " check0=$check0 -> everything ok -> reset is done" >> $scriptlog 2>&1 
+        printprocesslog "INFO cacofiles resetted successfully"
+        ;;
+   0)   echo " check1=$check1 -> no connection to db -> continue..." >> $scriptlog 2>&1 
+        printprocesslog "WARN connection to DB failed"
+        ;;
+   *)   echo " check0=$check0 -> ERROR -> something went wrong while resetting" >> $scriptlog 2>&1 
+        printprocesslog "ERROR resettallruns.C failed for cacofiles"
+        ;;
+esac
+
+
+# ---------------- find missing caco-files --------------------
+
+#echo "finding missing cacofiles..." >> $scriptlog 2>&1 
+#printprocesslog "INFO checking missing cacofiles"
+#check1=`root -q -b $macrospath/findcacofiles.C+ | tee -a $scriptlog | intgrep`
+#
+#case $check1 in 
+#   1)   echo " check1=$check1 -> everything ok -> missing cacofiles are found" >> $scriptlog 2>&1 
+#        printprocesslog "INFO missing cacofiles found"
+#        ;;
+#   0)   echo " check1=$check1 -> no connection to db -> continue..." >> $scriptlog 2>&1 
+#        printprocesslog "WARN connection to DB failed"
+#        ;;
+#   *)   echo " check1=$check1 -> ERROR -> something went wrong while resetting" >> $scriptlog 2>&1
+#        printprocesslog "ERROR findcacofiles.C failed"
+#        ;;
+#esac
+
+
+# ---------------- check disk for rawfiles --------------------
+
+echo "checking disk for rawfiles..."  >> $scriptlog 2>&1 
+printprocesslog "INFO checking rawfiles"
+filename=$filesondisklogpath/rawfilesondisk-$datetime.txt
+
+find $datapath/rawfiles/20[01][0-9] -regextype posix-egrep -regex "^$datapath/rawfiles/20[01][0-9]/[01][0-9]/[0-3][0-9]/20[01][0-9][01][0-9][0-3][0-9]_(M[0-9]_)?[0-9]{5,8}(\.[0-9]{3,5})?_[PCDSN]_.*\.raw(\.gz)?$" | grep -E -o "(_M[0-9])?_[0-9]{5,8}(\.[0-9]{3,5})?_" > $filename
+
+echo "resetting runs..." >> $scriptlog 2>&1 
+check4=`root -q -b $macrospath/resetallruns.C+\("\"$filename\""\,"\"fRawFileAvail\"",kFALSE\) | tee -a $scriptlog | intgrep`
+
+case $check4 in 
+   1)   echo " check4=$check4 -> everything ok -> reset is done" >> $scriptlog 2>&1 
+        printprocesslog "INFO rawfiles resetted successfully"
+        ;;
+   0)   echo " check1=$check1 -> no connection to db -> continue..." >> $scriptlog 2>&1 
+        printprocesslog "WARN connection to DB failed"
+        ;;
+   *)   echo " check4=$check4 -> ERROR -> something went wrong while resetting" >> $scriptlog 2>&1 
+        printprocesslog "ERROR resettallruns.C failed for rawfiles"
+        ;;
+esac
+
+
+
+finish >> $scriptlog 2>&1

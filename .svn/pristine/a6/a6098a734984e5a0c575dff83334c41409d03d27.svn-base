@@ -1,0 +1,113 @@
+include $(CINT)Dep.d
+
+$(MRPROPERS):
+	@echo " Doing Mr.Proper in $(@:.mrproper=)"
+	(cd $(@:.mrproper=); ($(MAKE) -f Makefile mrproper > /dev/null); cd ..;) 
+
+$(CONDOR):
+	@echo " Starting make in $(@:.condor=) via condor"
+	(echo universe=vanilla; \
+         echo executable=/bin/bash; \
+         echo arguments=-c make; \
+         echo log=../.makecondor.log;    \
+         echo initialdir=$(@:.condor=); \
+         echo getenv=true;     \
+         echo notification=never; \
+         echo queue) | condor_submit > /dev/null
+#	(cd $(@:.condor=); (condor_run $(MAKE) &); cd ..;)
+#         echo output=.makecondor.out; \
+#         echo error=.makecondor.err;  \
+
+$(SGE):
+	@echo " Starting make in $(@:.sge=) via sge"
+	(cd $(@:.sge=); qsub -N $@ -sync y -b yes -q test -cwd /bin/bash -l -c make; cd ..;)
+
+$(CLEANERS):
+	@echo "Cleaning $(@:.clean=):"
+	(cd $(@:.clean=); $(MAKE) -f Makefile clean; cd ..;) 
+
+$(LIBRARIES):
+	@echo " Calling make in $(@:.a=)"
+	$(MAKE) -C $* -f Makefile all
+
+$(LIB): $(OBJS) $(CINT)Cint.o
+	@echo " - Building Library $(LIB)"
+	$(CXX) $(CXXFLAGS) $(DYNLIB) $(OBJS) $(CINT)Cint.o -o $(LIB)
+	@echo " "
+
+$(CINT)Cint.cc: $(HEADERS) $(CINT)LinkDef.h
+	@echo " - Generating dictionary $(CINT)Cint.cc"
+	rootcint -f $(CINT)Cint.cc \
+	-c -p $(INCLUDES) $(LIBNOVA_INCLUDE_PATH) $(DEFINES) $(HEADERS) $(CINT)Incl.h $(CINT)LinkDef.h 
+
+%.d:
+	@echo " - Generating dependencies" $@
+	rmkdepend -f- -Y -w 3000 -- $(INCLUDES) -- $(SRCFILES) -- $(PROGRAMS:=.cc) 2> /dev/null | \
+        sed 's/^\(.*\).o:/$@ \1.o:/' > $@
+	echo "$@: Makefile" >> $@
+
+%.o:	%.cxx
+	@echo " - Compiling" $<
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+%.o:	%.cc
+	@echo " - Compiling" $<
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+%.o:	 %.c
+	@echo " - Compiling" $<
+	$(CC) $(CFLAGS) -c $< -o $@
+
+#
+# The cleaning facility
+#
+
+rmcint:	
+	@echo " Removing cint-stuff..."
+	@rm -f *Cint.*
+
+rmlib:	
+	@echo " Removing libraries..."
+	@echo " "
+	@rm -f lib/lib*.a lib*.a
+
+rmobjs:	
+	@echo " Removing object files..."
+	@rm -f *.o
+
+rmdep:	
+	@echo " Removing dependency files..."
+	@rm -f *Dep.d */*Dep.d
+
+rmcore:	
+	@echo " Removing core files..."
+	@rm -f core*
+
+rmbin:	
+	@echo " Removing binary files..."
+	@rm -f $(PROGRAMS) $(SOLIB) $(DYLIB) so_locations
+
+rmbak:
+	@echo " Removing backup files..."
+	@rm -f *~ kk.kk *.bak .#* .*~
+
+rmbakmac:
+	@echo " Removing backup files in macros"
+	@rm -f macros/*~
+
+rmhtml:
+	@echo " Removing htmldoc-tree"
+	rm -rf htmldoc/examples
+	rm -rf htmldoc/src
+	ls htmldoc/* | grep "htmldoc/" | grep -v images | grep -v CVS | xargs rm -f
+
+clean:	rmcint rmobjs rmdep rmcore rmlib
+
+cflags: 
+	@echo $(INCLUDES) $(CXXFLAGS)
+
+diff:
+	@svn diff | grep -v "^? " > mars.diff
+
+#zdiff:
+#	@cvs -z9 diff | grep -v "^? " > mars.diff

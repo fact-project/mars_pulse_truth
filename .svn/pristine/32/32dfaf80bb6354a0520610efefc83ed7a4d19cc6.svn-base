@@ -1,0 +1,467 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  05/2005 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2010
+#
+#
+# ========================================================================
+#
+# This a resource file for the scripts, in which the standard paths and 
+# functions, which are needed more often are stored. 
+# Only constant variables are stored here, changing variables are stored 
+# in datacenter/scripts/setup
+#
+
+# check if script has been started with absolute path
+if ! dirname $0 | grep -E '^/' >/dev/null 2>&1
+then 
+   echo "Please start your script with an absolute path."
+   exit
+fi
+
+if [ "$AUTOMATIONSETUP" = "" ]
+then 
+   echo "Please set the environment variable \$AUTOMATIONSETUP."
+   exit
+fi
+
+if [ "$SOURCEFILEPATH" = "" ]
+then 
+   export SOURCEFILEPATH=`dirname $0`
+fi
+if [ "$SCRIPTNAME" = "" ]
+then 
+   SCRIPTNAME=`basename $0`
+fi
+
+source $SOURCEFILEPATH/setup.$AUTOMATIONSETUP
+
+datetime=`date +%F-%H-%M-%S`
+
+
+# function to make sure that a directory is made
+function makedir()
+{
+   if [ ! -d $@ ]
+   then
+      mkdir -pv $@ 
+      if [ ! -d $@ ]
+      then 
+         if ! [ "$processlog" = "" ]
+         then
+            echo `date +%F\ %T`" "`whoami`"@"$HOSTNAME" "$SCRIPTNAME"["$$"] ERROR could not make dir "$@ >> $processlog
+         else
+            echo "could not make dir "$@
+         fi
+         if ls $lockfile >/dev/null 2>&1
+         then 
+            rm -v $lockfile
+         fi
+         exit
+      fi
+   fi
+}
+
+# logging paths for runlogs and processlog
+runlogpath=$logpath/run/`date +%Y/%m/%d`
+processlogpath=$logpath/processlog
+makedir $runlogpath
+makedir $processlogpath
+processlog=$processlogpath/process`date +%F`.log
+
+makedir $lockpath
+
+
+# function to provide proper logging in a single logfile ($processlog)
+function printprocesslog
+{
+   makedir $processlogpath
+   echo `date +%F\ %T`" "`whoami`"@"$HOSTNAME" "$SCRIPTNAME"["$$"] "$@ >> $processlog
+}
+
+# function to exit a script properly
+function finish()
+{
+   if ! [ "$lockfile" = "" ] && ls $lockfile >/dev/null 2>&1
+   then 
+      printprocesslog "DEBUG " `rm -v $lockfile`
+   fi
+   printprocesslog "DEBUG finished "$SOURCEFILEPATH"/"$SCRIPTNAME
+   exit
+}
+
+
+# set checkvalue to ok at the beginning of the scripts
+check="ok"
+
+# setup for jobmanager:
+#   log files (can't be defined in script itself, as script can run longer 
+#   than one day
+jmerrorlog=$runlogpath/jobmanager-`whoami`-$HOSTNAME-$AUTOMATIONSETUP-`date +%F`-error.log
+jmscriptlog=$runlogpath/jobmanager-`whoami`-$HOSTNAME-$AUTOMATIONSETUP-`date +%F`.log
+
+# check if rc-files are available
+if ! ls $steps >/dev/null
+then
+   echo "Can't find steps.rc ($steps)"
+   finish
+fi
+if ! ls $sqlrc >/dev/null
+then
+   echo "Can't find sql.rc ($sqlrc)"
+   finish
+fi
+
+# resetting values for jobmanager
+pno=0
+totalpno=0
+running=0
+queued=0
+runningscript=0
+queuedscript=0
+stillinqueue=0
+
+
+# alias (we cannot check the beginning of the line due to
+# color codes in filldotraw.C)
+alias 'intgrep'='grep -E -o \\\(int\\\)[0-9]+$ | grep -E -o [0-9]+'
+
+
+# in the following the functions, which are needed by several scripts, are 
+# defined
+
+# function to check if a process is already locked
+#  command line option can be used to execute something, e.g. 'continue'
+function checklock()
+{
+   if ! echo `date +%F\ %T`" "`whoami`"@"$HOSTNAME" "$SCRIPTNAME"["$$"] "`uname -a` > $lockfile 2>/dev/null
+   then 
+      printprocesslog "WARN lockfile $lockfile exists"
+      $@
+      exit
+   else
+      printprocesslog "DEBUG created lockfile $lockfile"
+   fi
+}
+
+# print the current status values
+function printstatusvalues()
+{
+   echo "the current values are:"
+   echo " starttime=$starttime"
+   echo " stoptime=$stoptime"
+   echo " availtime=$availtime"
+   echo " returncode=$returncode"
+   echo "-- check: -$check-"
+   echo ""
+}
+
+# get the db-setup from the sql.rc
+function getdbsetup()
+{
+   db=`grep Database $sqlrc | grep -v '#' | sed -e 's/Database: //' -e 's/ //g'`
+   pw=`grep Password $sqlrc | grep -v '#' | sed -e 's/Password: //' -e 's/ //g'`
+   us=`grep User $sqlrc | grep -v '#' | sed -e 's/User: //' -e 's/ //g'`
+   ho=`grep URL $sqlrc | grep -v '#' | sed -e 's/ //g' -e 's/URL:mysql:\/\///'`
+#   echo "setup: "
+#   echo " db: "$db
+#   echo " pw: "$pw
+#   echo " us: "$us
+#   echo " ho: "$ho
+}
+
+# function to get information from the setupfile $steps
+function getfromsetup()
+{
+   grep $1"[.]"$2":" $steps | grep -v '#' | sed -e "s/$1[.]$2://"
+}
+
+# function to get the needed information from the dependencies-file steps.rc
+function getstepinfo()
+{
+   getdbsetup
+   needs=( `getfromsetup $step "Needs"` )
+   noderestricted=`getfromsetup $step "NodeRestricted"`
+   prims=( `getfromsetup $step "Primaries"` )
+   maintable=`getfromsetup $step "MainTable" | sed -e "s/\ //g"`
+#   echo " maintable: "$maintable
+#   echo " needs: "${needs[@]}
+#   echo " noderestricted: "$noderestricted
+#   echo " prims: "${prims[@]}
+}
+
+# function to get the joins needed for the get/set status queries
+function getalljoins()
+{
+   # add table
+   query=$query" "$maintable"Status"
+   # add special join
+   query=$query" "`getfromsetup $maintable "SpecialJoin"`
+   # add join for step unless step is the same as maintable
+   if ! [ "$step" = "$maintable" ]
+   then 
+      query=$query" LEFT JOIN "$step"Status USING("${prims[@]}") "
+   fi
+   # add joins for influences or needs
+   for otherstep in ${othersteps[@]}
+   do
+      if ! [ "$otherstep" = "$maintable" ]
+      then 
+         query=$query" LEFT JOIN "$otherstep"Status USING("`getfromsetup $otherstep "Primaries"`") "
+      fi
+   done
+}
+
+# function to create the middle part of a query
+#  which is identical for the functions getstatus() and gettodo()
+function getstatusquery()
+{
+   # add from which table the information is queried
+   query=$query" FROM "
+   othersteps=${needs[@]}
+   getalljoins
+   # add condition
+   query=$query" WHERE "
+   # add condition for step, i.e. step is not yet done
+   query=$query" ISNULL("$step"Status.fStartTime) "
+   query=$query" AND ISNULL("$step"Status.fStopTime) "
+   query=$query" AND ISNULL("$step"Status.fAvailable) "
+   query=$query" AND ISNULL("$step"Status.fReturnCode) "
+   # add requirement for production host in case it is needed
+   if [ "$1 " != " " ]
+   then 
+      query=$query" AND fProductionHostKEY=$2 "
+   fi
+   if ! echo $query | grep UPDATE >/dev/null 2>&1
+   then 
+      query=$query" GROUP BY "${prims[@]}
+   fi
+   # add condition for needs, i.e. that step is done
+   for (( k=0 ; k < ${#needs[@]} ; k++ ))
+   do
+      if [ $k -eq 0 ]
+      then 
+         query=$query" HAVING "
+      else
+         query=$query" AND "
+      fi
+      query=$query" COUNT(*)=COUNT(IF("
+      query=$query" NOT ISNULL("${needs[$k]}"Status.fStartTime) "
+      query=$query" AND NOT ISNULL("${needs[$k]}"Status.fStopTime) "
+      query=$query" AND NOT ISNULL("${needs[$k]}"Status.fAvailable) "
+      query=$query" AND ISNULL("${needs[$k]}"Status.fReturnCode) "
+      query=$query" , 1, NULL)) "
+   done
+}
+
+# function to get todolist
+#   returns the next or the list of next steps
+function gettodo()
+{
+   # reset the variable for the number of the next step 
+   process=
+   printprocesslog "DEBUG getting todo for step $step..."
+   getstepinfo
+   # get query
+   query=" SELECT "${prims[@]}
+   getstatusquery $2
+   # order by priority to the the number of the next step to be done
+   query=$query" ORDER BY "$step"Status.fPriority desc "
+   # add limitation in case only one or a limited number of 
+   #  processes should be executed
+   if [ "$1 " != " " ]
+   then 
+      query=$query" limit 0, $1 "
+   fi
+   # print query 
+   printprocesslog "DEBUG gettodo for step $step QUERY: "$query
+   # execute query 
+   if ! process=`mysql -s -u $us --password=$pw --host=$ho $db -e " $query "`
+   then
+      printprocesslog "ERROR could not query processes from db (program: $program, function gettodo)"
+      finish
+   fi
+   # get numbers of next step from mysql result
+   if [ "$process" = "" ]
+   then
+      printprocesslog "DEBUG => nothing to do"
+      finish
+   else
+      primaries=( $process )
+      num=`expr ${#primaries[@]} / ${#prims[@]} `
+   fi
+}
+
+# function to get the number of processes which still have to be done
+function getstatus()
+{
+   # reset the variable for the number of steps to be done
+   numproc=0
+   getstepinfo
+   # get query
+   query=" SELECT "${prims[@]}
+   getstatusquery $1
+   # print query
+   printprocesslog "DEBUG getstatus for step $step QUERY: "$query
+   # execute query
+   if ! numproc=`mysql -s -u $us --password=$pw --host=$ho $db -e " $query " | wc -l`
+   then
+      printprocesslog "ERROR could not query number of processes from db (program: $program, function getstatus)"
+      echo `date +%F\ %T`" ERROR could not query number of processes from db (program: $program, function getstatus)"
+      continue
+   fi
+}
+
+# function to set status of a process in the db
+function setstatus()
+{
+   # remark:
+   # this function does not include the 'Default' flag 
+   # for resetting steps
+
+   # for dowebplots (there are steps which have no entry in the DB)
+   if [ "$step" = "no" ]
+   then
+      return
+   fi
+   
+   # reset status values
+   starttime=NULL
+   stoptime=NULL
+   availtime=NULL
+   returncode=NULL
+   # evaluate the status values
+   case $@ in
+      start)   printprocesslog "DEBUG setstatus start"
+               starttime="Now()"
+               ;;
+       stop)   case $check in
+                  ok)  printprocesslog "DEBUB setstatus stop - ok"
+                       starttime=noreset
+                       stoptime="Now()"
+                       if [ "$processingsite" = "$storagesite" ]
+                       then
+                          availtime="Now()"
+                       fi
+                       ;;
+                  no)  printprocesslog "DEBUG setstatus stop - nothing new"
+                       check="ok"
+                       ;;
+                   *)  printprocesslog "DEBUG setstatus stop - failed"
+                       starttime=noreset
+                       stoptime="Now()"
+                       if [ "$processingsite" = "$storagesite" ]
+                       then
+                          availtime="Now()"
+                       fi
+                       if [ "$check" == "" ]
+                       then
+                          returncode=1
+                       else
+                          returncode=$check
+                       fi
+                       check="ok"
+                       ;;
+               esac
+               ;;
+          *)   printprocesslog "ERROR function setstatus got wrong variable"
+               finish
+               ;;
+   esac
+   
+   # get 
+   getstepinfo
+   
+   # get the influences from the steps.rc by evaluating the needs of all steps
+   othersteps=`grep $step $steps | grep "Needs" | grep -v "$step[.]Needs" | cut -d'.' -f1`
+   
+   # get query
+   query=" UPDATE "
+   getalljoins
+   # set the status values according to the new status of the step
+   query=$query" SET "
+   if ! [ "$starttime" = "noreset" ]
+   then
+      query=$query" "$step"Status.fStartTime=$starttime, "
+   fi
+   query=$query" "$step"Status.fStopTime=$stoptime, "$step"Status.fAvailable=$availtime"
+   query=$query", "$step"Status.fReturnCode=$returncode , "$step"Status.fProcessingSiteKEY=$sitekey "
+   # set also the status values of the influenced steps
+   for otherstep in $othersteps
+   do
+      query=$query", "$otherstep"Status.fStartTime=NULL "
+      query=$query", "$otherstep"Status.fStopTime=NULL "
+      query=$query", "$otherstep"Status.fAvailable=NULL "
+      query=$query", "$otherstep"Status.fReturnCode=NULL "
+      query=$query", "$otherstep"Status.fProcessingSiteKEY=NULL "
+   done
+   # give the condition for which step the status values have to be set
+   query=$query" WHERE "
+   if [ "$s" = "" ]
+   then
+      s=0
+   fi
+   query=$query" "$step"Status."`echo ${prims[0]} | sed -e 's/,//g'`"='${primaries[$s*${#prims[@]}]}'"
+   for (( j=1 ; j < ${#prims[@]} ; j++ ))
+   do
+      query=$query" AND "$step"Status."`echo ${prims[$j]} | sed -e 's/,//g'`"='${primaries[$s*${#prims[@]}+$j]}' "
+   done 
+   # add additional query to allow for locking in db
+   if [ "$1" = "start" ]
+   then 
+      query=$query" AND ISNULL("$step"Status.fStartTime) "
+   fi
+   # add row count to know how many rows have been changed
+   query=$query"; SELECT ROW_COUNT();"
+   # print query
+   printprocesslog "DEBUG setstatus for step $step QUERY: "$query
+   # execute query
+   if ! numchanged=`mysql -s -u $us --password=$pw --host=$ho $db -e " $query "`
+   then
+      printprocesslog "ERROR could not set status in db (program: $program, function setstatus)"
+      finish
+   fi
+   if [ $numchanged -gt 0 ]
+   then
+      printprocesslog "INFO successful setting of status in db (program: $program, function setstatus)"
+   else
+      printprocesslog "INFO status in db was already set by other process (program: $program, function setstatus)"
+   fi
+}
+
+# function to send a mysql query
+function sendquery()
+{
+   getdbsetup
+   printprocesslog "DEBUG sendquery QUERY: "$query
+   if ! val=`mysql -s -u $us --password=$pw --host=$ho $db -e " $query "`
+   then
+      printprocesslog "ERROR could not query db (program: $program, function sendquery)"
+      return 1
+   fi
+   if [ "$val" = "NULL" ]
+   then
+      val=
+   fi
+   echo $val
+   return 0
+}
+

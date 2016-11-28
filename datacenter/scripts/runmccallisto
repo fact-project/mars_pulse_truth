@@ -1,0 +1,117 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2004 <mailto:dorner@astro.uni-wuerzburg.de>
+#   Author(s): Daniel Hoehne-Moench  01/2009 <mailto:hoehne@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2009
+#
+#
+# ========================================================================
+#
+# This script is launching the calibration of mc sequences. 
+# 
+# As callisto takes some time, only one sequence is processed at once. 
+# First the script gets a sequence number from the mc database, for which 
+# the calibration has to be done (function gettodo). After setting the 
+# status in the database (set fStartTime to know, that the sequence is 
+# already being processed), the sequence is calibrated. Afterwards 
+# the status in the mc database is updated according to the return value 
+# of the program.
+# The important INFOs, WARNings and ERRORs are written not only to the 
+# scriptlog but also to the processlog. 
+#
+# Atm the processing has to be done in a separate Mars directory because 
+# different sql.rc and steps.rc files are needed.
+# 
+# The callisto.rc files are stored in the setup directory
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=callisto
+column=fCallisto
+
+set -C
+
+scriptlog=$runlogpath/runmc$program-$datetime.log
+date >> $scriptlog 2>&1
+
+# get sequence # 
+gettodo "1" >> $scriptlog 2>&1
+sequence=${primaries[0]}
+
+# lock sequ for cal
+lockfile=$lockpath/lock-$table-$column-$sequence.txt
+checklock >> $scriptlog 2>&1
+
+cd $mars
+
+# run calibration for sequence
+echo "run $program for mc sequence $sequence..." >> $scriptlog 2>&1
+printprocesslog "INFO starting $program for mc sequence $sequence"
+no=`printf %08d $sequence | cut -c 0-4`
+no2=`printf %08d $sequence`
+outpath="$mcpath/$program/$no/$no2"
+makedir $outpath >> $scriptlog 2>&1
+sequfile="$mcsequpath/$no/sequence$no2.txt"
+
+# define callisto.rc files
+callistorcnew=$setuppath/$program/callisto.rc
+callistorcmux=$setuppath/$program/callisto_mux.rc
+
+epoch=`grep Epoch $sequfile | cut -d: -f2 | grep Mux`
+# find callisto.rc file
+if [ -e $outpath/callisto.rc ]
+then
+   echo "found $program.rc in $outpath -> using this " >> $scriptlog 2>&1
+   callistorcseq=$outpath/callisto.rc
+else
+   echo "no $program.rc found in $outpath -> making link " >> $scriptlog 2>&1
+   if [ "$epoch" = "" ]
+   then
+      ln -vs $callistorcnew $outpath/callisto.rc >> $scriptlog 2>&1
+   else
+      ln -vs $callistorcmux $outpath/callisto.rc >> $scriptlog 2>&1
+   fi
+   callistorcseq=$outpath/callisto.rc
+fi
+
+primvar=$no2
+setstatus "start" >> $scriptlog 2>&1
+
+echo "./callisto -mc -b -q -v4 -f --log=$outpath/$program$no2.log --html=$outpath/$program$no2.html --out=$outpath --config=$callistorcseq $sequfile  2>> $scriptlog > /dev/null" >> $scriptlog 2>&1
+./callisto -mc -b -q -v4 -f --log=$outpath/$program$no2.log --html=$outpath/$program$no2.html --out=$outpath --config=$callistorcseq $sequfile  2>> $scriptlog > /dev/null
+check1=$?
+
+case $check1 in
+   0)   echo " check1=$check1 -> everything ok" >> $scriptlog 2>&1
+        printprocesslog "INFO $program finished successfully for mc sequence $sequence"
+        ;;
+   *)   echo " check1=$check1 -> ERROR -> step has to be repeated" >> $scriptlog 2>&1
+        printprocesslog "ERROR $program failed for mc sequence $sequence (return code $check1)"
+        com=$Fmccallisto
+        check=$check1
+        ;;
+esac
+
+setstatus "stop"  >> $scriptlog 2>&1
+
+finish >> $scriptlog 2>&1
+

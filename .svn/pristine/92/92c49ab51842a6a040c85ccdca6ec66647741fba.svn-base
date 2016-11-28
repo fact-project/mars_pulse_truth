@@ -1,0 +1,43 @@
+#!/bin/sh
+# Script to convert DC current files from the old format to the new format
+#
+PS3="Select the Date for which MERPP should run? "
+DATES=`ls -d -1 ./cacodata_old/20* | cut -d/ -f3 '-'`
+select DATE in $DATES "Exit"; do
+	break
+done
+if [ "$DATE" = "Exit" ]
+then
+  exit
+fi
+
+INDIR=./cacodata_old/$DATE
+OUTDIR=./cacodata/$DATE
+if [ -d $OUTDIR ]
+then
+  echo "An output directory for the date $DATE already"
+  echo "exists. Please be sure that you selected the"
+  echo "correct date. If you want to rerun MERPP on this"
+  echo "date please delete the directory and all files it"
+  echo "contains from the rootfiles directory."
+  exit
+fi
+echo $DATE
+mkdir ./cacodata/$DATE
+
+LOGFILE=$OUTDIR/dcconv.log
+CACOFILES=`ls -1 $INDIR/dc_*.txt`
+
+TIME=`date`
+echo "-----------------------------------------------------------------" > $LOGFILE
+echo " dcconvertor run started $TIME" >> $LOGFILE
+echo "-----------------------------------------------------------------" >> $LOGFILE
+
+for i in $CACOFILES
+do
+  IN_FILE=$i
+  OUT_FILE=$OUTDIR/$i
+  dcconvertor $IN_FILE $OUT_FILE
+  echo $IN_FILE >> $LOGFILE
+  echo "Processed file $IN_FILE in $SECONDS secs."
+done

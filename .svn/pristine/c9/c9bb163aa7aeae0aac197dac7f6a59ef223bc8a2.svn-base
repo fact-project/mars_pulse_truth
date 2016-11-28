@@ -1,0 +1,122 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  05/2007 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2008
+#
+#
+# ========================================================================
+#
+# This script runs the reflector.
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=camera
+column=fCameraFileAvail
+
+set -C
+
+# printing input card to stdout
+function printinputcard()
+{
+   echo $cameraversion
+   echo "ct_num 1"
+   echo "ct_geom 1"
+   echo "qe_file 0 $detectordir/Data/qe-emi-coat.RFL.dat"
+   echo "input_file 0 "$mcpath"/reflector/"$date"/"$infile
+   echo "data_file $outpath/"`echo $infile | sed -e 's/rfl/dat/'`
+   echo "root_file $outpath/"`echo $infile | sed -e 's/rfl/root/'`
+   echo "trigger_prop 3.0 0.25 1.0 2.0"
+   echo "trigger_single 0 4 4 2"
+   echo "nsb_on"
+   echo "nsb_mean 0.178 50"
+   echo "fadc_noise 1.3 2.4 1."
+   echo "sigma_xy_cm_spot "$spotsize
+   echo "mirror_fraction 0 0.73"
+   echo "seeds "$seeds
+   echo "nsb_directory $detectordir/StarLight/inner/"
+   echo "nsb_dir_outer $detectordir/StarLight/outer/"
+   echo "fadc_prop 1 7.8 5.0"
+   echo "fadc_outer 1 3.2 5.0"
+   echo "write_McTrig"
+   echo "write_McFadc"
+   echo "end_file"
+}
+
+
+# get sequence # 
+gettodo 
+run=$process
+
+# lock sequ
+lockfile=$lockpath/lock-$table-$column-$sequence.txt
+checklock 
+
+printprocesslog "INFO starting $program for run $run"
+
+setstatus "start" 
+
+printprocesslog "INFO create input card... "
+
+# get values for inputcard
+query="SELECT fMCRunNumber FROM MCRunData where fMCRunNumber="$run
+reflectorrunno=`sendquery`
+query="SELECT DATE_FORMAT(fRunStart, '%Y/%m/%d') FROM MCReflectorRunData where fReflectorRunNumber="$reflectorrunno
+date=`sendquery`
+query="SELECT fParticleTypeName FROM MCCorsikaRunData "
+query=$query" LEFT JOIN ParticleType ON MCCorsikaRunData.fParticleTypeKEY=ParticleType.fParticleTypeKEY "
+query=$query" LEFT JOIN MCRunData ON MCCorsikaRunData.fCorsikaRunNumber=MCRunData.fCorsikaRunNumber "
+query=$query" WHERE fMCRunNumber="$run
+particle=`sendquery`
+outpath=$mcpath"/"$program"/"$date
+date2=`echo $date | sed -e 's/\///g'`
+infile=$date2"_"`printf %06d $reflectorrunno`"_"$particle".rfl"
+query="SELECT fAdditionalSpotSize FROM MCRunData where fMCRunNumber="$run
+spotsize=`sendquery`
+query="SELECT fCameraSeed, fCameraSeed+1 FROM MCRunData where fMCRunNumber="$run
+seeds=`sendquery`
+
+logfile=$outpath/$program"-"`printf %06d $run`".log"
+makedir $outpath 
+
+cd $detectordir/Camera
+
+echo "INPUTCARD:" >| $logfile 2>&1
+printinputcard >> $logfile 2>&1
+echo "" >> $logfile 2>&1
+echo "" >> $logfile 2>&1
+printinputcard | ./camera >> $logfile 2>&1
+
+check1=$?
+
+case $check1 in
+   0)   printprocesslog "INFO $program finished successfully for sequence $sequence (check1=$check1)"
+        ;;
+   *)   printprocesslog "ERROR $program failed for sequence $sequence (check1=$check1)"
+        com=$Fcamera
+        check=$check1
+        ;;
+esac
+
+setstatus "stop" 
+
+finish 
+

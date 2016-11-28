@@ -1,0 +1,203 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniel Hoehne-Moench  03/2009 <mailto:hoehne@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2009
+#
+#
+# ========================================================================
+#
+# This script launches the inserting of mc parameters into the db by 
+# starting fillcamera.C
+# 
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=fillcamera
+
+set -C
+
+# check if script is already running
+lockfile=$lockpath/lock-$program.txt
+checklock 
+
+getdbsetup
+
+#mccampath=$mcpath/camera
+mccampath=/magic/montecarlo/camera
+#workaround
+cameradirs=`find /magic/montecarlo/camera -maxdepth 4 -mindepth 2 -type d ! -name Gamma ! -name Muon ! -name Proton ! -name Spot_?.?`
+printprocesslog "INFO camera dirs: "${cameradirs[@]} 
+
+cd $mars
+
+# process directories
+for cameradir in ${cameradirs[@]}
+do
+   printprocesslog "INFO inserting information for all root camera files in $cameradir"
+   cam=`basename $cameradir`
+   spot=`echo $cameradir | cut -d/ -f7` #spotsize
+   par=`echo $cameradir | cut -d/ -f6` #particle name
+   if [ $cam = "Cal_and_Ped" ]
+   then
+      par=""
+      spot=""
+   fi
+   epo=`echo $cameradir | cut -d/ -f5` #epoch
+   printprocesslog "INFO dir: "$cameradir 
+   fillcamerapath=$logpath/$program
+   makedir $fillcamerapath 
+   fillcameralog=$fillcamerapath/$program-$epo-$par-$spot-$cam.log
+   
+   check0=`root -q -b $macrospath/fillcamera.C+\("\"$cameradir\""\,kFALSE\) | tee $fillcameralog | intgrep`
+#   check0=`root -q -b $macrospath/fillcamera.C+\("\"$cameradir\""\,kTRUE\) | tee $fillcameralog | intgrep`
+   case $check0 in 
+      1)   printprocesslog "INFO fillcamera run successfully for dir $cameradir (check0=$check0)"
+           ;;
+      0)   printprocesslog "WARN connection to DB failed (check0=$check0)"
+           check="no"
+           ;;
+      *)   printprocesslog "ERROR $program.C failed for dir $cameradir (check0=$check0)"
+           ;;
+   esac
+   
+   printprocesslog "INFO linking cal and ped files"
+   
+   if [ $cam = "Cal_and_Ped" ];
+   then
+      printprocesslog "INFO Cal_and_Ped folder, no cal and ped files will be linked" 
+   else
+
+      epo=`echo $cameradir | cut -d/ -f5` #filename
+      #epo=`basename $cameradir` #filename
+      pedfile=`find $mccampath/$epo/Cal_and_Ped -name *_P_*.root`
+      calfile=`find $mccampath/$epo/Cal_and_Ped -name *_C_*.root`
+   
+      printprocesslog "INFO calfile for epoch $epo : " $calfile 
+      printprocesslog "INFO pedfile for epoch $epo : " $pedfile 
+   
+      #check number of files
+      numfiles=`echo $pedfile $calfile | wc -w`
+   
+      if [ "$numfiles" != "2" ]
+      then
+      	printprocesslog "ERROR too many or too less ped and cal files found in $epo/Cal_and_Ped"
+      	finish 
+      fi
+      
+      
+      cquery=" select fRunNumber from MCRunProcessStatus where fFileName=\"$calfile\" "
+      pquery=" select fRunNumber from MCRunProcessStatus where fFileName=\"$pedfile\" "
+      
+      crun=`mysql -ss -u $us --password=$pw --host=$ho $db -e " $cquery "`
+      prun=`mysql -ss -u $us --password=$pw --host=$ho $db -e " $pquery "`
+      cnum=`printf %08d $crun`
+      pnum=`printf %08d $prun`
+      printprocesslog "INFO calrun number: " $cnum 
+      printprocesslog "INFO pedrun number: " $pnum 
+      #get all directories in the linked structure for the epoch
+      #dirs=`find $mcrawpath/ -mindepth 3 -maxdepth 3 -type d`
+      files=`find $mcrawpath/ -lname *$epo*.root`
+   
+      for file in ${files[@]}
+      do 
+         dir=`dirname $file`
+         #datacenter
+         date=`echo $file | cut -c 28-31,33,34,36,37`
+         #for tests
+         #date=`echo $file | cut -c 57-60,62,63,65,66`
+         
+         newpedfile="${dir}/${date}_${pnum}_P_MonteCarlo_E.root"
+         newcalfile="${dir}/${date}_${cnum}_C_MonteCarlo_E.root"
+         pupdate=" update MCRunProcessStatus set fRunLinked=Now(), fLinkName=\"$newpedfile\" where fRunNumber=\"$prun\" "
+         cupdate=" update MCRunProcessStatus set fRunLinked=Now(), fLinkName=\"$newcalfile\" where fRunNumber=\"$crun\" "
+         if ls $dir | grep MonteCarlo | grep $pnum
+         then 
+            printprocesslog "INFO P run already there, do mysql update" 
+   #         continue
+            mysql -ss -u $us --password=$pw --host=$ho $db -e " $pupdate "
+         else 
+            printprocesslog "INFO linking P run for epoch $epo" 
+            ln -sv $pedfile $newpedfile 
+            mysql -ss -u $us --password=$pw --host=$ho $db -e " $pupdate "
+         fi
+         
+         if ls $dir | grep MonteCarlo | grep $cnum
+         then 
+            printprocesslog "INFO C run already there, do mysql update" 
+   #         continue
+            mysql -ss -u $us --password=$pw --host=$ho $db -e " $cupdate "
+         else 
+            printprocesslog "INFO linking C run for epoch $epo" 
+            ln -sv $calfile $newcalfile 
+            mysql -ss -u $us --password=$pw --host=$ho $db -e " $cupdate "
+         fi
+   
+      done
+   
+   fi
+
+done
+
+readme=$mcrawpath/README.txt #file in which the information about the properties of the files is redirected to have always an updated explanation
+
+# observation epochs 
+epochs=("" "After January 07 (MUX FADCs)," "From April 06 to January 07 (Siegen FADCs with splitters)," "Before April 06 (Siegen FADCs)")
+
+# print information and explanation of structure into README.txt 
+date >| $readme 2>&1
+echo "" >> $readme 2>&1
+echo "Explanation for the structure in which the mc files are linked" >> $readme 2>&1
+echo "--------------------------------------------------------------" >> $readme 2>&1
+echo "" >> $readme 2>&1
+echo "the files are linked in a YYYY/MM/DD structure like the data files" >> $readme 2>&1
+echo "YYYY represents 19zbin" >> $readme 2>&1
+echo "MM represents the epoch" >> $readme 2>&1
+echo "DD represents the additional spot size in mm" >> $readme 2>&1
+echo "" >> $readme 2>&1
+echo "explanation of the epochs" >> $readme 2>&1
+echo "epochs: "${epochs[@]} >> $readme 2>&1
+echo "" >> $readme 2>&1
+for (( i=1 ; i <= 3 ; i++ )) 
+do 
+   if [ "${epochs[i]}" != "" ]
+   then 
+      numofepoch=`printf %02d $i`
+      echo "epoch (MM) = $numofepoch means ${epochs[$i]}" >> $readme 2>&1
+   fi
+done
+echo "" >> $readme 2>&1
+echo "the epoch is indicating " >> $readme 2>&1
+echo " - the time for which the MCs are produced" >> $readme 2>&1
+echo "   the epoch is determined from the AmplFADCs value filled into the MC-DB" >> $readme 2>&1
+echo "" >> $readme 2>&1
+echo "----------------" >> $readme 2>&1
+echo "" >> $readme 2>&1
+echo "The names of the files characterize their properties. Structure:" >> $readme 2>&1
+echo "/magic/montecarlo/rawfiles/YYYY/MM/DD/YYYYMMDD_<RunNumber>_<P/C/D>_<Particle><Spectrum><ObservationMode>_E.root" >> $readme 2>&1
+echo "<P/C/D> indicates the run type" >> $readme 2>&1
+echo "<Particle>: Gamma, Proton, Muon, MonteCarlo (for P,C runs)" >> $readme 2>&1
+echo "<Spectrum>: 'empty' or HE, depending on the simulated MC spectrum" >> $readme 2>&1
+echo "<ObservationMode>: 'empty' (On), W1/W2 (Wobble), FW (Fake Wobble), Diff (Diffuse)" >> $readme 2>&1
+echo "" >> $readme 2>&1
+
+
+finish 
+

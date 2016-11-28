@@ -1,0 +1,62 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2005 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2007
+#
+#
+# ========================================================================
+#
+# This script is removing lock files which are older than 12 hours. 
+# 
+# Each process in the automatic analysis is writing a lock file. As these 
+# processes are launched with condor, they are stopped after 12 hours, if 
+# they are still running. In this case the lock files are not removed. 
+# 
+# By comparing the date of the lock file and the current date, the 
+# running time of a process is determined and if it is bigger than 12 
+# hours (which means that the process has been already kill by condor) the 
+# lock file is removed
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+
+files=`ls $lockpath/* 2>/dev/null`
+
+for file in ${files[@]}
+do 
+   filedate=`date +%Y%j%H%M -r $file`
+   #date to compare: now - 12hours
+   compdate=`date +%Y%j%H%M --date="-12hour"`
+
+   if [ $compdate -gt $filedate ]
+   then 
+      printprocesslog "WARN lockfile $file is older than 12 hours"
+#      printprocesslog "INFO removing file $file"
+#      rm -v $file
+#      echo "date:  "$filedate
+#      echo "comp:  "$compdate
+#      date
+   fi
+done
+
+printprocesslog "INFO finished $0"
+

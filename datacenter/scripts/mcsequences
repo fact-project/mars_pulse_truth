@@ -1,0 +1,148 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  12/2005 <mailto:dorner@astro.uni-wuerzburg.de>
+#   Author(s): Daniel Hoehne-Moench  08/2009 <mailto:hoehne@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2009
+#
+#
+# ========================================================================
+#
+# The script is building one sequence per mc run. The relevant parameters 
+# are taken from the MC database.
+# 
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=mcsequences
+
+set -C
+
+# check if script is already running
+lockfile=$lockpath/lock-$program.txt
+checklock 
+                                              
+# find montecarlo directories, build one sequence per run
+printprocesslog "INFO building one sequence per run"
+
+getdbsetup
+
+dirs=`find $mcrawpath -type d`
+for dir in ${dirs[@]}
+do 
+   cont=`echo $dir | cut -d/ -f7`
+   #cont=`echo $dir | cut -d/ -f10`
+   if [ "$cont" == "" ]
+   then
+      continue
+   fi
+   printprocesslog "INFO dir: "$dir 
+   
+   epochs=`ls -l $mcpath/camera | cut -d' ' -f8`
+   for epoch in ${epochs[@]}
+   do
+      printprocesslog "INFO epoch: "$epoch 
+
+      calfile=`find $dir -lname *${epoch}/*.root | grep "_C_"`
+      pedfile=`find $dir -lname *${epoch}/*.root | grep "_P_"`
+      calrun=`echo $calfile | cut -d_ -f2`
+      pedrun=`echo $pedfile | cut -d_ -f2`
+      
+      modes=("Gamma" "GammaW1" "GammaW2" "GammaFW" "GammaDiff" "GammaHE" "GammaHEW1" "GammaHEW2" "GammaHEFW" "GammaHEDiff" "ProtonDiff" "ProtonHEDiff" "MuonDiff" "MuonHEDiff" "GammaSUM" "GammaW1SUM" "GammaW2SUM" "GammaFWSUM" "GammaDiffSUM" "GammaHESUM" "GammaHEW1SUM" "GammaHEW2SUM" "GammaHEFWSUM" "GammaHEDiffSUM" "ProtonDiffSUM" "ProtonHEDiffSUM" "MuonDiffSUM" "MuonHEDiffSUM")
+      for mode in ${modes[@]}
+      do
+         datruns=`find $dir -lname *${epoch}/*.root | grep ${mode}_ | grep "_D_" | cut -d_ -f2 | tr "\n" " "`
+         if [ "$datruns" != "" ]
+         then
+            date=`echo $dir | cut -c 28-37 | sed -e 's/\//-/g'`
+            #date=`echo $dir | cut -c 57-66 | sed -e 's/\//-/g'`
+            zbin=`echo $date | cut -c 3,4`
+         
+            for datrun in ${datruns[@]}
+            do
+               query1=" select fSpectrumKEY, fPSFKEY, fAmplFadcKEY, fAtmosphericModelKEY, fObservationModeKEY, fMCParticleKEY, fReflectorVersionKEY, fCorsikaVersionKEY, fCameraVersionKEY, fViewConeAngleOKEY, fAddSpotSizeKEY, fTriggerFlagKEY, fPhiMax, fPhiMin from MCRunData where fRunNumber=\"$datrun\" "
+               query2=" select sum(fNumEvents), sum(fNumTriggers), sum(fNumSumTriggers) from MCRunData where fRunNumber=\"$datrun\" "
+               values=`mysql -ss -u $us --password=$pw --host=$ho $db -e " $query1 "`
+               values2=`mysql -ss -u $us --password=$pw --host=$ho $db -e " $query2 "`
+               spec=`echo $values | cut -d" " -f1`
+               psf=`echo $values | cut -d" " -f2`
+               amplfadc=`echo $values | cut -d" " -f3`
+               atmo=`echo $values | cut -d" " -f4`
+               obs=`echo $values | cut -d" " -f5`
+               part=`echo $values | cut -d" " -f6`
+               refl=`echo $values | cut -d" " -f7`
+               cors=`echo $values | cut -d" " -f8`
+               cam=`echo $values | cut -d" " -f9`
+               view=`echo $values | cut -d" " -f10`
+               ass=`echo $values | cut -d" " -f11`
+               trig=`echo $values | cut -d" " -f12`
+               azmax=`echo $values | cut -d" " -f13`
+               azmin=`echo $values | cut -d" " -f14`
+               events=`echo $values2 | cut -d" " -f1`
+               triggers=`echo $values2 | cut -d" " -f2`
+               sumtriggers=`echo $values2 | cut -d" " -f3`
+               query3=" select fSequenceFirst from MCSequenceProcessStatus where fSequenceFirst=\"$datrun\" "
+               query4=" select fSequenceFirst from MCSequences where fSequenceFirst=\"$datrun\" "
+               insert1=" insert MCSequenceProcessStatus set fSequenceFirst=\"$datrun\", fPriority=\"$datrun\", fSequenceFileWritten=Now() "
+               insert2=" insert MCSequences set fSequenceFirst=\"$datrun\", fRunStart=\"$date\", fNumEvents=\"$trainevents\", fNumTriggers=\"$triggers\", fNumSumTriggers=\"$sumtriggers\", fZBin=\"$zbin\", fSpectrumKEY=\"$spec\", fPSFKEY=\"$psf\", fAddSpotSizeKEY=\"$ass\", fAmplFadcKEY=\"$amplfadc\", fAtmosphericModelKEY=\"$atmo\", fObservationModeKEY=\"$obs\", fMCParticleKEY=\"$part\", fReflectorVersionKEY=\"$refl\", fCorsikaVersionKEY=\"$cors\", fCameraVersionKEY=\"$cam\", fViewConeAngleOKEY=\"$view\", fTriggerFlagKEY=\"$trig\", fPhiMax=\"$azmax\", fPhiMin=\"$azmin\", fTestTrainKEY=2 "
+               update1=" update MCRunData set fSequenceFirst=\"$datrun\" where fRunNumber=\"$datrun\" "
+               update2=" update MCSequences set fRunStart=\"$date\", fNumEvents=\"$events\", fNumTriggers=\"$triggers\", fNumSumTriggers=\"$sumtriggers\", fZBin=\"$zbin\", fSpectrumKEY=\"$spec\", fPSFKEY=\"$psf\", fAddSpotSizeKEY=\"$ass\", fAmplFadcKEY=\"$amplfadc\", fAtmosphericModelKEY=\"$atmo\", fObservationModeKEY=\"$obs\", fMCParticleKEY=\"$part\", fReflectorVersionKEY=\"$refl\", fCorsikaVersionKEY=\"$cors\", fCameraVersionKEY=\"$cam\", fViewConeAngleOKEY=\"$view\", fTriggerFlagKEY=\"$trig\", fPhiMax=\"$azmax\", fPhiMin=\"$azmin\", fTestTrainKEY=2 where fSequenceFirst=\"$datrun\" "
+
+               mysql -ss -u $us --password=$pw --host=$ho $db -e " $update1 "
+               check3=`mysql -ss -u $us --password=$pw --host=$ho $db -e " $query3 "`
+               check4=`mysql -ss -u $us --password=$pw --host=$ho $db -e " $query4 "`
+               if [ "$check3" == "" ]
+               then
+                  mysql -ss -u $us --password=$pw --host=$ho $db -e " $insert1 "
+               fi
+               if [ "$check4" == "" ]
+               then
+                  mysql -ss -u $us --password=$pw --host=$ho $db -e " $insert2 "
+               else
+                  mysql -ss -u $us --password=$pw --host=$ho $db -e " $update2 "
+               fi
+               
+               no=`echo $datrun | cut -c 1-4`
+               sequpath=$mcsequpath/$no
+               makedir $sequpath 
+               sequfile=$sequpath/sequence$datrun.txt
+               printprocesslog "INFO writing sequencefile $sequfile"
+               
+               echo "Sequence:        $datrun" >| $sequfile
+               echo "Night:           $date" >> $sequfile
+               echo "Epoch:           $epoch" >> $sequfile
+               echo "Mode:            $mode" >> $sequfile
+               echo "Azimuth:         $azmin - $azmax" >> $sequfile
+               echo "" >> $sequfile
+               echo "CalRuns:         $calrun" >> $sequfile
+               echo "PedRuns:         $pedrun" >> $sequfile
+               echo "DatRuns:         $datrun" >> $sequfile
+               echo "" >> $sequfile
+               echo "MonteCarlo: Yes" >> $sequfile
+               echo "" >> $sequfile
+               
+            done
+         fi
+      done
+   done
+done
+
+finish 
+

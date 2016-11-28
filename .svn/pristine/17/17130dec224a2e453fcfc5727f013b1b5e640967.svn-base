@@ -1,0 +1,55 @@
+MLog.VerbosityLevel: 4
+
+BinningImpact.Raw:       40   0       1000
+BinningTrigPos.Raw:     300    -25       275
+
+RandomNumberGenerator: TRandom3
+
+Reflector.Constructor: MReflector
+Reflector.FileName: /fhgfs/groups/app/mc_workshop/datacenter/setup/ceres/030/fact-reflector.txt
+Reflector.SetSigmaPSF: 10.0
+
+MGeomCam.Constructor:   MGeomCamFACT();
+
+MSimAPD.Type: 4
+MSimExcessNoise.ExcessNoise: 0.12
+
+MirrorReflectivity.FileName:           /fhgfs/groups/app/mc_workshop/datacenter/setup/ceres/030/MirrorReflectivity_Lustermann_FACT_bearbeitet.txt
+PhotonDetectionEfficiency.FileName:    /fhgfs/groups/app/mc_workshop/datacenter/setup/ceres/030/fact-pde-1.0V.txt
+ConesAngularAcceptance.FileName:       /fhgfs/groups/app/mc_workshop/datacenter/setup/ceres/030/fact-cones-angular-acceptance.txt
+ConesTransmission.FileName:            /fhgfs/groups/app/mc_workshop/datacenter/setup/ceres/030/Transmittance_1439Cones_FACT_bearbeitet.txt
+
+#MSimRandomPhotons.FrequencyFixed: 0.004
+#MSimRandomPhotons.FrequencyNSB:   0.025
+#MSimRandomPhotons.FileName:
+
+
+MSimTrigger.FileNameRouteAC: /fhgfs/groups/app/mc_workshop/datacenter/setup/ceres/030/fact-trigger-sum.txt
+MSimTrigger.DiscriminatorThreshold: 39738
+
+MSimCalibrationSignal.NumPhotons: 24
+MSimCalibrationSignal.NumEvents:  1000
+
+IntendedPulsePos.Val: 30
+
+MRawRunHeader.SamplingFrequency: 2000
+MRawRunHeader.NumSamples:         300
+MRawRunHeader.NumBytesPerSample:    2
+MRawRunHeader.FadcResolution:      12
+
+MSimCamera.DefaultOffset: 3580
+MSimCamera.DefaultNoise:    45
+MSimCamera.DefaultGain:    358
+
+MSimCamera.fACFudgeFactor: 0.3367
+MSimCamera.fACTimeConstant: 20
+
+PulseShape.Function.Name:  (1.626*(1-exp(-0.3803*0.5*x))*exp(-0.0649*0.5*x))
+PulseShape.Function.Npx:   300
+PulseShape.Function.Xmin:   0
+PulseShape.Function.Xmax:   300
+
+Cut.Inverted: Yes
+
+Cut.Condition: MHillas.fSize>10
+ContEmpty3.Condition: MPhotonEvent.GetNumPhotons<10

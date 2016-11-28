@@ -1,0 +1,130 @@
+#!/bin/bash
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Stefan Ruegamer 05/2007 <mailto:snruegam@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2008
+#
+#
+# ========================================================================
+#
+# This script is checking the md5 sums of files read from tape. It
+# computes the checksums for the extracted files and compares them with
+# the checksums from La Palma, read out from the md5 sum file which is
+# transferred together with the logfile.
+#
+
+no=$@
+if [ "$no" == "" ]
+then
+   echo "no tape specified -> aborting"
+   exit
+fi
+
+checkpath=/home/lapalma/tapecont/cont/muxdata/checksums
+file=/home/lapalma/tapecont/cont/muxdata/tape_${no}L*.md5
+L=`echo $file | cut -c49`
+id=${no}L${L}
+logfile=${checkpath}/tape_${id}.log
+
+if [ ! -f $file ]
+then
+   echo "tape $file not found -> aborting" >> $logfile 2>&1
+   exit
+fi
+
+if [ -f ${checkpath}/tape_${id}.md5.lapalma ] || [ -f ${checkpath}/tape_${id}.md5.wue ]
+then
+   echo "Output files already existing -> aborting" >> $logfile 2>&1
+   exit
+#   echo "Output files already existing. Are you sure you wish to continue (yes/no)?"
+#   read cont
+#   if [ ! $cont == "yes" ]
+#   then
+#      echo "Aborting."
+#      exit
+#   fi
+fi
+
+if [ "`cat $file`" == "" ]
+then
+   echo "$file is empty, the checksums are missing -> aborting" >> $logfile 2>&1
+   exit
+fi
+
+date | tee ${checkpath}/tape_${id}.md5.lapalma | tee ${checkpath}/tape_${id}.md5.wue > /dev/null
+muxslog=`grep muxdata/20[01][0-9].*/20[01][0-9].*.raw $file | wc -l`
+
+# read the tapecont file line by line
+while read line
+do
+   muxchk=`echo $line | cut -d/ -f1`
+   type=`echo $line | sed -e 's/.*20[01][0-9]\{5\}_.*\(.raw\)/\1/' | cut -c 0-4`
+   # only check muxdata rawfiles, not cc-, caco- or drivelog-files
+   if [ "$muxchk" = "muxdata" ] && [ "$type" = ".raw" ]
+   then
+      sum=($line)
+      
+      # check if the file has been extracted from tape; if not, don't write anything to the logfiles (so they can still be compared)
+      if [ ! -f /magic/datacenter/fromtape/${sum[0]} ] && [ ! -f /data/fromtape/${sum[0]} ]
+      then
+      	echo "File ${sum[0]} does not exist." >> $logfile 2>&1
+        continue
+      fi
+      
+      # reformat the files and checksums correctly and compare them
+      echo "${sum[1]}  ${sum[0]}" >> ${checkpath}/tape_${id}.md5.lapalma
+      
+      if [ ! -f /magic/datacenter/fromtape/${sum[0]} ]
+      then
+         nice -n 19 /opt/csw/bin/gmd5sum /data/fromtape/${sum[0]} | sed -e 's/\/data\/fromtape\///' >> ${checkpath}/tape_${id}.md5.wue
+      else
+         nice -n 19 /opt/csw/bin/gmd5sum /magic/datacenter/fromtape/${sum[0]} | sed -e 's/\/magic\/datacenter\/fromtape\///' >> ${checkpath}/tape_${id}.md5.wue
+      fi
+   fi
+done < $file
+
+date | tee -a ${checkpath}/tape_${id}.md5.lapalma | tee -a ${checkpath}/tape_${id}.md5.wue > /dev/null
+
+if [ ! -f ${checkpath}/tape_${id}.md5.lapalma ] || [ ! -f ${checkpath}/tape_${id}.md5.wue ]
+then
+   echo "No output files written! Something went wrong... -> aborting" >> $logfile 2>&1
+   exit
+fi
+
+echo "Wrote checksums to ${checkpath}/tape_${id}.md5.lapalma and ${checkpath}/tape_${id}.md5.wue. Comparing now." >> $logfile 2>&1
+
+# check for differences in the checksums
+output=`diff ${checkpath}/tape_${id}.md5.lapalma ${checkpath}/tape_${id}.md5.wue`
+
+if [ "$output" = "" ]
+then
+   echo "All checksums are identical." >> $logfile 2>&1
+   muxschk=`grep muxdata/20[01][0-9].*/20[01][0-9].*.raw ${checkpath}/tape_${id}.md5.wue | wc -l`
+   if [ $muxslog == $muxschk ]
+   then
+      echo "Number of checked files matches. Files are ready." >> $logfile 2>&1
+   else
+      echo "Number of checked files doesn't match number of extracted files. Something went wrong..." >> $logfile 2>&1
+   fi
+else
+   echo -e "The files are not identical! diff found the following differences:\n$output" >> $logfile 2>&1
+fi
+
+echo "Program terminated." >> $logfile 2>&1

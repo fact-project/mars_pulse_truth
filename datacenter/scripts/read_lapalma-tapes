@@ -1,0 +1,206 @@
+#!/bin/bash
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Stefan Ruegamer 08/2008 <mailto:snruegam@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2008
+#
+#
+# ========================================================================
+#
+# This script will read raw file tapes from La Palma. After specifying the
+# tape number the tape will be loaded into a free or idle drive and the
+# files will be extracted to the /data/fromtape directory. Then
+# checkmd5sum will be started and, if successful, also movingrawfiles.
+# After file extraction the tape drive will be switched to normal state
+# again, and after successful md5 test the tape will be exported.
+# The logfile can be found at /home/lapalma/tapecont/cont/muxdata/readlogs
+#
+# ToDo: check the available space on /data and /magic, so the user does no
+#       longer have to do it. What's with the SATAs?
+#       movingrawfiles, find source file if this script is in /tools!
+
+#mars=`dirname $0 | sed -e 's/\/datacenter\/tools//'`
+mars=`dirname $0 | sed -e 's/\/datacenter\/scripts//'`
+
+echo -e "IMPORTANT: make sure that enough space is left on the FC and SATA arrays before executing this script! \n"
+
+tape=$@
+if [ "$tape" == "" ]
+then
+   echo "Please specify the tape number (e.g. 3MG005). The following foreign tapes have been found in the L700:"
+   samcmd v 100 | grep "NOT SAM MEDIA" | grep -v "\-il---b-----" | cut -c 55-60 | sort
+   read tape
+   
+   if [ "$tape" == "" ]
+   then
+      echo "No tape specified. Exiting."
+      exit
+   fi
+fi
+
+#mindataspace=
+#minmagicspace=
+magictapepath=/magic/datacenter/fromtape/
+datatapepath=/data/fromtape/
+logfile=/home/lapalma/tapecont/cont/muxdata/readlogs/tape_$tape.log
+number=`echo $tape | cut -c 4-6`
+
+if [ -f $logfile ]
+then
+   echo "logfile already existing -> aborting"
+   exit
+fi
+
+# check if the tape is existing and which drives are free (---------p == present)
+tapeslot=`samcmd v 100 | grep "$tape " | cut -c-4 | sed -e 's/ //g'`
+drive=`samcmd s | grep /dev/rmt/10.cbn | grep "\---------p" | cut -d/ -f4 | cut -c1-3`
+
+# if no drive is free, check for idle drives
+if [ "$drive" == "" ]
+then
+   drive=`samcmd s | grep /dev/rmt/10.cbn | grep "\--l------r" | cut -d/ -f4 | cut -c1-3`
+fi
+
+if [ "$tapeslot" == "" ]
+then
+   echo "Tape $tape not found in the L700. Exiting."
+   exit
+fi
+
+# in case that no drives are ready -> exit; in case more than one drive is ready, take the first one
+if [ "$drive" == "" ]
+then
+   echo "No drive available for reading. Exiting."
+   exit
+else
+   drive=`echo $drive | cut -c1-3`
+fi
+
+echo "Thank you. Your query is being processed. This will take some hours. Check the logfile $logfile for further information."
+
+# check the available space on /magic and on /data; use preferably /data
+#if [ $dataspace -gt $magicspace && $dataspace -gt $mindataspace ]
+#then
+#   echo "$dataspace available on /data. Changing directory to $datatapepath." >> $logfile 2>&1
+#   cd $datatapepath >> $logfile 2>&1
+#   tapepath=$datatapepath
+#else
+#   if [ $magicspace -gt $minmagicspace ]
+#   then
+#      echo "$magicspace available on /magic. Changing directory to $magictapepath." >> $logfile 2>&1
+#      cd $magictapepath >> $logfile 2>&1
+#      tapepath=$magictapepath
+#   else
+#      echo "Not enough space available for reading tapes (/data: $dataspace, /magic: $magicspace). Exiting."
+#      exit
+#   fi
+#fi
+
+date >> $logfile 2>&1
+echo "Loading tape $tape from slot $tapeslot into drive ${drive}cbn..." >> $logfile 2>&1
+
+# set the drive to unavail status; -w checks if the drive is really free
+set_state -w unavail $drive ; load 100:$tapeslot $drive
+
+# check if the drive is ready for reading
+while [ "`samcmd s | grep /dev/rmt/${drive}cbn | grep "\---------r"`" == "" ]
+do
+   sleep 5
+done
+
+cd $datatapepath >> $logfile 2>&1
+
+# if drive is ready begin reading; for tapes > 3MG432 the block size has changed
+if [ "`samcmd s | grep /dev/rmt/${drive}cbn | grep "\---------r"`" == "" ]
+then
+   echo "Drive $drive is not ready. Something went wrong... aborting." >> $logfile 2>&1
+   set_state on $drive
+   exit
+else
+   if [ "$number" -gt "432" ]
+   then
+      (time star -b 1024 --exclude=ccdata/* --exclude=cacodata/* --exclude=drivelogs/* --exclude=*.root --exclude=*.pdf --exclude=*.gif --exclude=*.ps --exclude=*.txt -xvf /dev/rmt/${drive}cbn) >> $logfile 2>&1 ; set_state on $drive
+   else
+      (time star --exclude=ccdata/* --exclude=cacodata/* --exclude=drivelogs/* --exclude=*.root --exclude=*.pdf --exclude=*.gif --exclude=*.ps --exclude=*.txt -xvf /dev/rmt/${drive}cbn) >> $logfile 2>&1 ; set_state on $drive
+   fi
+   echo "Unloading tape $tape..." >> $logfile 2>&1
+fi
+
+echo -e "\nPerforming md5sum check. This will also take some hours." >> $logfile 2>&1
+date >> $logfile 2>&1
+${mars}/datacenter/scripts/checkmd5sum $tape
+date >> $logfile 2>&1
+md5=`cat /home/lapalma/tapecont/cont/muxdata/checksums/tape_${tape}L?.log | grep "Number of checked files matches. Files are ready."`
+
+if [ "$md5" = "" ]
+then
+   echo "md5sum check failed! Please check what happened (see /home/lapalma/tapecont/cont/muxdata/checksums/tape_${tape}L*.md5.*). Exiting now." | tee -a $logfile 2>&1
+   exit
+else
+   echo "files could be extracted without errors" >> $logfile 2>&1
+
+   # if movingrawfiles is not running change the file attributes, but only for the current tape
+   if ! [ -f /magic/datacenter/locks/lock-movingrawfiles*.txt ]
+   then
+      days=`grep "muxdata/...._.._.." /home/lapalma/tapecont/cont/muxdata/tape_${tape}L?.log | cut -d/ -f2 | sort -u`
+      for day in ${days[@]}
+      do
+         chmod -R g+w  ${datatapepath}/muxdata/$day >> $logfile 2>&1
+      	 chgrp -R auto ${datatapepath}/muxdata/$day >> $logfile 2>&1
+   	 chown -R tape ${datatapepath}/muxdata/$day >> $logfile 2>&1
+      done
+   fi
+fi
+
+# move the raw files if neither movingrawfiles nor filesondisk is running
+wait=1
+if ! [ -f /magic/datacenter/locks/lock-movingrawfiles*.txt ] && ! [ -f /magic/datacenter/locks/lock-filesondisk.txt ]
+then
+   #echo "Moving raw files from $tapepath to /data. This may take some hours if moving from ${magictapepath}. Please stand by." >> $logfile 2>&1
+   echo -e "\nMoving raw files from $datatapepath to /data. This may take some hours if moving from ${magictapepath}. Please stand by." >> $logfile 2>&1
+   date >> $logfile 2>&1
+   ssh -nx operator@dc07 'cd' $mars ' ; export AUTOMATIONSETUP=wue.magic.data ; '${mars}'/datacenter/scripts/movingrawfiles' >> $logfile 2>&1
+   date >> $logfile 2>&1
+   echo "Moving tape $tape to the export slots." >> $logfile 2>&1
+   #determine slot again, the tape might have been moved manually to another slot
+   tapeslot=`samcmd v 100 | grep "$tape " | cut -c-4 | sed -e 's/ //g'`
+   samcmd export 100:$tapeslot
+else
+   while [ $wait -lt 10 ]
+   do
+      echo "movingrawfiles or filesondisk is running -> sleeping 60 s" >> $logfile 2>&1
+      let wait++
+      sleep 60
+      if [ $wait == 10 ]
+      then
+         echo "Tried 10 times to launch movingrawfiles without avail. Finishing now." >> $logfile 2>&1
+         echo "Moving tape $tape to the export slots." >> $logfile 2>&1
+	 #determine slot again, the tape might have been moved manually to another slot
+	 tapeslot=`samcmd v 100 | grep "$tape " | cut -c-4 | sed -e 's/ //g'`
+   	 samcmd export 100:$tapeslot
+         echo -e "\nTape $tape read but the files have NOT been moved. You will have to do it manually. The tape has been exported. Have a nice day." | tee -a $logfile 2>&1
+         date >> $logfile 2>&1
+         exit
+      fi
+   done
+fi
+
+echo -e "\nTape $tape read and files successfully moved. The tape has been exported. Have a nice day." | tee -a $logfile 2>&1
+date >> $logfile 2>&1

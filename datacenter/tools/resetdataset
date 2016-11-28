@@ -1,0 +1,164 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  10/2006 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2006
+#
+#
+# ========================================================================
+#
+# This script checks from the DB which new starfiles have been produced 
+# and sends it to the person in charge for building datasets
+#
+
+datasetpath=/magic/datasets
+#datasetpath=/test/bu.2006.10.05/datasets
+
+function usage()
+{
+   echo "Usage: $0 [options]"
+   echo "options:"
+   echo -n "  --ds  dataset#       "
+   echo " number of the dataset you want to reset "
+   echo -n "  --db                 "
+   echo " name of the db in which you want to reset "
+   echo -n "  --user               "
+   echo " db user "
+   echo -n "  --pw                 "
+   echo " pw of the db user "
+   echo ""
+   exit
+}
+
+
+while [ "$1" ]
+do 
+   case $1 in 
+        --ds) shift
+              dataset=$1
+              ;;
+        --db) shift
+              db=$1
+              ;;
+        --pw) shift
+              pw=$1
+              ;;
+      --user) shift
+              user=$1
+              ;;
+          -h) usage
+              ;;
+           *) echo "unknown option $1 "
+              usage
+              exit
+              ;;
+   esac
+   shift
+done
+
+if [ "$dataset" = "" ]
+then 
+   echo "Please give the number for the dataset you want to reset."
+   usage
+fi
+
+if [ "$pw" = "" ] || [ "$user" = "" ]
+then 
+   echo "Please give user and password for the DB $db."
+   usage
+fi
+
+if [ "$db" = "" ]
+then 
+   echo "Please give the DB in which you want to reset."
+   usage
+fi
+
+
+alias mymysql='mysql -u $user --password=$pw --host=vela $db -s -e'
+
+whereclause1=" WHERE fDataSetNumber=$dataset"
+statusreset=", fStartTime=NULL, fFailedTime=NULL, fFailedCode=NULL, fFailedCodeAdd=NULL, fReturnCode=NULL"
+query1="UPDATE DataSetProcessStatus SET fStarFilesAvail=NULL, fGanymed=NULL, fFillGanymed=NULL"
+query1=$query1$statusreset$whereclause1
+
+query2="DELETE FROM Ganymed "$whereclause1
+
+no=`printf %08d $dataset`
+no2=`echo $no | cut -c 0-5`
+datasetfile=$datasetpath/$no2/dataset$no.txt
+if ! ls $datasetfile 2>&1 >/dev/null
+then
+   echo "There's no datasetfile $datasetfile"
+   exit
+fi
+echo " getting sequence numbers from $datasetfile"
+
+seqon=`grep "SequencesOn" $datasetfile | grep -v '#' | sed -e 's/SequencesOn://' -e 's/^ //g' -e 's/ $//g' -e 's/ /,/g'`
+seqoff=`grep "SequencesOff" $datasetfile | grep -v '#' | sed -e 's/SequencesOff://' -e 's/^ //g' -e 's/ $//g' -e 's/ /,/g'`
+
+echo " Found the following  on sequences: $seqon"
+echo " Found the following off sequences: $seqoff"
+
+if [ "$seqoff" = "" ]
+then
+   whereclause2=" WHERE fSequenceFirst IN ($seqon)"
+else
+   whereclause2=" WHERE fSequenceFirst IN ($seqon,$seqoff)"
+fi
+query3="UPDATE SequenceProcessStatus SET fAllFilesAvail=NULL, fCallisto=NULL, fStar=NULL "
+query3=$query3$statusreset$whereclause2
+
+query4="DELETE FROM Calibration"$whereclause2
+query5="DELETE FROM Star"$whereclause2
+
+
+echo ""
+echo "The following queries would be executed:"
+echo "Q1: "$query1
+echo "Q2: "$query2
+echo "Q3: "$query3
+echo "Q4: "$query4
+echo "Q5: "$query5
+echo ""
+echo "  DB: "$db
+echo "user: " $user
+echo ""
+echo "Are you sure you want to continue?" 
+echo "please insert y, if you want continue"
+echo "              n, if you want quit"
+
+answer=`head -n 1`
+case $answer in
+   y) echo "continue resetting DB"
+      ;;
+   n) exit
+      ;;
+   *) echo "your answer is not clear -> exit"
+      exit
+      ;;
+esac
+
+mymysql "$query1"
+mymysql "$query2"
+mymysql "$query3"
+mymysql "$query4"
+mymysql "$query5"
+

@@ -1,0 +1,65 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Stefan Ruegamer  07/2008 <mailto:snruegam@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2008
+#
+#
+# ========================================================================
+#
+# This script searches for raw files with a 5 digit subrun number and
+# changes this number to a 3 digit one.
+
+
+source `dirname $0`/sourcefile
+program=rename_rawfiles
+
+scriptlog=$runlogpath/$program-$datetime.log
+date >> $scriptlog 2>&1
+
+# check if script is already running
+lockfile=$lockpath/lock-$program.txt
+checklock >> $scriptlog 2>&1
+
+rawdatapath=/data/fromtape/muxdata
+
+# find raw files named after the new convention but having a 5 digit subrun number
+files=`find ${rawdatapath}/ -regextype posix-egrep -regex '.*/20[01][0-9]{5}_M[12]_[0-9]{8}\.[0-9]{5}_.*.raw' -type f`
+
+# convert to 3 digit subrun number
+for file in ${files[@]}
+do
+   zero=`basename $file | cut -d_ -f3 | cut -c 10-11`
+   if ! [ $zero == "00" ]
+   then
+      echo "${file}: subrunnumber greater than 999 -> continue" >> $scriptlog 2>&1
+      continue
+   else
+      # s/ ()() / \1\2 /
+      newfile=`echo $file | sed -e 's/\(.*\/20[01][0-9]\{5\}_M[12]_[0-9]\{8\}\.\)00\([0-9]\{3\}.*\)/\1\2/'`
+      # raw files without .-separation between run and subrun number and without M[12]
+      #newfile=`echo $file | sed -e 's/\(.*20[01][0-9]\{5\}_\)\([0-9]\{8\}\)00\([0-9]\{3\}.*\)/\1M1_\2.\3/'`
+      echo "moving $file to $newfile..." >> $scriptlog 2>&1
+      mv $file $newfile
+   fi
+done
+
+rm -v $lockfile >> $scriptlog 2>&1
+

@@ -1,0 +1,141 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2009 <mailto:daniela.dorner@unige.ch>
+#
+#   Copyright: MAGIC Software Development, 2000-2009
+#
+#
+# ========================================================================
+#
+# This a resource file for the scripts, in which the standard paths and 
+# functions, which are needed more often are stored. 
+#
+
+if [ "$rootsys" = "" ]
+then 
+   rootsys=/opt/root5.20.x86_64
+fi
+if ! export | grep ROOTSYS | grep $rootsys  >|/dev/null
+then
+   export ROOTSYS=$rootsys
+   export PATH=$PATH:$ROOTSYS/bin
+   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ROOTSYS/lib/root
+fi
+
+# queuing system
+queuesys=sge #isdc
+
+# logging and setup
+logpath=/share/cta/automation/autologs
+lockpath=/share/cta/automation/locks
+setuppath=/share/cta/automation/setup
+
+## paths of data
+#datapath=/magic/data
+#subsystempath=/magic/subsystemdata
+#sequpath=/magic/sequences
+#datasetpath=/magic/datasets
+
+# paths and setup for mc
+mcpath=/share/cta
+#mcrawpath=$mcpath/rawfiles
+#mcsequpath=$mcpath/sequences
+#corsikapath=/home/operator/Corsika/Mmcs6500/
+#detectordir=/home/msmeyer/MC/MagicSoft/Simulation/Detector
+#reflectorversion="reflector 0.7"
+#cameraversion="camera 0.8"
+#export FLUPRO=$corsikapath'/fluka2008_3'
+
+
+#webpath=/www/htdocs/datacenter
+
+
+# get paths for mars, macros and scripts
+mars=`dirname $0 | sed -e 's/\/datacenter\/scripts//'`
+macrospath=$mars/datacenter/macros
+scriptspath=$mars/datacenter/scripts
+# rcfiles
+# dependencies of steps
+steps=$mars/resources/steps_cta_new.rc
+# file with db information
+sqlrc=$mars/sql.rc
+
+
+#addresses to which the errors are sent
+erradrs="daniela.dorner@unige.ch" 
+#addresses to which the changes are sent
+adrs="daniela.dorner@unige.ch" 
+
+
+#setup for jobmanager
+sleeptime=30 #30
+sleeptimelimit=360 #360
+errorsleeptimedefault=60 #60
+max=50 #maximum number of processes for one script in case there are more than one and the others do not have anything to do
+totalmax=1600 #maximum number of processes (total) overwrites pnototal(we) in case it is smaller
+
+
+#
+# FIXME: 
+# max anz an prozessen setzen
+# besser Verhaeltnis zwischen den Prozessen und das am besten noch 
+# automatisch anpassen 
+# evtl noch maximale anz an callistos setzen
+# 
+
+#hour:            0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
+pnototal=(       1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 )
+pnototalwe=(     1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 1500 )
+
+pnosimtel=(       50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 )
+pnosimtelwe=(     50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 )
+
+# restricted to nodes => numbers per node 
+pnochimp=(         2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ) 
+pnochimpwe=(       2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ) 
+pnoctastar=(       2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ) 
+pnoctastarwe=(     2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ) 
+pnostereob=(       2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ) 
+pnostereobwe=(     2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ) 
+pnostereoc=(       2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ) 
+pnostereocwe=(     2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ) 
+pnostereog=(       2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ) 
+pnostereogwe=(     2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ) 
+
+# set variables for jobmanager 
+#scripts=( "runsimtel" "runchimp" "runctastar" "runstereo 2" "runstereo 3" "runstereo 7" )
+#scriptscolname=( "fCorsikaSimTelarray" "fChimp" "fCTAStar" "fStereoB" "fStereoC" "fStereoG" )
+#pnosweek=( ${pnosimtel[@]}   ${pnochimp[@]}   ${pnoctastar[@]}   ${pnostereob[@]}   ${pnostereoc[@]}   ${pnostereog[@]} )
+#pnoswe=( ${pnosimtelwe[@]} ${pnochimpwe[@]} ${pnoctastarwe[@]} ${pnostereobwe[@]} ${pnostereocwe[@]} ${pnostereogwe[@]} )
+scripts=( "runsimtel" "runchimp" "runctastar" )
+scriptscolname=( "fCorsikaSimTelarray" "fChimp" "fCTAStar" )
+pnosweek=( ${pnosimtel[@]}   ${pnochimp[@]}   ${pnoctastar[@]} )
+pnoswe=( ${pnosimtelwe[@]} ${pnochimpwe[@]} ${pnoctastarwe[@]} )
+
+# number of script that are limited to a certain node
+#numrestrictedscripts=5
+numrestrictedscripts=2
+
+# set up for nodes 
+#  for processes that can run only on certain node
+#  db: fProductionHostKEY
+minnode=0
+maxnode=26
+excludednodes=( 7 14 23 )

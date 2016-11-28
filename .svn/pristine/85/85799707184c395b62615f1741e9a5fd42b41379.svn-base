@@ -1,0 +1,12 @@
+copy_to_spool = false
+Executable    = ./ganymed
+Arguments     = -b -f -v5 --config=$(rc) $(add) --n=$(num) --out=$(path)$(out) --log=$(path)$(out)/ganymed$(num).log $(path)/datasets/dataset$(ds).txt
+Universe      = vanilla
+Log           = /tmp/condor.log
+Error         = $(path)/logs/condor-ds.error
+Output        = $(path)/logs/condor-ds.out
+notification  = Error
+getenv = True
+
+Queue 
+

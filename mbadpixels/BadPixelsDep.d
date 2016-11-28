@@ -1,0 +1,10 @@
+# DO NOT DELETE
+
+BadPixelsDep.d MBadPixelsPix.o: MBadPixelsPix.h ../mbase/MParContainer.h ../mbase/MAGIC.h ../mbase/MLog.h ../mbase/MLogManip.h
+BadPixelsDep.d MBadPixelsCam.o: MBadPixelsCam.h MBadPixelsPix.h ../mbase/MParContainer.h ../mbase/MAGIC.h ../mgui/MCamEvent.h ../mbase/MLog.h ../mbase/MLogManip.h ../mgeom/MGeomCam.h ../mbase/MQuaternion.h ../mgeom/MGeom.h
+BadPixelsDep.d MBadPixelsMerge.o: MBadPixelsMerge.h ../mbase/MTask.h ../mbase/MInputStreamID.h ../mbase/MParContainer.h ../mbase/MAGIC.h ../mbase/MLog.h ../mbase/MLogManip.h ../mbase/MParList.h MBadPixelsCam.h MBadPixelsPix.h ../mgui/MCamEvent.h
+BadPixelsDep.d MBadPixelsCalc.o: MBadPixelsCalc.h ../mbase/MTask.h ../mbase/MInputStreamID.h ../mbase/MParContainer.h ../mbase/MAGIC.h MBadPixelsPix.h ../mbase/MArrayI.h ../mbase/MArray.h ../mbase/MArrayD.h ../mbase/MLog.h ../mbase/MLogManip.h ../mbase/MParList.h ../mgeom/MGeomCam.h ../mbase/MQuaternion.h ../mgeom/MGeom.h ../mpedestal/MPedPhotCam.h ../mgui/MCamEvent.h ../mpedestal/MPedPhotPix.h ../mbase/MMath.h MBadPixelsCam.h
+BadPixelsDep.d MBadPixelsTreat.o: MBadPixelsTreat.h ../mbase/MTask.h ../mbase/MInputStreamID.h ../mbase/MParContainer.h ../mbase/MAGIC.h ../mbase/MLog.h ../mbase/MLogManip.h ../mbase/MParList.h ../mgeom/MGeom.h ../mgeom/MGeomCam.h ../mbase/MQuaternion.h ../msignal/MSignalPix.h ../mbase/MMath.h ../msignal/MSignalCam.h ../mgui/MCamEvent.h ../mpedestal/MPedPhotPix.h ../mpedestal/MPedPhotCam.h MBadPixelsPix.h MBadPixelsCam.h
+BadPixelsDep.d MMcBadPixelsSet.o: MMcBadPixelsSet.h ../mbase/MTask.h ../mbase/MInputStreamID.h ../mbase/MParContainer.h ../mbase/MAGIC.h ../mbase/MLog.h ../mbase/MLogManip.h ../mbase/MParList.h ../mgeom/MGeomCam.h ../mbase/MQuaternion.h ../mmc/MMcRunHeader.hxx MBadPixelsCam.h MBadPixelsPix.h ../mgui/MCamEvent.h
+BadPixelsDep.d MHBadPixels.o: MHBadPixels.h ../mhbase/MH.h ../mbase/MParContainer.h ../mbase/MAGIC.h ../mpointing/MPointingPos.h ../mpointing/MPointing.h MBadPixelsCam.h MBadPixelsPix.h ../mgui/MCamEvent.h ../mgeom/MGeomCam.h ../mbase/MQuaternion.h ../mpedestal/MPedPhotCam.h ../mbase/MParList.h ../mhbase/MBinning.h ../mbase/MLog.h ../mbase/MLogManip.h
+BadPixelsDep.d: Makefile

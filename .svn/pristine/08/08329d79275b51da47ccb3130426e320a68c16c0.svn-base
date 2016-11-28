@@ -1,0 +1,45 @@
+##################################################################
+#
+# config.mk
+#
+# @file        config.mk
+# 
+##################################################################
+# @maintitle
+
+# @code
+
+# compilers
+
+CC       = gcc
+CXX      = g++
+F77      = f77
+AR       = ar -rc
+#
+#  ----->>>   settings for compilation
+#
+
+OPTIM    = -O5 -Wall -fno-rtti -fnonnull-objects -fno-exceptions -fPIC -Wtraditional -Wpointer-arith -Wcast-align -Wconversion -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -Woverloaded-virtual
+DEBUG    = 
+ARCHDEF  = -D__LINUX__
+DYNLIB   = -shared
+
+# To be tested:
+# OPTIM    = -pipe  
+# OPTIM2   = -fomit-frame-pointer -ffast-math -march=i686 -mcpu=i686
+
+# For debugging information use '-g'
+# For producing gmon.out use    '-pg'
+
+#MARS_LIB = -Llib $(SUBDIRS:%=-l%)  $(MARSLIBS)
+MARS_LIB = -Llib  $(MARSLIBS)
+INCLUDES = -I. $(SUBDIRS:%=-I%)
+
+# uncomment this for quiet compilation
+
+.SILENT:
+
+# @endcode
+##EOF
+
+

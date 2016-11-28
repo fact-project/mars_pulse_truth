@@ -1,0 +1,333 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  10/2006 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2007
+#
+#
+# ========================================================================
+#
+#
+#
+##############################################################################
+#
+# This script can be used to run the following steps for one sequence:
+#  - callisto
+#  - merppupdate
+#  - star
+#
+# You have to set the path, where your Mars version can be found, the outpath,
+# where you want to store the output and the sequencenumber of the sequence
+# you want to process
+# 
+##############################################################################
+
+#to be set by the user (if you don't use the command-line options)
+#path of your output directory
+outpath=""
+#give either sequence number or sequence file (including path)
+sequence=""
+sequfile=""
+
+function usage()
+{
+   echo "Usage: $0 [options]"
+   echo "options:"
+   echo -n "  --sequ sequence#       "
+   echo " giving number of sequence which shall be processed "
+   echo -n "  --sequ-file sequfile   "
+   echo " giving sequencfile (including path) of sequence which shall be processed "
+   echo -n "  --out outpath          "
+   echo " giving the path where all outputfiles are stored "
+   echo -n "  -cal                   "
+   echo " running only calibration"
+   echo -n "  --cal-rc               "
+   echo " giving a differnt callisto rc file"
+   echo -n "  --star-rc              "
+   echo " giving a differnt star rc file"
+   echo -n "  -b                     "
+   echo " running in non-interactive mode (i.e. you are not asked if the paths are ok)"
+   echo -n "  -star                  "
+   echo " running only star"
+   echo ""
+   echo "Remarks: "
+   echo    " - you can set the needed variables also in the script "
+   echo    " - you have to set the outpath and either the sequence number or the sequence "
+   echo    "   file (if both is set, the sequence given by the sequencefile is processed)"
+   echo    " - you have to execute the script from your mars directory"
+   echo    " - in your outpath a calibration directory (callisto/sequencenumber), a "
+   echo    "   directory for the image fiels (star/sequencenumber) and a directory for "
+   echo    "   the merpplogs in the calibration directory are created. "
+   echo "" 
+   exit
+}
+
+function checkreturncode()
+{
+   case $check in 
+      0)  echo "$program finished sucessfully"
+          echo ""
+          ;;
+      [1-9]|[0-9][0-9]|1[0-1][0-9]|12[0-7])
+          echo -n "ERROR@$HOSTNAME: $program returned $check - please check the logfile $logfile"
+          if [ "$program" == "callisto" ]
+          then 
+             echo -n " - for more details see http://www.astro.uni-wuerzburg.de/datacenter/instructions/intern/errorcoding.txt"
+          fi
+          echo " you executed the following command: "$command
+          exit
+          ;;
+      *)  echo -n "ERROR@$HOSTNAME: $program returned $check - please check the logfile $logfile"
+          echo -n " $program returned a signal > 127 ($check)"
+          echo " you executed the following command: "$command
+          exit;;
+   esac
+}
+
+subsystempath=/magic/subsystemdata
+
+interactive="yes"
+
+# get options from the command line
+while [ "$1" ]
+do 
+   case $1 in 
+           --sequ)  shift
+                    sequence=$1
+                    ;;
+            --out)  shift
+                    outpath=$1
+                    ;;
+               -b)  interactive='no'
+                    ;;
+             -cal)  cal='yes'
+                    ;;
+            -star)  star='yes'
+                    ;;
+      --sequ-file)  shift
+                    sequfile=$1
+                    ;;
+        --star-rc)  shift
+                    starrc=$1
+                    ;;
+         --cal-rc)  shift
+                    calrc=$1
+                    ;;
+               -h)  usage
+                    ;;
+                *)  echo "unknown option $1 "
+                    usage
+                    ;;
+   esac
+   shift
+done
+
+if [ "$outpath" = "" ]
+then
+   echo "WARNING outpath has not been set"
+   echo ""
+   usage
+fi
+
+if [ "$sequence" = "" ] && [ "$sequfile" = "" ]
+then
+   echo "WARNING neither sequ nor sequfile has been set"
+   echo ""
+   usage
+fi
+
+echo ""
+echo "You have set the variables to: "
+echo " outpath:  "$outpath
+
+# get sequence file and number
+if [ "$sequfile" = "" ]
+then 
+   if ! n8=`printf %08d $sequence`
+   then
+      echo "your sequence number is not valid"
+      usage
+      exit
+   fi
+   no=`echo $n8 | cut -c 1-4`
+   sequfile="/magic/sequences/"$no"/sequence$n8.txt"
+   echo " sequence: "$sequence
+   echo " sequfile: "$sequfile
+else
+   echo " sequfile: "$sequfile
+   # get sequence number from file (for path and log names)
+   array=( `grep "Sequence: " $sequfile` )
+   n8=`printf %08d ${array[1]}`
+fi
+
+# define outpaths for callisto and star
+calpath=$outpath"/callisto/$n8"
+echo " path where calibration files are stored : "$calpath
+if ! [ "$cal" = "yes" ] || [ "$star" = "yes" ]
+then 
+   starpath=$outpath"/star/$n8"
+   echo " path where star files are stored        : "$starpath
+fi
+
+# rcfiles
+if ! [ "$calrc" = "" ]
+then 
+   echo "You chose a different callisto rc file: $calrc "
+fi
+if ! [ "$starrc" = "" ]
+then 
+   echo "You chose a different star rc file: $starrc "
+fi
+
+# interactive mode
+#  user is asked if paths are correct 
+if [ "$interactive" = "yes" ]
+then 
+   echo ""
+   echo "paths ok? continue?"
+   echo "please insert y, if you want continue"
+   echo "              n, if you want quit"
+
+   answer=`head -n 1`
+   case $answer in
+      y) echo "continue processing sequence"
+         ;;
+      n) exit
+         ;;
+      *) echo "your answer is not clear -> exit"
+         exit
+         ;;
+   esac
+fi
+
+# calibrate sequence
+if ! [ "$star" = "yes" ] || [ "$cal" = "yes" ]
+then 
+   mkdir -pv $calpath
+
+   program=callisto
+   echo "run $program..."
+   logfile=$calpath/$program$n8.log
+   command="./$program -b -q -f --log=$logfile --out=$calpath "
+   if ! [ "$calrc" = "" ]
+   then 
+      command=$command" --config=$calrc "
+   fi
+   command=$command" $sequfile "
+   echo $command 
+   $command
+   check=$?
+   checkreturncode
+
+   calfiles=`find $calpath -name 20[0-2][0-9][01][0-9][0-3][0-9]_*_Y_*.root`
+
+   echo "run merpp update for calibrated files..."
+   echo "calibrated data files: "$calfiles
+
+   for calfile in ${calfiles[@]}
+   do
+      echo "calfile: "$calfile
+      outpath=`dirname $calfile`
+
+      runno=`basename $calfile | cut -d_ -f2 | sed -e 's/^0//' | sed -e 's/^0//' | sed -e 's/^0//' `
+      echo "finding cc and cacofile for run $runno..."
+      date=`date --date \`basename $calfile | cut -d_ -f1\` +%Y/%m/%d`
+      ccpath=$subsystempath/cc/$date
+      cacopath=$subsystempath/caco/$date
+      ccfile=`find $ccpath -name 20[0-2][0-9][01][0-9][0-3][0-9]_*${runno}_[PDCS]_*_S.rep`
+      source=`echo $ccfile | cut -d_ -f4`
+      cacofile=`find $cacopath -name dc_20[0-2][0-9]_[01][0-9]_[0-3][0-9]_*${runno}_${source}.txt`
+      if [ "$cacofile" = "" ]
+      then
+         echo "no cacofile found for run "$runno
+         echo "finding cacofile..."
+         for (( i = 0; i <= 10; i++ ))
+         do
+            newrun=`echo $runno - $i | bc`
+            cacofile=`find $cacopath -name *$newrun*`
+            if [ "$cacofile" = "" ]
+            then
+               continue
+            else
+               break
+            fi
+         done
+      fi
+      if [ "$ccfile" = "" ]
+      then
+         echo "no ccfile found for run "$runno
+         exit
+      fi
+      if [ "$cacofile" = "" ]
+      then
+         echo "no cacofile found for run "$runno
+         exit
+      fi
+      echo "ccfile: "$ccfile
+      echo "cacofile: "$cacofile
+
+      merpplogpath=$outpath"/merpplogs"
+      mkdir -pv $merpplogpath
+
+      program=merppccupdate
+      logfile=$merpplogpath/$program$runno.log
+      command="./merpp -u --log=$logfile --runfile=$runno $ccfile $calfile "
+      echo $command
+      $command
+      check=$?
+      checkreturncode
+      
+      program=merppcacoupdate
+      logfile=$merpplogpath/$program$runno.log
+      command="./merpp -u --log=$logfile --auto-time $cacofile $calfile"
+      echo $command
+      $command
+      check=$?
+      checkreturncode
+      
+   done
+   echo "merppupdate is finished"
+   echo ""
+fi
+
+# run star for sequence
+if ! [ "$cal" = "yes" ] || [ "$star" = "yes" ]
+then 
+   mkdir -pv $starpath
+
+   program=star
+   echo "run $program..."
+   logfile=$starpath/$program$n8.log
+   command="./$program -b -q -f --log=$logfile --out=$starpath "
+   if ls $calpath >/dev/null 2>&1
+   then 
+      command=$command"--ind=$calpath "
+   fi
+   if ! [ "$starrc" = "" ]
+   then 
+      command=$command" --config=$starrc "
+   fi
+   command=$command" $sequfile"
+   echo $command
+   $command
+   check=$?
+   checkreturncode
+fi
+

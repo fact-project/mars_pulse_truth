@@ -1,0 +1,165 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2004 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2008
+#
+#
+# ========================================================================
+#
+# This script is launching the calibration of sequences. 
+# 
+# As callisto takes some time, only one sequence is processed at once. 
+# First the script gets a sequence number from the database, for which 
+# the calibration has to be done (function gettodo). After setting the 
+# status in the database (set fStartTime to know, that the sequence is 
+# already being processed), the sequence is calibrated and the merpp 
+# update is done. Afterwards the status in the database is updated 
+# according to the return value of the program. In case one of the merpp 
+# update failes, also the corresponding runnumber is inserted into the 
+# database. 
+# The important INFOs, WARNings and ERRORs are written not only to the 
+# scriptlog but also to the processlog. 
+# 
+# The callisto.rc files are stored in the setup directory
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=callisto
+column=fCallisto
+
+set -C
+
+scriptlog=$runlogpath/run$program-$datetime.log
+date >> $scriptlog 2>&1
+
+# get sequence # 
+gettodo "1" >> $scriptlog 2>&1
+sequence=${primaries[0]}
+telnum=${primaries[1]}
+
+# lock sequ for cal
+lockfile=$lockpath/lock-$table-$column-$sequence.txt
+checklock >> $scriptlog 2>&1
+
+cd $mars
+
+# run calibration for sequence
+echo "run $program for sequence $sequence..." >> $scriptlog 2>&1
+printprocesslog "INFO starting $program for sequence $sequence"
+no=`printf %08d $sequence | cut -c 0-4`
+no2=`printf %08d $sequence`
+sequfile="$sequpath/$no/sequence$no2.txt"
+
+outpath="$datapath/$program/$no/$no2"
+makedir $outpath >> $scriptlog 2>&1
+
+# define callisto.rc files
+callistorcnew=$setuppath/$program/callisto.rc
+callistorcmux=$setuppath/$program/callisto_mux.rc
+
+# find callisto.rc file
+if [ -e $outpath/callisto.rc ]
+then
+   echo "found $program.rc in $outpath -> using this " >> $scriptlog 2>&1
+   callistorcseq=$outpath/callisto.rc
+else
+   echo "no $program.rc found in $outpath -> making link " >> $scriptlog 2>&1
+   if [ $sequence -gt 200000 ]
+   then
+      ln -vs $callistorcmux $outpath/callisto.rc >> $scriptlog 2>&1
+   else
+      ln -vs $callistorcnew $outpath/callisto.rc >> $scriptlog 2>&1
+   fi
+   callistorcseq=$outpath/callisto.rc
+fi
+
+# lock sequ for zipping
+lockfile=$lockpath/calzip${sequence}-${telnum}.txt
+# if lockfile is already existing, 1 is returned
+if ! checklock return 1 >> $scriptlog 2>&1
+then
+   # reset lockfile name
+   lockfile=$lockpath/lock-$table-$column-$sequence.txt
+   finish >> $scriptlog 2>&1
+fi
+
+setstatus "start" >> $scriptlog 2>&1
+
+# stage the needed files; to be removed as soon as the correct stub file size has been determined
+echo "staging files:" >> $scriptlog 2>&1
+
+echo 'root -q -b $macrospath/stage.C\("\"$sequfile\""\) | tee -a $scriptlog | intgrep' >> $scriptlog 2>&1 
+check0=`root -q -b $macrospath/stage.C\("\"$sequfile\""\) | tee -a $scriptlog | intgrep`
+
+case $check0 in
+   0)   echo " check0=$check0 -> everything ok -> files staging..." >> $scriptlog 2>&1 
+        printprocesslog "INFO staging files started for $sequence"
+        ;;
+   *)   echo " check0=$check0 -> an error occured..." >> $scriptlog 2>&1 
+        printprocesslog "ERROR getting sequence $sequence"
+        check="no"
+        ;;
+esac
+
+
+echo "./callisto -b -q -v4 -f --log=$outpath/$program$no2.log --html=$outpath/$program$no2.html --out=$outpath --config=$callistorcseq $sequfile  2>> $scriptlog > /dev/null" >> $scriptlog 2>&1
+./callisto -b -q -v4 -f --log=$outpath/$program$no2.log --html=$outpath/$program$no2.html --out=$outpath --config=$callistorcseq $sequfile  2>> $scriptlog > /dev/null
+check1=$?
+
+# remove lockfile for zip and reset lockfile name
+rm -v $lockfile >> $scriptlog 2>&1
+lockfile=$lockpath/lock-$table-$column-$sequence.txt
+
+case $check1 in
+   0)   echo " check1=$check1 -> everything ok -> doing update..." >> $scriptlog 2>&1
+        printprocesslog "INFO $program finished successfully for sequence $sequence"
+
+        printprocesslog "INFO starting merpp/ccupdate for sequence $sequence"
+
+        # updated calibrated data files with the information from the cc and caco files
+        echo "./merpp -v3 --log=$outpath/merpp$no2.log --html=$outpath/merpp$no2.html --auto-time-stop $sequfile $outpath 2>> $scriptlog> /dev/null" >> $scriptlog 2>&1
+        ./merpp -v3 --log=$outpath/merpp$no2.log --html=$outpath/merpp$no2.html --auto-time-stop $sequfile $outpath 2>> $scriptlog > /dev/null
+        check2=$?
+
+        case $check2 in
+           0)   echo " check2=$check2 -> everything ok, merpp/ccupdate worked -> continue" >> $scriptlog 2>&1
+                printprocesslog "INFO merpp/ccupdate of sequence $sequence sucessfull"
+                ;;
+           *)   echo " check2=$check2 -> ERROR -> merpp/ccupdate $sequence failed" >> $scriptlog 2>&1
+                printprocesslog "ERROR merpp/ccupdate of sequence $sequence failed"
+                com=$Fmerppcc
+                check=$check2
+#                comadd=$runno
+                ;;
+        esac
+        ;;
+   *)   echo " check1=$check1 -> ERROR -> step has to be repeated" >> $scriptlog 2>&1
+        printprocesslog "ERROR $program failed for sequence $sequence (return code $check1)"
+        com=$Fcallisto
+        check=$check1
+        ;;
+esac
+
+setstatus "stop"  >> $scriptlog 2>&1
+
+finish >> $scriptlog 2>&1
+

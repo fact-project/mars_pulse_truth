@@ -1,0 +1,135 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  09/2006 <mailto:dorner@astro.uni-wuerzburg.de>
+#   Author(s): Stefan Ruegamer 08/2008 <mailto:snruegam@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2007
+#
+#
+# ========================================================================
+#
+# This script zips the incoming rawfiles. 
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+# to give the possibility to run several zipscripts at the same time, 
+# $1 is added
+program=zipscript$1
+
+set -C
+
+rawdatapath=$datapath/rawfiles/
+files=`find ${rawdatapath}20* -type f -name '*.raw'`
+
+scriptlog=$runlogpath/$program-$datetime.log
+date >> $scriptlog 2>&1
+
+# check if script is already running
+lockfile=$lockpath/lock-$program.txt
+checklock  >> $scriptlog 2>&1
+
+
+if [ "$files" == "" ]
+then
+   echo "no files to zip" >> $scriptlog 2>&1
+   finish >> $scriptlog 2>&1
+fi
+
+for file in ${files[@]}
+do
+   if ! [ -f $file ]
+   then
+      continue
+   fi
+   
+   echo -e "\nprocessing file $file..." >> $scriptlog 2>&1 
+   runno=`basename $file | sed -e 's/.*20[01][0-9]\{5\}_\(M[12]_\)\?.*\([0-9]\{8\}\).\([0-9]\{3\}\)\?.*/\2/'`
+   fileno=`basename $file | sed -e 's/.*20[01][0-9]\{5\}_\(M[12]_\)\?.*\([0-9]\{8\}\).\([0-9]\{3\}\)\?.*/\3/'`
+   telno=`basename $file | sed -e 's/.*20[01][0-9]\{5\}_\(M[12]_\)\?.*\([0-9]\{8\}\).\([0-9]\{3\}\)\?.*/\1/' | cut -c2`
+   # old runs have a fileno of 0
+   if [ "$fileno" == "" ]
+   then
+      fileno=0
+   fi
+   # old runs have a telno of 1
+   if [ "$telno" == "" ]
+   then
+      telno=1
+   fi
+   
+   # get the sequence corresponding to the run
+   query="SELECT fSequenceFirst FROM RunData WHERE fRunNumber="$runno" AND fFileNumber="$fileno" AND fTelescopeNumber="$telno
+   echo " sending query: $query" >> $scriptlog 2>&1
+   if ! seq=`sendquery`
+   then
+      echo "querying seq for run M${telno}_${runno}.${fileno} from the db did not work -> continue" >> $scriptlog 2>&1
+      printprocesslog "WARN query $seq for run M${telno}_${runno}.${fileno} from the db did not work"
+      continue
+   fi
+   if [ "$seq" == "" ] || [ "$seq" == "0" ]
+   then
+      echo "no seq found for run M${telno}_${runno}.${fileno} -> locking only run..." >> $scriptlog 2>&1
+      seq=${runno}.${fileno}
+   fi
+   
+   # lock the sequence against zipscript
+   echo "locking sequence ${seq}-${telno}..."  >> $scriptlog 2>&1
+   lockfile=$lockpath/calzip${seq}-${telno}.txt
+   checklock continue >> $scriptlog 2>&1
+   
+   # lock the run in the db
+   query="UPDATE SequenceProcessStatus set fNotZipping=NULL WHERE fSequenceFirst=$seq AND fTelescopeNumber=$telno"
+   echo " sending query: $query" >> $scriptlog 2>&1
+   if ! sendquery 
+   then
+      echo "locking ${seq}-${telno} for callisto in db did not work ..." >> $scriptlog 2>&1
+      printprocesslog "WARN locking ${seq}-${telno} for callisto in db did not work"
+      rm -v $lockfile >> $scriptlog 2>&1
+      continue
+   fi
+   
+   # zip the run
+   echo "zipping $file ..." >> $scriptlog 2>&1
+   if ssh -xn phoenix nice -n 19 gzip -1f $file >> $scriptlog 2>&1
+   then 
+      gzfile=$file".gz"
+      chmod a-w $gzfile >> $scriptlog 2>&1
+   else
+      printprocesslog "WARN zipping $file did not work"
+   fi
+   
+   # unlock the sequence in the db
+   echo "unlocking sequence ${seq}-${telno}..."  >> $scriptlog 2>&1
+   query="UPDATE SequenceProcessStatus set fNotZipping=Now() WHERE fSequenceFirst=$seq AND fTelescopeNumber=$telno"
+   echo " sending query: $query" >> $scriptlog 2>&1
+   if ! sendquery 
+   then
+      echo "unlocking ${seq}-${telno} for callisto in db did not work ..." >> $scriptlog 2>&1
+      printprocesslog "ERROR unlocking ${seq}-${telno} for callisto in db did not work"
+      rm -v $lockfile >> $scriptlog 2>&1
+      continue
+   fi
+   rm -v $lockfile >> $scriptlog 2>&1
+done
+
+lockfile=$lockpath/lock-$program.txt
+finish >> $scriptlog 2>&1
+

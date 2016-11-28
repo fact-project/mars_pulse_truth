@@ -1,0 +1,263 @@
+#!/bin/sh
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  05/2006 <mailto:dorner@astro.uni-wuerzburg.de>
+#   Author(s): Daniel Hoehne   11/2007 <mailto:hoehne@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2007
+#
+#
+# ========================================================================
+#
+#
+#
+##############################################################################
+#
+# This script creates mc sequences and datasets for a psf, observation mode 
+# and zenith range chosen by the user.
+#
+# variables, that have to be set by the user:
+# - path     directory, where the mc sequence and dataset files are stored 
+#              be careful: don't move the sequence files afterwards, as the 
+#              paths are stored in the datasetfiles
+# - zdmin    minimum zenith distance
+# - zdmax    maximum zenith distance
+# - psf      add. spot size before camera
+# - mode     production mode of the mcs
+#              the explanation for the modes can be found in the text and in
+#              /magic/montecarlo/rawfiles/README.txt
+# - numruns  number  of runs, that are in the sequence file, which are used 
+#            for training (SequencesOn in $mcdataset)
+# 
+# Remark: For the training of the RF for the energy estimation you need the 
+#         macro trainengery.C in the path $path/macros in a modified version, 
+#         i.e. the inputfile (mcdataset) and the outputfile (rf-root file) 
+#         are given as options: 
+#         $macrospath/trainenergy.C+\("\"$mcdataset\""\,"\"$rffile\""\) 
+#
+# Remark: You have to run the script in your Mars directory.
+# 
+##############################################################################
+
+# to be set by the user
+path=~
+# path where your mc sequence and dataset files are stored
+mcoutpath=$path/mc
+# path where you have your modified version of trainenergy.C
+macrospath=$path/macros
+
+# zenith range of your data
+zdmin=7
+zdmax=25
+# additional spotsize (before camera) for the mcs. You can calculate it with Sqrt(psf(real data)*psf(real data) - 25)
+psf=15
+# production mode of your data
+#  available observation modes:  On (please leave modes empty: ""), Wobble ("W1", "W2"), Fake Wobble ("FW"), Diffuse ("Diff")
+#  you can combine these with:   high energy (harder spectrum: "HE")
+#  particle type:                "Muon", "Gamma" or "Proton"
+#  remark: first the particle, then the spectrum and the observation mode at the end: Examples mode="GammaHEFW" or "ProtonDiff" or "GammaW1"
+# please have also a look into /magic/montecarlo/rawfiles/README.txt
+# you can also use asterisks, e.g.: "GammaW*" for W1 and W2
+mode="GammaW1"
+#  epoch for which the mc were produced
+#  available epochs: MC_old MC_April_May06 MC_post_June06 MC_MuxFADCs MCMuxFADCs_NEW (last one is for Mux data with reduced fadc slices number)
+epos=( "MC_Old" ) 
+# number of runs which are in the sequence files used for training
+# please adjust this number such, that you use about 30000 Events for training
+numruns=2
+
+
+
+
+# some checks
+# checking if the given files and paths are existing
+if ! [ -e $mcoutpath ]
+then
+   echo "Your outpath for the mc $mcoutpath does not exist."
+   exit
+fi
+if ! [ -e $macrospath ]
+then
+   echo "Your macros path $macrospath does not exist."
+   exit
+fi
+if ! [ -e $macrospath/trainenergy.C ]
+then
+   echo "Your trainenergy.C does not exist in path $macrospath."
+   exit
+fi
+
+mcdatasettrain=$mcoutpath/mcdataset-for-training.txt
+mcdatasetsponde=$mcoutpath/mcdataset-for-sponde.txt
+
+# be careful with $date, when path changes
+mcpath=/magic/montecarlo 
+
+
+zbinmin=`echo "scale=2 ; 100*(1 - c($zdmin*3.14/180))+1" | bc -l`
+zbinmax=`echo "scale=2 ; 100*(1 - c($zdmax*3.14/180))+1" | bc -l`
+
+zbinmin=`echo $zbinmin | cut -d. -f1`
+zbinmax=`echo $zbinmax | cut -d. -f1`
+
+echo "zd:   min: $zdmin max: $zdmax"
+echo "zbin: min: $zbinmin max: $zbinmax"
+echo "$numruns runs are classified as test, the rest as train"
+
+j=0
+for epo in $epos
+do 
+   for (( i=$zbinmin ; i < $zbinmax ; i++ ))
+   do 
+      #depending on the epoch you need different P and C runs and time codes
+      case "$epo" in
+
+         "MC_up_to_April06")
+            prun=272
+            crun=273
+            time="03"
+            ;;
+         "MC_old")
+            prun=4223
+            crun=4224
+            time="03"
+            ;;
+         "MC_April_May06")
+            prun=272
+            crun=273
+            time="02"
+            ;;
+         "MC_post_June06")
+            prun=1048
+            crun=1049
+            time="02"
+            ;;
+         "MC_MuxFADCs")
+            prun=3919
+            crun=3920
+            time="01"
+            ;;
+         "MC_MuxFADCs_NEW")
+            prun=270
+            crun=271
+            time="01"
+            ;;
+         *)
+            echo "Wrong epoch $epo , please specify a valid epoch"
+            continue
+            ;;
+      esac
+
+      zbin=`printf %02d $i`
+      path=$mcpath/rawfiles/19$zbin/$time/$psf
+      runs=(`ls $path | grep $mode | cut -d_ -f2 | sed -e 's/^0//g' -e 's/^0//g' -e 's/^0//g' -e 's/^0//g' -e 's/^0//g' -e 's/^0//g' -e 's/^0//g' | tr "\n" " "`)
+      if [ "$runs" = "" ]
+      then
+         echo "  No runs for zbin $i found. Please try to find some MC with zbin $i!"
+         continue
+      fi
+      echo "found ${#runs[@]} Gamma MC files in path "$path
+
+      runsforfirst=""
+      firstrun=${runs[0]}
+      secondrun=${runs[${numruns}]}
+      firstrunno=`printf %08d $firstrun`
+      secondrunno=`printf %08d $secondrun`
+      unset runs[0]
+      for (( k=1 ; k < $numruns ; k++ ))
+      do 
+         runsforfirst=$runsforfirst" ${runs[$k]}"
+         unset runs[$k]
+      done
+      date=`echo $path | cut -d/ -f5-7 | sed -e 's/\//-/g'`
+      
+      trainsequfile=$mcoutpath/sequence$firstrunno.txt
+      trainsequences[$j]=$firstrunno
+#      echo "  writing train-sequfile "$trainsequfile 
+      echo "Sequence:        $firstrun" > $trainsequfile
+      echo "Night:           $date" >> $trainsequfile
+      echo "" >> $trainsequfile
+      echo "CalRuns:         1" >> $trainsequfile
+      echo "PedRuns:         2" >> $trainsequfile
+      echo "DatRuns:         $firstrun$runsforfirst" >> $trainsequfile
+      echo "" >> $trainsequfile
+      echo "MonteCarlo: Yes" >> $trainsequfile
+      echo "" >> $trainsequfile
+
+      testsequfile=$mcoutpath/sequence$secondrunno.txt
+      testsequences[$j]=$secondrunno
+#      echo "writing test-sequfile "$testsequfile 
+      echo "Sequence:        $secondrun" > $testsequfile
+      echo "Night:           $date" >> $testsequfile
+      echo "" >> $testsequfile
+      echo "CalRuns:         1" >> $testsequfile
+      echo "PedRuns:         2" >> $testsequfile
+      echo "DatRuns:         ${runs[@]}" >> $testsequfile
+      echo "" >> $testsequfile
+      echo "MonteCarlo: Yes" >> $testsequfile
+      echo "" >> $testsequfile
+      
+      j=$j+1
+   done
+done
+
+echo "# test sequences: ${#testsequences[@]}"
+echo "# train sequences: ${#trainsequences[@]}"
+
+echo "AnalysisNumber: 1 " > $mcdatasettrain
+echo "" >> $mcdatasettrain
+echo "SequencesOn: ${trainsequences[@]}" >> $mcdatasettrain
+echo "" >> $mcdatasettrain
+echo "SequencesOff: ${testsequences[@]}" >> $mcdatasettrain
+echo "" >> $mcdatasettrain
+echo "" >> $mcdatasettrain
+
+echo "AnalysisNumber: 1 " > $mcdatasetsponde
+echo "" >> $mcdatasetsponde
+echo "SequencesOn: ${testsequences[@]}" >> $mcdatasetsponde
+echo "" >> $mcdatasetsponde
+echo "" >> $mcdatasetsponde
+
+for (( i=0 ; i < ${#testsequences[@]} ; i++ ))
+do 
+   numtrain=${trainsequences[$i]}
+   notrain=`echo $numtrain | cut -c 0-4`
+   echo "Sequence$numtrain.File: $mcoutpath/sequence$numtrain.txt" >> $mcdatasettrain
+   echo "Sequence$numtrain.Dir:  $mcpath/star/$notrain/$numtrain" >> $mcdatasettrain
+
+   numtest=${testsequences[$i]}
+   notest=`echo $numtest | cut -c 0-4`
+   echo "Sequence$numtest.File: $mcoutpath/sequence$numtest.txt" >> $mcdatasettrain
+   echo "Sequence$numtest.Dir:  $mcpath/star/$notrain/$numtrain" >> $mcdatasettrain
+   echo "Sequence$numtest.File: $mcoutpath/sequence$numtest.txt" >> $mcdatasetsponde
+   echo "Sequence$numtest.Dir:  $mcpath/star/$notrain/$numtrain" >> $mcdatasetsponde
+done
+
+
+# train the rf for energy estimation
+logfile=$mcoutpath/trainenergy.log
+rffile=$mcoutpath/rf-energy.root
+
+echo "Your mcdataset for training: $mcdatasettrain"
+echo "Your rffile: $rffile"
+echo ""
+echo "Training the RF..."
+root -q -b $macrospath/trainenergy.C+\("\"$mcdatasettrain\""\,"\"$rffile\""\) | tee $logfile
+
+echo "" 
+echo "Please use rf-file $rffile in your sponde.rc, in case you want to use the RF energy estimator there. "

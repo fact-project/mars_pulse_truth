@@ -1,0 +1,232 @@
+#/////////////////////////////////////////////////////////////////////////
+#
+# This file is compiled from two sections. One defines which transitions
+# are allowed to build a sequence (for example changing L1 Trigger
+# Tables between Calibration and Pedestal runs). The other section 
+# defines a regular expression to define the allowed ordering
+# of the P-, C- and D-runs.
+#
+# The sections a introduced by [Transition] and [Regexp]. For further
+# details see below.
+#
+# If a section should be valid only for one telescope use:
+#   [Transition]         # Valid for all telescope numbers
+#   [Transition 5]       # Valid for telescope 5
+#   [Transition: 5]      # Valid for telescope 5
+#   [Transition: 5 6]    # Valid for telescopes 5 and 6
+#
+#
+# File-Id:
+#   A file is uniquely identified by run-number and file-number.
+#   If you give just a number it is identical to run-number with
+#   file-number 0. To give a dedicated file-number you can use:
+#     run.file
+#
+#/////////////////////////////////////////////////////////////////////////
+
+##########################################################################
+#
+# Explanation [Transition]
+#
+# Rules to build blocks which will later be broken into sequences
+#
+# Syntax:
+#
+# [Transition]
+# rule1
+# rule2
+# rule3
+#
+#
+# Colums of rule:
+# 0 [1 2 3 4 [5 [6]]]
+# 
+# 0: Table/Column to which the transition is applied
+# 1: Run type of previous run
+# 2: Run type of run to be accepted
+# 3: Key for previous run
+# 4: key for run to be accepted
+# 5: first file-id to apply this rule <default=0>
+# 6: last  file-id to apply this rule <default=max>
+#
+# Run Types:
+#  D  2
+#  P  3
+#  C  4
+#
+# The columns 1-4 can be expressed as regular expressions (ala TRegexp)
+# a ^ is prepended and a $ is appended automatically.
+#
+# A single "*" is an abbreviation for the regexp ".*" .
+#
+# As soon as any transition (column 0) is specified this transisiton 
+# is checked not to change within a sequence.
+#
+# A "-" is an abbreviation for transitions "to be ignored". For example:
+#     [Transition]
+#     Test - 4 * 1200 1300
+# would mean:
+#     ignore all keys (*) of column test for all current files
+#     with run-type 4 if its file-id is between 1200.0 and 1300.0
+#     The (former) third column in this case is obsolete.
+#
+# Each Transition which appears at least once is checked.
+#
+
+[Transition: 1]
+
+# Ignore project name for calibration files between 20100 and 45100
+#Project           - 4 *    20100 45100
+#HvSettings        - 2 *    86094 86094
+#TriggerDelayTable
+#ObservationMode
+
+# Transition setup for L1/2-TriggerTable of very old data
+#L1TriggerTable  3 2  1 [235]  26206 35478
+#L1TriggerTable  2 3  [235] 1  26206 35478
+
+#L1TriggerTable  - [^2] * 0 26830
+#L2TriggerTable  - [^2] * 0 26830
+
+#L1TriggerTable  2 4  3 1  26816 39429
+
+#L2TriggerTable  3 2  7 2  36049 38012
+#L2TriggerTable  2 3  2 7  36053 38011
+
+#L2TriggerTable  4 3  9 7  20170 37382
+#L2TriggerTable  3 4  7 9  22712 37935
+
+#L2TriggerTable  3 2  7 5  26207 35455
+#L2TriggerTable  2 3  5 7  26207 35477
+
+#L2TriggerTable  4 2  9 2  36157 37938
+#L2TriggerTable  4 3  5 7  26207 35477
+#L2TriggerTable  3 2  7 5  35460 36478
+#L2TriggerTable  2 4  5 9  27170 31869
+
+
+# The Discriminator Thresholds do not influence the pedestal- and
+# calibration-trigger and need therefore not to be checked for these runs.
+# This allows all kind of transitions from P/C to P/C and from C to D.
+#DiscriminatorThresholdTable  [34]  [34]   *   *
+#DiscriminatorThresholdTable    4     2    *   *
+
+# This defines which changes in the calibration script are allowed
+# P 177: CPedestals_500Hz
+# P 199: Pedestals_500Hz
+# C 180: 23Led_Blue
+# C 181: 10_Led_UV
+# C 182: 1Led_Green
+# C 183: 10Led_Blue
+# C 195: 1Led_Blue
+# C 207: 10Led_UV_PinDiode
+# C 256: 10Led_UV_PEDANDCAL_1kHz
+# D 179: 10Led_UV_50Hz
+# D 209: 10Led_UV_50Hz_PinDiode
+# D 238: 10Led_UV_50Hz_PinDiode.  <---  has an additional dot
+# D 188: 10Led_UV_train50Hz
+# D 200: 10Led_UV_train50Hz_PinDiode
+# D 210: 10Led_Blue_50Hz
+# D 245: 10Led_UV_50Hz_Ped
+
+# Current DEFAULT setup. This what is used to build the
+# sequences from the newest data
+#CalibrationScript  2 3  209 199                      79266 200000
+#CalibrationScript  3 4  199 207                      50640
+#CalibrationScript  4 2  207 209                      91301
+#CalibrationScript  4 3  207 199                      53875 200000
+#CalibrationScript  4 2  207 245                     200000
+#CalibrationScript  3 4  199 256                    1007866
+#CalibrationScript  4 2  256 245                    1007866
+#CalibrationScript  3 4  199 181                    1007844
+#CalibrationScript  4 2  181 245                    1007844
+
+# Previous defaults. This are cases which are widely used
+# through our data and can thus be considered old defaults
+#CalibrationScript  4 2  181 179                      46305 50600
+#CalibrationScript  4 2  207 209                      50641 84570
+#CalibrationScript  4 2  207 179                      50879 91252
+#CalibrationScript  2 3  179 199                      46313 91423
+#CalibrationScript  2 3  209 199                      50784 79256
+#CalibrationScript  3 2  199 179                      46313 90220
+
+#CalibrationScript  3 2  199 209                      50785 57781
+#CalibrationScript  3 4  199 181                      45730 50805
+
+# This was used only in some rare cases (still to be checked!)
+# This are cases used through a big part of our data
+# but take place only in some single cases.
+#CalibrationScript  4 3  181 199                      46405 50137
+#CalibrationScript  3 4  199 181                      67116 68714
+#CalibrationScript  2 4  179 207                      87824 87842
+
+# Single calibration runs inbetween data. Should be
+# excluded differently, because these blocks will not
+# give valid sequences anyhow
+#CalibrationScript  2 4  179 207                      68731 68731
+#CalibrationScript  2 4  179 207                      61374 61459
+#CalibrationScript  2 4  179 207                      53901 53901
+#CalibrationScript  2 4  179 207                      51153 51170
+#CalibrationScript  2 4  188 181                      50084 50084
+#CalibrationScript  2 4  209 207                      96951 96951
+
+# For some reasons here are two consecutive calibration
+# runs with two different colors (still to be checked!)
+#CalibrationScript  4 4  181 183                      51173 51173
+
+# Special setup for more than one C-Run. Old data had several
+# calibration runs with different taken sequentually
+#CalibrationScript  4 4  (181|195) (182|183|193|195)  44834 45579
+
+# This was a typo 238 is basically the same as 209
+#CalibrationScript  4 2  207 238                      78696 78696
+
+# This is for runs with special calibration scripts (177,188,200,210)
+#CalibrationScript  2 3  (179|188|200) (177|199)      44831 46223
+#CalibrationScript  3 2  (177|199) (179|188|200)      44831 46223
+#CalibrationScript  4 2  (181|182|195) (188|200)      44831 46223
+#CalibrationScript  3 4  177 (181|195)                44831 45718
+#CalibrationScript  4 3  181 177                      44831 45717
+#CalibrationScript  4 2  181 188                      50083 50273
+#CalibrationScript  3 2  199 188                      50083 50273
+#CalibrationScript  2 3  188 199                      50083 50273
+#CalibrationScript  4 2  207 210                      50687 50746
+#CalibrationScript  2 3  210 199                      50687 50746
+#CalibrationScript  3 2  199 210                      50687 50746
+
+# Special rules for calibration script 183
+#CalibrationScript  2 4  209 183                      50642 50642
+#CalibrationScript  4 3  183 199                      51193 51193
+#CalibrationScript  2 4  179 183                      51192 51192
+#CalibrationScript  4 2  183 179                      51174 51174
+
+#########################################################################
+#
+# Explanation [Regexp]
+#
+# To build sequences a string with the run-types is evaluated.
+# A capital case D or P means: The nearest C-Run is the last C-Run
+# A lower case   d or p means: The nearest C-Run is the next C-Run
+#
+# The first expression is evaluated first. The last one last.
+# If one regexp matches the others are not evaluated anymore and
+# the sequence is build from the match.
+#
+# For details on regular expressions check 
+#     http://perldoc.perl.org/perlre.html
+#
+# The syntax is
+#   [Regexp]
+#   regexp [firstrun [lastrun]]
+#
+[Regexp: 1]
+
+#BGBB?T(BG)?PP? 0
+BGBB?TU?PP? 0
+PCD+        0
+BGPP?       20150716
+P?D+        20150716
+
+#[bB][gG][bB][bB][tT][pP][pP] 0 20120116
+#[bB][gG][bB][bB][tT][pP][pP] 0 20120116
+#[pP][cC][dD]+                0

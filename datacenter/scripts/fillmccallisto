@@ -1,0 +1,118 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2004 <mailto:dorner@astro.uni-wuerzburg.de>
+#   Author(s): Daniel Hoehne-Moench  08/2009 <mailto:hoehne@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2009
+#
+#
+# ========================================================================
+#
+# This script launches the filling of the results from the calibration for 
+# all mc sequences of which the results are not yet in the database.
+#
+# After checking if the script is already running the todolist is written.
+# Then for each sequence in the todo list the calibration results are 
+# filled into the table MCCalibration in the database using the macros 
+# fillmccalib.C and fillmcsignal.C 
+# If this was successful, the status is inserted into the database using 
+# the function setstatus.
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=fillmccallisto
+column=fFillCallisto
+
+set -C
+
+scriptlog=$runlogpath/$program-$datetime.log
+date >> $scriptlog 2>&1
+
+# check if the script is already running
+lockfile=$lockpath/lock-$program.txt
+checklock  >> $scriptlog 2>&1
+
+# get todo file
+gettodo  >> $scriptlog 2>&1
+
+cd $mars
+
+# fill information into the database for all sequences in the todo file
+for (( s=0 ; s < $num ; s++ ))
+do
+   sequence=${primaries[$s]}
+   printprocesslog "INFO starting $program for mc sequence $sequence"
+   no=`printf %08d $sequence | cut -c 0-4`
+   no2=`printf %08d $sequence`
+   path="$mcpath/callisto/$no/$no2"
+   signalfile=$path/signal$no2.root
+   calibfile=$path/calib$no2.root
+   fillcallistologpath=$logpath/$program/$no
+   makedir $fillcallistologpath >> $scriptlog 2>&1
+   fillcaliblog=$fillcallistologpath/fillcalib-$sequence.log
+   fillsignallog=$fillcallistologpath/fillsignal-$sequence.log
+
+   echo "run $program for mc sequence $sequence" >> $scriptlog 2>&1
+   setstatus "start" >> $scriptlog 2>&1
+   echo "run fillmccalib..." >> $scriptlog 2>&1
+   printprocesslog "INFO starting fillmccalib for mc sequence $sequence"
+
+   check1=`root -q -b $macrospath/fillmccalib.C+\("\"$calibfile\""\,kFALSE\) | tee $fillcaliblog | intgrep`
+
+   case $check1 in
+      1)   echo " check1=$check1 -> everything ok -> run fillmcsignal " >> $scriptlog 2>&1 
+           printprocesslog "INFO done fillmccalib successfully for mc sequence $sequence"
+           ;;
+      0)   echo " check1=$check1 -> no connection to db -> continue..." >> $scriptlog 2>&1 
+           printprocesslog "WARN connection to DB failed"
+           check="no"
+           setstatus "stop" >> $scriptlog 2>&1
+           continue ;;
+      *)   echo " check1=$check1 -> ERROR -> step has to be repeated" >> $scriptlog 2>&1
+           printprocesslog "ERROR fillmccalib failed for mc sequence $sequence"
+           com=$Ffillmccalib
+           check=$check1
+           setstatus "stop" >> $scriptlog 2>&1
+           continue ;;
+   esac
+
+   printprocesslog "INFO starting fillmcsignal for sequence $sequence"
+   check2=`root -q -b $macrospath/fillmcsignal.C+\("\"$signalfile\""\,kFALSE\) | tee $fillsignallog | intgrep`
+   case $check2 in
+      1)   echo " check2=$check2 -> everything ok " >> $scriptlog 2>&1 
+           printprocesslog "INFO done fillmcsignal successfully for mc sequence $sequence"
+           ;;
+      0)   echo " check2=$check2 -> no connection to db -> continue..." >> $scriptlog 2>&1 
+           printprocesslog "WARN connection to DB failed"
+           check="no"
+           ;;
+      *)   echo " check2=$check2 -> ERROR -> step has to be repeated" >> $scriptlog 2>&1
+           printprocesslog "ERROR fillmcsignal failed for mc sequence $sequence"
+           com=$Ffillmcsignal
+           check=$check2
+           ;;
+   esac
+   
+   setstatus "stop" >> $scriptlog 2>&1
+done
+
+finish >> $scriptlog 2>&1
+

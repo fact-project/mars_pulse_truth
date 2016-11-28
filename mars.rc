@@ -1,0 +1,106 @@
+# ==========================================================================
+#############################################################################
+# ==========================================================================
+#
+#  This is a resource file for the Mars executable. You can here setup
+#   setup the tasks of the eventloops executed in the Mars executable -
+#   if supported by these tasks.
+#
+# ==========================================================================
+#############################################################################
+# ==========================================================================
+
+# -------------------------------------------------------------------------
+# Use this if you want to setup the logging stream for the jobs
+# (overwrites command line options)
+# -------------------------------------------------------------------------
+#MLog.VerbosityLevel: 2
+#MLog.DebugLevel:     1
+#MLog.NoColors:       yes
+
+# -------------------------------------------------------------------------
+# Define here which signal extractor you are going to use for the
+# whole calibration chain
+# -------------------------------------------------------------------------
+#ExtractSignal: MExtractTimeAndChargeDigitalFilter
+#ExtractSignal.WeightsFile: msignal/MC_weights46.dat
+# -------------------------------------------------------------------------
+# Define here parameters valid for all extractors above
+# -------------------------------------------------------------------------
+#ExtractSignal.LoGainSwitch:      120
+#ExtractSignal.LoGainStartShift: -2.5
+# -------------------------------------------------------------------------
+# Define here parameters valid for the spline:
+# -------------------------------------------------------------------------
+#ExtractSignal.HiGainFirst:         0
+#ExtractSignal.HiGainLast:         14
+#ExtractSignal.LoGainFirst:         1
+#ExtractSignal.LoGainLast:         14
+#ExtractSignal.Resolution:       0.05
+#ExtractSignal.RiseTimeHiGain:   0.64
+#ExtractSignal.FallTimeHiGain:   0.76
+#ExtractSignal.LoGainStretch:     1.5
+#ExtractSignal.OffsetLoGain:      1.3
+#ExtractSignal.ExtractionType: Integral <default>
+#ExtractSignal.ExtractionType: Amplitude
+# -------------------------------------------------------------------------
+# Define here parameters valid for the Digital Filter:
+# -------------------------------------------------------------------------
+#ExtractSignal.HiGainFirst:         0
+#ExtractSignal.HiGainLast:         16
+#ExtractSignal.LoGainFirst:         1
+#ExtractSignal.LoGainLast:         14
+#ExtractSignal.OffsetLoGain:     0.95
+
+# =========================================================================
+# To look into MUX data use the following setup
+# =========================================================================
+#ExtractSignal: MExtractTimeAndChargeSpline
+#ExtractSignal.RiseTimeHiGain:   4.3
+#ExtractSignal.FallTimeHiGain:   5.1
+#ExtractSignal.HiGainFirst:      0
+#ExtractSignal.HiGainLast:       49
+
+# -------------------------------------------------------------------------
+# In the case of the Digital filter you have to overwrite the default
+# weights file depending on what you are extracting
+# -------------------------------------------------------------------------
+#ExtractSignal.WeightsFile: msignal/cosmics_weights.dat
+
+# -------------------------------------------------------------------------
+# Setup level for determining of bad pixels
+# -------------------------------------------------------------------------
+#MBadPixelsCalc.PedestalLevel:         3.0
+#MBadPixelsCalc.PedestalLevelVariance: 3.0
+#MBadPixelsTreat.NumMinNeighbors:      3
+#MBadPixelsTreat.UseInterpolation:     yes
+#MBadPixelsTreat.ProcessPedestalEvt:   yes
+#MBadPixelsTreat.ProcessPedestalRun:   no
+#MBadPixelsTreat.ProcessTimes:         yes
+#MBadPixelsTreat.UseCentralPixel:      no
+#MBadPixelsTreat.HardTreatment:        no
+
+# -------------------------------------------------------------------------
+# This is how you can setup the Image cleaning used in the Camera Display
+#  e.g. Standard, Absolute, Scaled, Time
+# -------------------------------------------------------------------------
+MImgCleanStd.CleanMethod:   absolute
+#MImgCleanStd.CleanLevel0:   6.0
+MImgCleanStd.CleanLevel1:   6.0
+MImgCleanStd.CleanLevel2:   3.0
+MImgCleanStd.TimeLevel1:    17.5
+MImgCleanStd.TimeLevel2:    17.5
+MImgCleanStd.PostCleanType: 3
+
+#MImgCleanStd.CleanRings: 1
+#MImgCleanStd.KeepSinglePixels: No
+
+# -------------------------------------------------------------------------
+# Setup a cut to choose the events which should be displayed
+#    (Use this cuts to display only good Muon candidates)
+# -------------------------------------------------------------------------
+#Cut.Inverted: Yes
+#Cut.Condition: {0} && {1} && {2}
+#Cut.0: MHillas.fSize>150
+#Cut.1: (MMuonSearchPar.fRadius>180) && (MMuonSearchPar.fRadius<400) && (MMuonSearchPar.fDeviation<45)
+#Cut.2: (MMuonCalibPar.fArcPhi>190)  && (MMuonSearchPar.fDeviation<35) && (MMuonCalibPar.fArcWidth<0.20) && (MMuonCalibPar.fArcWidth>0.04)

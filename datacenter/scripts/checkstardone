@@ -1,0 +1,81 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2004 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2008
+#
+#
+# ========================================================================
+#
+# This script launches the checking of the availability of the files for 
+# the datasets. 
+#
+# After checking if the script is already running the todolist is written.
+# Then for each dataset the sequences are extracted from the datasetfile 
+# and for each sequence the availability of the star files checked by using 
+# the macro checkstardone.C 
+# If this was successful, the status is inserted into the database using 
+# the function setstatus.
+#
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=checkstardone
+column=fStarFilesAvail
+
+# check if script is already running
+lockfile=$lockpath/lock-$program.txt
+checklock 
+
+# get todo list
+gettodo 
+
+cd $mars
+
+for (( s=0 ; s < $num ; s++ ))
+do
+   dataset=${primaries[$s]}
+   printprocesslog "INFO checking star done for sequences of dataset $dataset"
+
+   outpath=$logpath/$program/`printf %08d $dataset | cut -c 0-5`
+   makedir $outpath 
+
+   setstatus "start" 
+
+   check1=`root -q -b $macrospath/checkstardone.C+\($dataset\) | tee $outpath/checkstardone-$dataset.log | intgrep`
+
+   case $check1 in
+      1)   printprocesslog "INFO check1=$check1 -> everything ok -> continue with next dataset..." 
+           ;;
+      2)   printprocesslog "INFO files not yet available for dataset $dataset (check1=$check1)"
+           check="no"
+           ;;
+      0)   printprocesslog "WARN connection to DB failed (check1=$check1)"
+           check="no"
+           ;;
+      *)   printprocesslog "ERROR checkstardone.C failed for dataset $dataset (check1=$check1)"
+           com=$Fstardone
+           check=$check1
+           ;;
+   esac
+
+   setstatus "stop" 
+done
+
+finish 

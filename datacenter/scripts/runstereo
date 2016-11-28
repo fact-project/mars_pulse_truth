@@ -1,0 +1,111 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  04/2009 <mailto:daniela.dorner@unige.ch>
+#
+#   Copyright: MAGIC Software Development, 2000-2009
+#
+#
+# ========================================================================
+#
+
+rootsys=/opt/root5.12.i386
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=ctastereo
+case $1 in 
+   2) column=fStereoB
+      Fctastereo=$FctastereoB
+      outpath=$mcpath/stereoB
+      stereopath=/home/dorner/data/stereoB
+      ;;
+   3) column=fStereoC
+      Fctastereo=$FctastereoC
+      outpath=$mcpath/stereoC
+      stereopath=/home/dorner/data/stereoC
+      ;;
+   7) column=fStereoG
+      Fctastereo=$FctastereoG
+      outpath=$mcpath/stereoG
+      stereopath=/home/dorner/data/stereoG
+      ;;
+   *) printprocesslog "ERROR Unknown commandline option $1"
+      finish
+      ;;
+esac
+bcnmars=/home/dorner/Mars.BCN.2009.03.27.cvs
+
+set -C
+
+node=`echo $HOSTNAME | sed -e 's/compute-0-//' -e 's/[.]local//'`
+printprocesslog "INFO $program (for column $column) is running on node $node"
+# get run # 
+gettodo "1" $node
+run=${primaries[0]}
+
+# lock sequ
+lockfile=$lockpath/lock-$table-$column-$run.txt
+checklock 
+
+printprocesslog "INFO starting $program for run $run"
+
+#get particle for file name
+particles[1]="gamma"
+particles[14]="proton"
+particles[6]="muon"
+particles[3]="electron"
+query="select fParticleTypeKEY from MCRunData where fMCRunNumber=$run"
+key=( `mysql -P 3306 -u operator --password=Ics+eMM! --host=mysql.isdc.unige.ch CTA_MC -s -e "$query"` )
+particle=${particles[$key]}
+infile=$mcpath/chimp/cta-ultra3/0.0deg/Data/${particle}_20deg_90deg_run${run}___cta-ultra3_desert_I.root
+inpath=$mcpath/star
+infile=$inpath/${particle}_20deg_90deg_run${run}___cta-ultra3_desert_I.root
+outfile=$outpath/${particle}_20deg_90deg_run${run}___cta-ultra3_desert_S.root
+makedir $stereopath
+logfile=$outpath/CTAstereo_run${run}.log
+makedir $outpath
+
+setstatus "start" 
+
+cd $bcnmars
+
+printprocesslog "INFO starting: root -q -b macros/CTAstereoSub.C\("\"$infile\""\,"\"$outpath"\"\,"$1"\) | tee $logfile | intgrep" 
+check1=`root -q -b macros/CTAstereoSub.C\(\""$infile\""\,\""$outpath\""\,$1\) 2>&1 | tee $logfile | intgrep`
+
+case $check1 in
+   1)   printprocesslog "INFO $program finished successfully for run $run (check1=$check1)"
+        if ! cp $outfile $stereopath
+        then
+           printprocesslog "ERROR copying $outfile to $starpath failed"
+           com=$Fctastereocp
+           check=2
+        else
+           printprocesslog "INFO copied $outfile successfully to $starpath"
+        fi
+        ;;
+   *)   printprocesslog "ERROR $program failed for run $run (check1=$check1)"
+        com=$Fctastereo
+        check=$check1
+        ;;
+esac
+
+setstatus "stop"
+
+finish
+

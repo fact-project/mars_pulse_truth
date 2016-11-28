@@ -1,0 +1,13 @@
+Executable    = $(script)
+Arguments     = -v -i -c $(arg)
+
+Out           = $(out)
+Error         = $(err)
+
+Universe      = vanilla
+copy_to_spool = false
+Log           = /tmp/delme.log
+notification  = Error
+getenv        = True
+
+Queue

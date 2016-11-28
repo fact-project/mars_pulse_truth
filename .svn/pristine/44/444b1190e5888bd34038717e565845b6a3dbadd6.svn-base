@@ -1,0 +1,149 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  12/2005 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2007
+#
+#
+# ========================================================================
+#
+# This script is an intermediate solution to process the montecarlo files.
+# As soon as the montecarlo database is running, this script shall be 
+# exchanged. 
+# 
+# The script is processing the montecarlo sequences: callisto and star
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=processmcsequences
+
+set -C
+
+scriptlog=$runlogpath/$program`date +%F-%H-%M-%S`.log
+date >> $scriptlog 2>&1
+
+# check if script is already running
+lockfile=$lockpath/lock-$program.txt
+checklock  >> $scriptlog 2>&1
+
+mccalpath=$mcpath/callisto
+mcimgpath=$mcpath/star
+callistorc=$setuppath/callisto/callisto.rc
+
+cd $mars
+
+# find montecarlo sequence files
+printprocesslog "INFO processing mc sequences"
+sequfiles=`find $mcsequpath -type f`
+for sequfile in ${sequfiles[@]}
+do 
+   sequno=`echo $sequfile | cut -c 42-49`
+   no=`echo $sequno | cut -c 0-4`
+   date=`grep Night $sequfile | cut -c 18-29 | sed -e 's/-/\//g'`
+   muxcheck=`grep Epoch $sequfile | cut -c 18-32`
+   case $muxcheck in
+      "MC_up_to_April06")
+      callistorc=$setuppath/callisto/callisto.rc
+      ;;
+      "MC_old")
+      callistorc=$setuppath/callisto/callisto.rc
+      ;;
+      "MC_April_May06")
+      callistorc=$setuppath/callisto/callisto.rc
+      ;;
+      "MC_post_June06")
+      callistorc=$setuppath/callisto/callisto.rc
+      ;;
+      "MC_MuxFADCs")
+      callistorc=$setuppath/callisto/callisto_mux.rc
+      ;;
+      "MC_MuxFADCs_NEW")
+      callistorc=$setuppath/callisto/callisto_mux.rc
+      ;;
+      *)
+      echo "No epoch found"
+      printprocesslog "ERROR no epoch found in $sequfile for setting the right callisto.rc, using standard callisto.rc, epoch: $epoch"
+      finish >> $scriptlog 2>&1
+      ;;
+   esac
+      
+   caloutpath=$mccalpath/$no/$sequno
+   makedir $caloutpath >> $scriptlog 2>&1
+   
+   # continue with next sequence if sequence is already processed
+   # or processing of sequence is just running
+   if ls $caloutpath/.done >> $scriptlog 2>&1
+   then 
+      continue
+   fi
+   if ls $caloutpath/.doing >> $scriptlog 2>&1
+   then 
+      continue
+   fi
+   
+   # lock file
+   touch $caloutpath/.doing
+   echo "processing sequ $sequfile" >> $scriptlog 2>&1
+   # find callisto.rc file
+   if [ -e $caloutpath/callisto.rc ]
+   then
+      echo "found callisto.rc in $caloutpath -> using this" >> $scriptlog 2>&1
+      callistorcseq=$caloutpath/callisto.rc
+   else
+      echo "no callisto.rc found in $caloutpath -> making link " >> $scriptlog 2>&1
+      ln -vs $callistorc $caloutpath/callisto.rc >> $scriptlog 2>&1
+      callistorcseq=$caloutpath/callisto.rc
+   fi
+   # calibrate data
+   echo "./callisto -mc -f -b -q --ind=$mcrawpath/$date --log=$caloutpath/callisto$sequno.log --html=$caloutpath/callisto$sequno.html --out=$caloutpath --config=$callistorcseq $sequfile 2>> $scriptlog > /dev/null" >> $scriptlog 2>&1
+   ./callisto -mc -f -b -q --ind=$mcrawpath/$date --log=$caloutpath/callisto$sequno.log --html=$caloutpath/callisto$sequno.html --out=$caloutpath --config=$callistorcseq $sequfile 2>> $scriptlog > /dev/null
+   check1=$?
+   # if calibration worked -> run star for sequence
+   case $check1 in
+      0)   echo " check1=$check1 -> everything ok..." >> $scriptlog 2>&1
+           printprocesslog "INFO calibrated mc sequence $sequno successfully"
+           touch $caloutpath/.done
+           rm $caloutpath/.doing
+           imgoutpath=$mcimgpath/$no/$sequno
+           makedir $imgoutpath >> $scriptlog 2>&1
+           
+           echo "./star -b -q -v4 -f -mc --log=$imgoutpath/star$sequno.log --html=$imgoutpath/star$sequno.html --ind=$caloutpath --out=$imgoutpath $sequfile  2>> $scriptlog> /dev/null" >> $scriptlog 2>&1
+           ./star -b -q -v4 -f -mc --log=$imgoutpath/star$sequno.log --html=$imgoutpath/star$sequno.html --ind=$caloutpath --out=$imgoutpath $sequfile  2>> $scriptlog> /dev/null
+           check2=$?
+           
+           case $check2 in
+              0)   echo " check2=$check2 -> everything ok..." >> $scriptlog 2>&1
+                   printprocesslog "INFO run star successfully for mc sequence $sequno"
+                   touch $imgoutpath/.done
+                   ;;
+              *)   echo " check2=$check2 -> ERROR -> step has to be repeated" >> $scriptlog 2>&1
+                   printprocesslog "ERROR star failed for mc sequence $sequno"
+                   ;;
+           esac
+    	   ;;
+      *)   echo " check1=$check1 -> ERROR -> step has to be repeated" >> $scriptlog 2>&1
+           printprocesslog "ERROR callisto failed for mc sequence $sequno"
+           ;;
+   esac
+done
+
+finish >> $scriptlog 2>&1
+

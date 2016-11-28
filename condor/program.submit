@@ -1,0 +1,14 @@
+Executable    = ./$(prg)
+Arguments     = $(args)
+
+Output        = $(out)
+Error         = $(err)
+
+Universe      = vanilla
+copy_to_spool = false
+getenv        = True
+#Log           = /tmp/dag.log
+#Log           = $(out)
+notification  = Error
+
+Queue

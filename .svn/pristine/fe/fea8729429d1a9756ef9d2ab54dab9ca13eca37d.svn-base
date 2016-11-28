@@ -1,0 +1,96 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2004 <mailto:dorner@astro.uni-wuerzburg.de>
+#   Author(s): Stefan Ruegamer 08/2007 <mailto:snruegam@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2007
+#
+#
+# ========================================================================
+#
+# This script is launching star for sequences.
+# 
+# As star takes some time, only one sequence is processed at once. 
+# First the script gets a sequence number from the database for which 
+# star has to be done (function gettodo). After setting the status in the 
+# database (set fStartTime; to know that the sequence is already being 
+# processed), the image parameters are calculated for the sequence. 
+# Afterwards the status in the database is updated according to the return 
+# value of star. 
+# The important INFOs, WARNings and ERRORs are written not only to the 
+# scriptlog but also to the processlog. 
+#
+# The star.rc files are taken from the datacenter/setup/star directory
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=star
+column=fStar
+
+set -C
+
+scriptlog=$runlogpath/run$program-$datetime.log
+date >> $scriptlog 2>&1
+
+# get sequence # 
+gettodo "1" >> $scriptlog 2>&1
+sequence=${primaries[0]}
+telnum=${primaries[1]}
+
+# lock sequ
+lockfile=$lockpath/lock-$table-$column-$sequence.txt
+checklock >> $scriptlog 2>&1
+
+cd $mars
+
+echo "run $program for sequence $sequence..." >> $scriptlog 2>&1
+printprocesslog "INFO starting $program for sequence $sequence"
+no=`printf %08d $sequence | cut -c 0-4`
+no2=`printf %08d $sequence`
+outpath="$datapath/$program/$no/$no2"
+inpath=`echo $outpath | sed -e 's/star/callisto/'`
+makedir $outpath >> $scriptlog 2>&1
+
+sequfile="$sequpath/$no/sequence$no2.txt"
+
+setstatus "start" >> $scriptlog 2>&1
+
+echo "staging files..." >> $scriptlog 2>&1
+ssh -nx phoenix /opt/SUNWsamfs/bin/stage -V $inpath/20[01][0-9]*_0*${run}_Y_*.root >> $scriptlog 2>&1
+
+echo "./star -b -q -v4 -f --log=$outpath/$program$no2.log --html=$outpath/$program$no2.html --ind=$inpath --out=$outpath $sequfile 2>> $scriptlog> /dev/null" >> $scriptlog 2>&1
+./star -b -q -v4 -f --log=$outpath/$program$no2.log --html=$outpath/$program$no2.html --ind=$inpath --out=$outpath $sequfile 2>> $scriptlog> /dev/null
+check1=$?
+
+case $check1 in
+   0)   echo " check1=$check1 -> everything ok " >> $scriptlog 2>&1
+        printprocesslog "INFO $program finished successfully for sequence $sequence"
+        ;;
+   *)   echo " check1=$check1 -> ERROR -> step has to be repeated" >> $scriptlog 2>&1
+        printprocesslog "ERROR $program failed for sequence $sequence"
+        com=$Fstar
+        check=$check1
+        ;;
+esac
+
+setstatus "stop" >> $scriptlog 2>&1
+
+finish >> $scriptlog 2>&1

@@ -1,0 +1,244 @@
+/* ************************************************** 
+ * Tab support based on http://www.alistapart.com/articles/slidingdoors/
+ * ************************************************** */
+
+body {
+  /* font: x-small sans-serif; */
+  background: #f9f9f9 url(/ewiki/skins/monobook/headbg.jpg) 0 0 no-repeat;
+  color: black;
+/*  margin: 0;
+  padding 0;*/
+}
+
+
+.tabs,.tabs-blue {
+  float:left;
+/*  width:5000;*/  /* STUPID HACK */
+/*  background:#DAE0D2 url("Tab-bg.gif") repeat-x bottom;*/
+  font-size:93%;
+  line-height:normal;
+  margin: 0;
+  padding: 0;
+}
+.tabs-blue {
+/*  background:#CCCCFF url("SDbg.gif") repeat-x bottom;*/
+}
+
+.tabs ul,.tabs-blue ul {
+  margin:0;
+  padding:10px 10px 0px;
+  list-style:none;
+  overflow:hidden;
+/*  display:none;*/
+/*  border-collapse:collapse;*/
+/*  height:2.6ex;*/
+}
+
+.tabs li,.tabs-blue li {
+  background:url("Tab-left.gif") no-repeat left top;
+  margin:0;
+  padding:0 0 0 9px;
+  float:left;
+/*  float:right;
+  direction:rtl;*/
+}
+
+/* MediaWiki automatically removes links for the current page and surrounds it with <strong> tags instead */
+.tabs a,.tabs-blue a,.tabs strong,.tabs-blue strong {
+  float:none;
+  display:block;
+  background:url("Tab-right.gif") no-repeat right top;
+  padding: 3px 8px 2px 0px;
+  text-decoration:none;
+  font-weight:bold;
+  font-family:Arial,Helvetica,Sans-serif;
+  font-size: x-small;
+  color:#765;
+}
+
+.tabs-blue li {
+  background:url("SDleft.gif") no-repeat left top;
+/*  border-bottom: 1px solid #aa9988;*/
+}
+
+.tabs-blue a,.tabs-blue strong {
+  background:url("SDright.gif") no-repeat right top;
+}
+
+.tabs-blue #current {
+  background-image:url("SDleft_on.gif");
+}
+
+.tabs-blue #magnify {
+  background-image:url("Tab-left.gif");
+  margin: 0 7px 0 0;
+}
+.tabs-blue #magnify a,.tabs-blue #current strong {
+  background-image:url("Tab-right.gif");
+}
+
+.tabs-blue #prevnext {
+   background-image:url("Tab-left.gif");
+   float:right;
+}
+.tabs-blue #prevnext a,.tabs-blue #current strong {
+  background-image:url("Tab-right.gif");
+}
+
+.tabs-blue #current a,.tabs-blue #current strong {
+  background-image:url("SDright_on.gif");
+}
+
+.tabs #current {
+  background-image:url("Tab-left_on.gif");
+}
+
+.tabs-blue #current {
+   border-bottom:none;
+}
+
+.tabs #current a,.tabs #current strong,.tabs-blue #current a, .tabs-blue #current strong {
+  background-image:url("Tab-right_on.gif");
+  color:#825;
+  padding-bottom:3px;
+/*  border-bottom:none;*/
+}
+
+.tabcontent {
+  font:             x-small sans-serif;
+/*  border:           1px dashed #aa9988;
+  padding:          5px 7px 5px 5px;
+  border-top:       none;*/
+  border:           1px solid #aa9988;
+  padding: 0;
+
+/*  background-color: #f6f6f0;*/
+background-color: #ffffff;
+  color:            #000;
+  clear:   	    both;
+  /*opacity:          0.8;*/
+  border-collapse:collapse;
+  /*cursor:url("zoomin.cur");*/
+}
+
+.tabcontent #prevtab {
+  float: left;
+  margin-top: -1.5em; 
+  background-color: #DAE0D2; 
+  color: #000; 
+  padding: .2em .6em; 
+  font-size: 130%; 
+  border: 1px solid #765;
+}
+
+.tabcontent #nexttab {
+  float: right; 
+  margin-top: -1.5em; 
+  background-color: #DAE0D2; 
+  color: #000; 
+  padding: .2em .6em; 
+  font-size: 130%; 
+  border: 1px solid #765;
+}
+
+/* Commented Backslash Hack
+   hides rule from IE5-Mac \*/
+.tabs a, .tabs-blue a {float:none;}
+/* End IE5-Mac hack */
+.tabs a:hover, .tabs-blue a:hover {
+  color:#001;
+}
+
+.marstable {
+  font: small sans-serif;
+}
+
+.marstable tr {
+  background-color: #eeeeee;
+}
+
+.marstable #title {
+   text-align:       center;
+   font-weight:      bold;
+   font-size:        150%;
+   background-color: #cccccc;
+   border: 1px solid #bbaa99;
+   background-image:url("box_mtl_ctr.gif");
+}
+
+.marstable #left {
+  text-align: right;
+  padding:0px 5px;
+}
+
+.marstable #middle {
+  text-align: center;
+  padding:1px 5px;
+}
+
+.marstable #right {
+  text-align: left;
+  padding:0px 5px;
+}
+
+.marstable a {
+  font-weight:bold;
+  text-decoration:none;
+  color:#63F;
+}
+
+/* Commented Backslash Hack
+   hides rule from IE5-Mac \*/
+.marstable a {float:none;}
+/* End IE5-Mac hack */
+.marstable a:hover {
+  color:#333;
+}
+
+a.tooltip {
+   text-decoration:none;  
+}                  
+
+.tooltip span.info {
+   display: none;
+}
+
+.tooltip:hover span.info {
+   margin:     20px 5px 5px 5px;
+   padding:    3px 15px 5px 15px;
+   border:     1px solid #808080;
+   background: #F6F6F6;
+   display:    block;
+   position:   absolute;
+   width:      200px;
+   font-size:  small;
+   opacity:    0.94;
+}
+
+.tooltip span.preview {
+   display:none;
+}
+
+.tooltip:hover span.preview {
+   padding:    30px 40px 30px 40px;
+   border:     1px solid #808080;
+   background: #F0F0F8;
+   display:    block;
+   position:   fixed;
+   top:        100;
+   right:      40;
+   opacity:    0.95;
+   text-align: center;
+   font-size:  14;
+}
+
+.tooltip:hover img {
+   border:     1px solid #808080;
+}
+
+.tooltip span.preview div {
+   padding:          4px 0px 4px;
+   background-color: #C0C0C8;
+   border:           1px solid #808080;
+   border-bottom:    none;
+}

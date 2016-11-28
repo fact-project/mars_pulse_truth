@@ -1,0 +1,124 @@
+#!/bin/bash
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  06/2010 <mailto:daniela.dorner@unige.ch>
+#
+#   Copyright: MAGIC Software Development, 2000-2010
+#
+#
+# ========================================================================
+#
+# This script is launching ceres for corsika runs. 
+# 
+# The ceres.rc and other setup files are stored in the setup directory.
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=ceres
+step=Ceres
+
+set -C
+
+# get run # 
+numchanged=0
+while (( 0 < 21 ))
+do 
+   if ! [ $numchanged -eq 1 ]
+   then 
+      if ! [ "$run" = "" ] && ! [ "$cereskey" = "" ]
+      then
+         printprocesslog "INFO $program for run $run cereskey $cereskey is already running => request new number "
+      fi
+      gettodo "1" 
+      run=${primaries[0]}
+      cereskey=${primaries[1]}
+      if [ "$run" = "" ] || [ "$cereskey" = "" ]
+      then
+         printprocesslog "INFO nothing to do for $program "
+      fi
+   else
+      printprocesslog "INFO starting $program for run $run cereskey $cereskey"
+      break
+   fi
+   setstatus "start"
+done
+
+cd $mars
+
+# run ceres for run
+
+setupfile=$setuppath/$program/`printf %03d $cereskey`/ceres.rc
+
+query="SELECT fRunTypeKEY FROM CeresInfo WHERE fRunNumber="$run" AND fCeresSetupKEY="$cereskey" GROUP BY fRunNumber"
+runkey=`sendquery`
+
+case $runkey in 
+   2) printprocesslog "INFO run $run is a data run (key="$runkey")"
+      printprocesslog "INFO getting file numbers for run "$run
+      query="SELECT CONCAT('"$mcpath"/corsika/', LEFT(LPAD(CeresInfo.fRunNumber, 8, '0'), 4),"
+      query=$query" '/', RIGHT(LPAD(CeresInfo.fRunNumber, 8, '0'), 4), '/cer000', "
+      query=$query" RIGHT(LPAD(CeresInfo.fFileNumber, 6, '0'), 3)) from CeresInfo "
+      query=$query" WHERE fRunNumber="$run" AND fCeresSetupKEY="$cereskey
+      inputfiles=`sendquery`
+      outpath=$mcpath/ceres/`printf %03d $cereskey`/`printf %08d $run | cut -c 1-4`/`printf %08d $run | cut -c 5-8`
+      makedir $outpath
+      log=$outpath/ceres`printf %08d $run `
+      command="./ceres -b -q -f --config=$setupfile --out=$outpath --log=$log.log --html=$log.html --run-number=$run $inputfiles"
+      printprocesslog "INFO executing "$command
+      $command
+      check1=$?
+      ;;
+   3) printprocesslog "INFO run $run is a pedestal run (key="$runkey")"
+      drun=`echo "$run + 2 " | bc -l`
+      outpath=$mcpath/ceres/`printf %03d $cereskey`/`printf %08d $drun | cut -c 1-4`/`printf %08d $drun | cut -c 5-8`
+      makedir $outpath
+      log=$outpath/ceres`printf %08d $run `
+      command="./ceres -b -q -f --config=$setupfile --out=$outpath --log=$log.log --html=$log.html --run-number=$run pedestal"
+      printprocesslog "INFO executing "$command
+      $command
+      check1=$?
+      ;;
+   4) printprocesslog "INFO run $run is a calibration run (key="$runkey")"
+      drun=`echo "$run + 1 " | bc -l`
+      outpath=$mcpath/ceres/`printf %03d $cereskey`/`printf %08d $drun | cut -c 1-4`/`printf %08d $drun | cut -c 5-8`
+      makedir $outpath
+      log=$outpath/ceres`printf %08d $run `
+      command="./ceres -b -q -f --config=$setupfile --out=$outpath --log=$log.log --html=$log.html --run-number=$run calibration"
+      printprocesslog "INFO executing "$command
+      $command
+      check1=$?
+      ;;
+   *) printprocesslog "WARN not valid fRunTypeKEY ("$runkey") was queried from the DB."
+      check="no"
+      ;;
+esac
+
+case $check1 in
+   0)   printprocesslog "INFO $program finished successfully for run $run, cereskey $cereskey, runtype $runkey (check1=$check1)"
+        ;;
+   *)   printprocesslog "ERROR $program failed for run $run, cereskey $cereskey, runtype $runkey (check1=$check1)"
+        check=$check1
+        ;;
+esac
+
+setstatus "stop"
+
+finish
+

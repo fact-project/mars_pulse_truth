@@ -1,0 +1,106 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  06/2010 <mailto:daniela.dorner@unige.ch>
+#
+#   Copyright: MAGIC Software Development, 2000-2010
+#
+#
+# ========================================================================
+#
+# This script launches the writing of the sequence files for all mc sequences
+# for which this step is needed. 
+#
+# After checking if the script is already running the todolist is written.
+# Then the sequence file is written for each sequence in the todolist using
+# the macro writesequencefile.C
+# If this was successful, the status is inserted into the database using 
+# the function setstatus.
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=writemcsequencefile
+step=SequenceFile
+
+set -C
+
+# check if script is already running
+lockfile=$lockpath/lock-$program.txt
+checklock 
+
+# get todo list
+gettodo 
+
+cd $mars
+
+printprocesslog "INFO writing sequence files for $num mc sequences"
+# write sequence file for all sequences which don't have one yet
+for (( s=0 ; s < $num ; s++ ))
+do
+   sequence=${primaries[$s]}
+   printprocesslog "INFO write sequence files for sequence $sequence"
+   setstatus "start" 
+   
+   no=`printf %08d $sequence | cut -c 0-4`
+   no2=`printf %08d $sequence`
+   sequencepath=$mcsequpath/$no
+   makedir $sequencepath 
+   sequencefile=$sequencepath/sequence$no2.txt
+   
+   # data runs
+   query="SELECT CONCAT(fRunNumber, '.', RIGHT(fFileNumber, 3)) FROM CeresInfo WHERE fRunTypeKEY=2 AND fSequenceNumber="$sequence" GROUP BY fRunNumber, fFileNumber "
+   datruns=`sendquery`
+   if [ "$datruns" = "" ]
+   then 
+      printprocesslog "ERROR data runs for sequence "$sequence" are missing in the database "
+      check=2
+   fi
+   # pedestal runs
+   query="SELECT CONCAT(fRunNumber, '.', RIGHT(fFileNumber, 3)) FROM CeresInfo WHERE fRunTypeKEY=3 AND fSequenceNumber="$sequence" GROUP BY fRunNumber, fFileNumber "
+   pedruns=`sendquery`
+   if [ "$pedruns" = "" ]
+   then 
+      printprocesslog "ERROR pedestal runs for sequence "$sequence" are missing in the database "
+      check=2
+   fi
+   # calibration runs
+   query="SELECT CONCAT(fRunNumber, '.', RIGHT(fFileNumber, 3)) FROM CeresInfo WHERE fRunTypeKEY=4 AND fSequenceNumber="$sequence" GROUP BY fRunNumber, fFileNumber "
+   calruns=`sendquery`
+   if [ "$calruns" = "" ] 
+   then 
+      printprocesslog "ERROR calibration runs for sequence "$sequence" are missing in the database "
+      check=2
+   fi
+   
+   printprocesslog "INFO writing sequencefile $sequencefile"
+   echo "Sequence: "$sequence >| $sequencefile
+   echo ""                    >> $sequencefile
+   echo "CalRuns: "$calruns   >> $sequencefile
+   echo "PedRuns: "$pedruns   >> $sequencefile
+   echo "DatRuns: "$datruns   >> $sequencefile
+   echo ""                    >> $sequencefile
+   echo "MonteCarlo: Yes"     >> $sequencefile
+   echo ""                    >> $sequencefile
+   
+   setstatus "stop" 
+done
+
+finish 
+

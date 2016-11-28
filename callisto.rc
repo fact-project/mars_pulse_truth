@@ -1,0 +1,458 @@
+# ==========================================================================
+#############################################################################
+# ==========================================================================
+#                              General
+# ==========================================================================
+#############################################################################
+# ==========================================================================
+
+# -------------------------------------------------------------------------
+# Use this if you want to setup the logging stream for the jobs
+# (overwrites command line options)
+# -------------------------------------------------------------------------
+#MLog.VerbosityLevel: 2
+#MLog.DebugLevel:     1
+#MLog.NoColors:       yes
+
+# ==========================================================================
+#############################################################################
+# ==========================================================================
+#                             Calibration
+# ==========================================================================
+#############################################################################
+# ==========================================================================
+
+# -------------------------------------------------------------------------
+# Use this if you want to write the MJPedestal output somewhere
+# If you don't want it, it is written to the calibration output anyhow.
+# -------------------------------------------------------------------------
+#MJPedestalC1.PathOut: .
+#MJPedestalC2.PathOut: .
+#MJPedestalC1.BadPixelsFile: mjobs/badpixels_0_559.rc
+#MJPedestalC1.ReferenceFile: mjobs/pedestalref.rc
+#MJPedestalC2.ReferenceFile: mjobs/pedestalref.rc
+MJCalibration.ReferenceFile: mjobs/calibrationref_Nov04.rc
+MJCalibration.MHCalibrationRelTimeCam.ReferenceFile: mjobs/calibrationref_Nov04.rc
+MJCalibration.MHCalibrationChargeCam.ReferenceFile: mjobs/calibrationref_Nov04.rc
+
+# -------------------------------------------------------------------------
+# Use this to define where the calibration output is stored. The filename
+# is created from the sequence number. If nothing is specified '.' is
+# assumed. (overwrites command line options)
+# -------------------------------------------------------------------------
+#MJCalibration.PathOut: calped
+
+# -------------------------------------------------------------------------
+# Define here which signal extractor you are going to use for the
+# whole calibration chain
+# -------------------------------------------------------------------------
+MJPedestalC1.ExtractSignal: MExtractTimeAndChargeDigitalFilter
+# -------------------------------------------------------------------------
+# Define here an extractor which can be used for the December 04 data.
+# -------------------------------------------------------------------------
+#MJPedestalC1.ExtractSignal: MExtractTimeAndChargeSpline, MExtractTimeAndChargeDigitalFilterPeakSearch, MExtractTimeAndChargeSlidingWindow
+# -------------------------------------------------------------------------
+# Define here parameters valid for all extractors above
+# The actual defaults used depend on the extractor in use.
+# For details see the corresponding source code
+# -------------------------------------------------------------------------
+#MJPedestalC1.ExtractSignal.HiGainFirst:         0
+#MJPedestalC1.ExtractSignal.HiGainLast:         15
+#MJPedestalC1.ExtractSignal.LoGainFirst:         3
+#MJPedestalC1.ExtractSignal.LoGainLast:         14
+#MJPedestalC1.ExtractSignal.SaturationLimit:   250
+#MJPedestalC1.ExtractSignal.OffsetLoGain:      0.95
+#MJPedestalC1.ExtractSignal.LoGainSwitch:      120
+#MJPedestalC1.ExtractSignal.LoGainStartShift: -2.5
+# -------------------------------------------------------------------------
+# Define here parameters valid for the spline:
+# -------------------------------------------------------------------------
+#MJPedestalC1.ExtractSignal.Resolution:        0.05
+#MJPedestalC1.ExtractSignal.RiseTimeHiGain:    0.5
+#MJPedestalC1.ExtractSignal.FallTimeHiGain:    1.5
+#MJPedestalC1.ExtractSignal.LoGainStretch:     1.5
+#MJPedestalC1.ExtractSignal.ExtractionType: Integral <default>
+#MJPedestalC1.ExtractSignal.ExtractionType: Amplitude
+
+# -------------------------------------------------------------------------
+# In the case of the Digital filter you have to overwrite the default
+# weights file depending on what you are extracting
+# -------------------------------------------------------------------------
+MJPedestalC2.ExtractSignal.WeightsFile:          msignal/calibration_weights_UV46.dat
+MJPedestalY2.ExtractSignal.WeightsFile:          msignal/cosmics_weights46.dat
+MJPedestalY3.ExtractSignal.WeightsFile:          msignal/cosmics_weights46.dat
+MJCalibration.ExtractSignal.WeightsFile:         msignal/calibration_weights_UV46.dat
+MJCalibrateSignal.ExtractSignal.WeightsFile:     msignal/cosmics_weights46.dat
+MJCalibrateSignal.ExtractInterlaced.WeightsFile: msignal/calibration_weights_UV46.dat
+
+#MJPedestalC2.ExtractSignal.AutomaticWeightsFile:          On
+#MJPedestalY2.ExtractSignal.AutomaticWeightsFile:          On
+#MJPedestalY3.ExtractSignal.AutomaticWeightsFile:          On
+#MJCalibration.ExtractSignal.AutomaticWeightsFile:         On
+#MJCalibrateSignal.ExtractSignal.AutomaticWeightsFile:     On
+#MJCalibrateSignal.ExtractInterlaced.AutomaticWeightsFile: On
+
+# -------------------------------------------------------------------------
+# Configure MJCalibration
+# -------------------------------------------------------------------------
+
+# Switch on relative time calibration
+#MJCalibration.RelTimeCalibration: Yes
+# Type of used data format: raw, root, mc
+#MJCalibration.DataType: Root
+# Type of displayed plots: Full,DataCheck,Normal
+#MJCalibration.Display: datacheck
+# Write additinal debug output
+#MJCalibration.Debug: No
+# Use blind pixel
+#MJCalibration.UseBlindPixel: No
+# Use pin diode
+#MJCalibration.UsePINDiode: No
+# Use pixel check option
+#MJCalibration.PixelCheck: Yes
+#MJCalibTest.PixelCheck: Yes
+
+# -------------------------------------------------------------------------
+# Individual events check for calibration results
+# -------------------------------------------------------------------------
+
+#ContCosmics.MaxEmptyPixels:      0.2
+#ContCosmics.MaxExcludedFraction: 1
+#ContCosmics.MinAcceptedFraction: 0
+
+# -------------------------------------------------------------------------
+# You can choose the pedestal extraction algorithm/task. To use
+# MPedCalcPedRun use the lines below. Be carefull, a pedestal file
+# could be (if no pedestal file available) a data-file, too.
+# -------------------------------------------------------------------------
+#MJPedestalC1.ExtractPedestal: MPedCalcPedRun
+#MJPedestalC1.ExtractPedestal.ExtractWinFirst:    0
+#MJPedestalC1.ExtractPedestal.ExtractWinSize:     6
+#MJPedestalC1.ExtractPedestal.PedestalUpdate:    no
+#MJPedestalC1.ExtractPedestal.CheckWinFirst:     0
+#MJPedestalC1.ExtractPedestal.CheckWinLast:      6
+#MJPedestalC1.ExtractPedestal.MaxSignalVar: 300
+
+#MJPedestalC2.ExtractPedestal: MPedCalcPedRun
+#MJPedestalC2.ExtractPedestal.ExtractWinFirst:    0
+#MJPedestalC2.ExtractPedestal.ExtractWinSize:     6
+#MJPedestalC2.ExtractPedestal.PedestalUpdate:    no
+#MJPedestalC2.ExtractPedestal.CheckWinFirst:     0
+#MJPedestalC2.ExtractPedestal.CheckWinSize:     29
+
+# -------------------------------------------------------------------------
+# You can choose the pedestal extraction algorithm/task. To use
+# MPedCalcFromLoGain use the lines below. Be carefull, a pedestal file
+# could be (if no pedestal file available) a data-file, too.
+# -------------------------------------------------------------------------
+#MJPedestalC1.ExtractPedestal: MPedCalcFromLoGain
+#MJPedestalC1.ExtractPedestal.ExtractWinFirst:    0
+#MJPedestalC1.ExtractPedestal.ExtractWinSize:     6
+#MJPedestalC1.ExtractPedestal.PedestalUpdate:    no
+#MJPedestalC1.ExtractPedestal.CheckWinFirst:     0
+#MJPedestalC1.ExtractPedestal.CheckWinSize:     29
+#MJPedestalC1.ExtractPedestal.MaxSignalVar:     40
+
+#MJPedestalC2.ExtractPedestal: MPedCalcFromLoGain
+#MJPedestalC2.ExtractPedestal.ExtractWinFirst:    0
+#MJPedestalC2.ExtractPedestal.ExtractWinSize:     6
+#MJPedestalC2.ExtractPedestal.PedestalUpdate:    no
+#MJPedestalC2.ExtractPedestal.CheckWinFirst:     0
+#MJPedestalC2.ExtractPedestal.CheckWinSize:     29
+#MJPedestalC2.ExtractPedestal.MaxSignalVar:     40
+
+# -------------------------------------------------------------------------
+# Configure MJPedestalC1 and MJPedestalC2
+# -------------------------------------------------------------------------
+# Possible data type: Raw,Root,MC
+#MJPedestalC1.DataType: Root
+#MJPedestalC2.DataType: Root
+#MJPedestalC3.DataType: Root
+# Type of displayed plots: Full,DataCheck,None
+#MJPedestalC1.Display: datacheck
+#MJPedestalC2.Display: datacheck
+#MJPedestalC3.Display: datacheck
+# Maximum number of event processed in the loop
+#MJPedestalC1.MaxEvents: 1000
+#MJPedestalC2.MaxEvents: 1000
+# Allow to overwrite existing files with the output file
+#MJPedestalC1.AllowOverwrite: No
+#MJPedestalC2.AllowOverwrite: No
+# Use data runs from the sequence instead of calibration runs
+#MJPedestalC1.UseData: No
+#MJPedestalC2.UseData: No
+# Switch off DeadPixelCheck with "No"
+#MJPedestalY2.DeadPixelCheck: yes
+
+
+# -------------------------------------------------------------------------
+# Use this if you want to change the software low-gain switch in the
+# calibration
+# -------------------------------------------------------------------------
+MJCalibration.ExtractSignal.LoGainSwitch:     170
+
+# -------------------------------------------------------------------------
+# Use this if you want to change the higain-vs. logain intercalibration
+# -------------------------------------------------------------------------
+#MJCalibration.HiLoCalibFile:    mjobs/hilocalib_df46.root
+
+# -------------------------------------------------------------------------
+# Use this to change the behaviour of the calibration
+# -------------------------------------------------------------------------
+# Type if you set a colour explicitely from outside (TEST purposes!!)
+#MJCalibration.MCalibColorSet.ExplicitColor: green,blue,uv,ct1
+
+#MJCalibration.MCalibrationChargeCalc.ArrTimeRmsLimit:    5.0
+#MJCalibration.MCalibrationChargeCalc.ChargeLimit:        2.5
+#MJCalibration.MCalibrationChargeCalc.ChargeErrLimit:     0
+#MJCalibration.MCalibrationChargeCalc.ChargeRelErrLimit:  1
+#MJCalibration.MCalibrationChargeCalc.Debug:              no
+
+#MJCalibration.MCalibrationChargeCalc.FFactorErrLimit:    4.5
+#MJCalibration.MCalibrationChargeCalc.LambdaErrLimit:     0.2
+#MJCalibration.MCalibrationChargeCalc.LambdaCheckLimit:   0.5
+#MJCalibration.MCalibrationChargeCalc.PheErrLowerLimit:   9.0
+#MJCalibration.MCalibrationChargeCalc.PheErrUpperLimit:   5.5
+
+#MJCalibration.MHCalibrationChargeCam.Debug:        no
+#MJCalibration.MHCalibrationChargeCam.LoGain:       yes
+#MJCalibration.MHCalibrationChargeCam.Oscillations: yes
+#MJCalibration.MHCalibrationChargeCam.SizeCheck:    yes
+#MJCalibration.MHCalibrationChargeCam.Averageing:   yes
+#MJCalibration.MHCalibrationChargeCam.HiGainNbins:  500
+#MJCalibration.MHCalibrationChargeCam.HiGainFirst:  -98.
+#MJCalibration.MHCalibrationChargeCam.HiGainLast:   1902.
+#MJCalibration.MHCalibrationChargeCam.LoGainNbins:   500
+#MJCalibration.MHCalibrationChargeCam.LoGainFirst:  -99.
+#MJCalibration.MHCalibrationChargeCam.LoGainLast:   901.
+#MJCalibration.MHCalibrationChargeCam.TimeLowerLimit: 1. 
+#MJCalibration.MHCalibrationChargeCam.TimeUpperLimit: 3. 
+#MJCalibration.MHCalibrationChargeCam.NumHiGainSaturationLimit: 0.02
+#MJCalibration.MHCalibrationChargeCam.NumLoGainSaturationLimit: 0.005 
+#MJCalibration.MHCalibrationChargeCam.ProbLimit:     0.00000001
+#MJCalibration.MHCalibrationChargeCam.OverflowLimit: 0.005
+#MJCalibration.MHCalibrationChargeCam.PulserFrequency: 500
+
+#MJCalibration.MHCalibrationRelTimeCam.Debug:          no
+#MJCalibration.MHCalibrationRelTimeCam.LoGain:         no
+#MJCalibration.MHCalibrationRelTimeCam.Oscillations:   yes
+#MJCalibration.MHCalibrationRelTimeCam.SizeCheck:      yes
+#MJCalibration.MHCalibrationRelTimeCam.Averageing:     yes
+#MJCalibration.MHCalibrationRelTimeCam.Nbins:          210
+#MJCalibration.MHCalibrationRelTimeCam.First:           -5.
+#MJCalibration.MHCalibrationRelTimeCam.Last:            10.
+#MJCalibration.MHCalibrationRelTimeCam.NumHiGainSaturationLimit: 0.25
+#MJCalibration.MHCalibrationRelTimeCam.ProbLimit:       0.00001
+#MJCalibration.MHCalibrationRelTimeCam.OverflowLimit:   0.005
+#MJCalibration.MHCalibrationRelTimeCam.PulserFrequency: 500
+
+
+# ==========================================================================
+#############################################################################
+# ==========================================================================
+#                            Signal extraction
+# ==========================================================================
+#############################################################################
+# ==========================================================================
+
+# -------------------------------------------------------------------------
+# Use a OutputPath if you want to write the results to a file
+# -------------------------------------------------------------------------
+#MJCalibrateSignal.PathOut:  .
+#MJPedestalY1.PathOut:        .
+#MJPedestalY2.PathOut:        .
+#MJPedestalY3.PathOut:        .
+#MJCalibrateSignal.PathIn:   .
+
+# -------------------------------------------------------------------------
+# If you want to change the behaviour of the pedestal extraction...
+# -------------------------------------------------------------------------
+# Possible data type: Raw,Root,MC
+#MJPedestalY1.DataType: Root
+#MJPedestalY2.DataType: Root
+#MJPedestalY3.DataType: Root
+#MJPedestalY1.UseData: Yes
+#MJPedestalY2.UseData: Yes
+#MJPedestalY3.UseData: Yes
+#MJPedestalY1.MinEvents: 50
+#MJPedestalY2.MinEvents: 50
+#MJPedestalY3.MinEvents: 50
+
+MJPedestalY1.MaxEvents:   1000
+MJPedestalY2.MaxEvents:  10000
+MJPedestalY3.MaxEvents:   1000
+
+MJPedestalY1.MaxPedestals: 500
+MJPedestalY2.MaxPedestals: 500
+MJPedestalY3.MaxPedestals: 500
+
+# -------------------------------------------------------------------------
+# When the starting pedestal is extracted from the first events of
+# the data run also the average pulse position of these events
+# is determined. If the pulse position check is switched on (default)
+# the extraction window of the hi- and lo-gain extractor for the
+# determined average pulse position is not allowed to exceed the
+# extractors search region. In this scenario we assume that the
+# start of the extraction window is at least similar to the
+# rising edge of the pulse.
+# To make sure that the search region and the extraction window
+# does not touch increase the values.
+# -------------------------------------------------------------------------
+#MJPedestalY2.PulsePosCheck: yes
+#MJPedestalY2.ExtractWinLeft:  0.0
+#MJPedestalY2.ExtractWinRight: 0.0
+
+
+# -------------------------------------------------------------------------
+# Define the Pulse Position check parameters:
+# -------------------------------------------------------------------------
+#MJPedestalY2.MHCalibrationPulseTimeCam.SaturationLimit:  245
+#MJPedestalY2.MHCalibrationPulseTimeCam.LowerSignalLimit:  85
+#MJPedestalY2.MHCalibrationPulseTimeCam.NumPixelsRequired:  3
+#MJPedestalY2.PixelCheck: no
+
+#MJPedestalY.ExtractPedestal: MPedCalcFromLoGain
+#MJPedestalY.ExtractPedestal.PedestalUpdate:   no
+
+# -------------------------------------------------------------------------
+# Setup pedestal extractor for running through data
+# -------------------------------------------------------------------------
+#MJCalibrateSignal.MPedCalcFundamental.PedestalUpdate:   yes
+#MJCalibrateSignal.MPedCalcFundamental.NumDump:          500
+#MJCalibrateSignal.MPedCalcFundamental.NumEventsDump:    500
+#MJCalibrateSignal.MPedCalcFundamental.NumAreasDump:     500
+#MJCalibrateSignal.MPedCalcFundamental.NumSectorsDump:   500
+#MJCalibrateSignal.MPedCalcFundamental.ExtractWinFirst:   17
+#MJCalibrateSignal.MPedCalcFundamental.ExtractWinSize:     6
+#MJCalibrateSignal.MPedCalcFundamental.CheckWinFirst:      0
+#MJCalibrateSignal.MPedCalcFundamental.CheckWinSize:      29
+#MJCalibrateSignal.MPedCalcFundamental.MaxSignalVar:      40
+
+#MJCalibrateSignal.MPedCalcFromExtractorRndm.PedestalUpdate:   yes
+#MJCalibrateSignal.MPedCalcFromExtractorRndm.NumDump:          500
+#MJCalibrateSignal.MPedCalcFromExtractorRndm.NumEventsDump:    500
+#MJCalibrateSignal.MPedCalcFromExtractorRndm.NumAreasDump:     500
+#MJCalibrateSignal.MPedCalcFromExtractorRndm.NumSectorsDump:   500
+#MJCalibrateSignal.MPedCalcFromExtractorRndm.ExtractWinFirst:   17
+#MJCalibrateSignal.MPedCalcFromExtractorRndm.ExtractWinSize:     6
+#MJCalibrateSignal.MPedCalcFromExtractorRndm.CheckWinFirst:      0
+#MJCalibrateSignal.MPedCalcFromExtractorRndm.CheckWinSize:      29
+#MJCalibrateSignal.MPedCalcFromExtractorRndm.MaxSignalVar:      40
+
+#MJCalibrateSignal.MPedCalcFromExtractor.PedestalUpdate:   yes
+#MJCalibrateSignal.MPedCalcFromExtractor.NumDump:          500
+#MJCalibrateSignal.MPedCalcFromExtractor.NumEventsDump:    500
+#MJCalibrateSignal.MPedCalcFromExtractor.NumAreasDump:     500
+#MJCalibrateSignal.MPedCalcFromExtractor.NumSectorsDump:   500
+#MJCalibrateSignal.MPedCalcFromExtractor.ExtractWinFirst:   17
+#MJCalibrateSignal.MPedCalcFromExtractor.ExtractWinSize:     6
+#MJCalibrateSignal.MPedCalcFromExtractor.CheckWinFirst:      0
+#MJCalibrateSignal.MPedCalcFromExtractor.CheckWinSize:      29
+#MJCalibrateSignal.MPedCalcFromExtractor.MaxSignalVar:      40
+
+# -------------------------------------------------------------------------
+# Configure the interlaced calibration updates
+# -------------------------------------------------------------------------
+#MJCalibrateSignal.MCalibCalcFromPast.UpdateWithFFactorMethod: yes
+#MJCalibrateSignal.MCalibCalcFromPast.NumEventsDump: 500
+#MJCalibrateSignal.MCalibCalcFromPast.UpdateNumPhes: yes
+#MJCalibrateSignal.MCalibCalcFromPast.NumPhesDump: 10
+#MJCalibrateSignal.MCalibrationChargeCalc.Debug: no
+
+# -------------------------------------------------------------------------
+# Use this if you want to change the signal extractor
+# -------------------------------------------------------------------------
+MJCalibrateSignal.ExtractSignal.LoGainSwitch:    150
+#MJCalibrateSignal.ExtractSignal.LoGainStretch:     1.5
+#MJCalibrateSignal.ExtractInterlaced.LoGainStretch: 1.5
+
+# -------------------------------------------------------------------------
+# Setup calibration of data
+# -------------------------------------------------------------------------
+# Type of used data format: raw,root,MC
+#MJCalibrateSignal.DataType: Root
+# Type if you set a colour explicitely from outside (only TESTS!!!)
+#MJCalibrateSignal.MCalibColorSet.ExpicitColor: green,blue,uv,ct1
+#MJCalibrateSignal.MCalibrateData.PedestalFlag: Event
+#MJCalibrateSignal.MCalibrateData.ScaleFactor: 1
+MJCalibrateSignal.MCalibrateData.FileNameScale: resources/calibration.rc
+#MJCalibrateSignal.MCalibrateData.CalibrationMode: Default
+#MJCalibrateSignal.MCalibrateData.CalibConvMinLimit: 0.01
+#MJCalibrateSignal.MCalibrateData.CalibConvMaxLimit: 5.
+#MJCalibrateSignal.Interlaced: yes
+#MJCalibrateSignal.RelTimesUpdate: yes
+
+# -------------------------------------------------------------------------
+# Setup level for determining of bad pixels
+# -------------------------------------------------------------------------
+#MJCalibrateSignal.MBadPixelsCalc.PedestalLevel:         3.0
+#MJCalibrateSignal.MBadPixelsCalc.PedestalLevelVariance: 3.0
+#MJCalibrateSignal.MBadPixelsTreat.NumMinNeighbors:    3
+#MJCalibrateSignal.MBadPixelsTreat.MaxArrivalTimeDiff: 3.0
+#MJCalibrateSignal.MBadPixelsTreat.UseInterpolation:   yes
+#MJCalibrateSignal.MBadPixelsTreat.ProcessPedestalEvt: yes
+#MJCalibrateSignal.MBadPixelsTreat.ProcessPedestalRun: no
+#MJCalibrateSignal.MBadPixelsTreat.ProcessTimes:       yes
+#MJCalibrateSignal.MBadPixelsTreat.UseCentralPixel:    no
+#MJCalibrateSignal.MBadPixelsTreat.HardTreatment:      no
+
+# -------------------------------------------------------------------------
+# Setup interlaced calibration events histogramming
+# -------------------------------------------------------------------------
+#MJCalibrateSignal.MHCalibrationChargeCam.Debug:        no
+#MJCalibrateSignal.MHCalibrationChargeCam.LoGain:       yes
+MJCalibrateSignal.MHCalibrationChargeCam.Oscillations:  no
+#MJCalibrateSignal.MHCalibrationChargeCam.SizeCheck:    yes
+#MJCalibrateSignal.MHCalibrationChargeCam.Averageing:   yes
+#MJCalibrateSignal.MHCalibrationChargeCam.HiGainNbins:  500
+#MJCalibrateSignal.MHCalibrationChargeCam.HiGainFirst:  -98.
+#MJCalibrateSignal.MHCalibrationChargeCam.HiGainLast:   1902.
+#MJCalibrateSignal.MHCalibrationChargeCam.HiGainLast:   1899.5
+MJCalibrateSignal.MHCalibrationChargeCam.LoGainNbins:   250
+MJCalibrateSignal.MHCalibrationChargeCam.LoGainFirst:   -98
+MJCalibrateSignal.MHCalibrationChargeCam.LoGainLast:    902
+#MJCalibrateSignal.MHCalibrationChargeCam.TimeLowerLimit: 1. 
+#MJCalibrateSignal.MHCalibrationChargeCam.TimeUpperLimit: 3. 
+#MJCalibrateSignal.MHCalibrationChargeCam.NumHiGainSaturationLimit: 0.02
+#MJCalibrateSignal.MHCalibrationChargeCam.NumLoGainSaturationLimit: 0.005 
+#MJCalibrateSignal.MHCalibrationChargeCam.ProbLimit:    0.0001
+#MJCalibrateSignal.MHCalibrationChargeCam.OverflowLimit: 0.005
+MJCalibrateSignal.MHCalibrationChargeCam.PulserFrequency: 50
+
+# -------------------------------------------------------------------------
+# Setup relative time interlaced calibration
+# -------------------------------------------------------------------------
+#MJCalibrateSignal.MHCalibrationRelTimeCam.Debug:           no
+#MJCalibrateSignal.MHCalibrationRelTimeCam.LoGain:          no
+MJCalibrateSignal.MHCalibrationRelTimeCam.Oscillations:    no
+#MJCalibrateSignal.MHCalibrationRelTimeCam.SizeCheck:       yes
+#MJCalibrateSignal.MHCalibrationRelTimeCam.Averageing:      yes
+#MJCalibrateSignal.MHCalibrationRelTimeCam.Nbins:           210
+#MJCalibrateSignal.MHCalibrationRelTimeCam.First:           -5.
+#MJCalibrateSignal.MHCalibrationRelTimeCam.Last:            10.
+#MJCalibrateSignal.MHCalibrationRelTimeCam.NumHiGainSaturationLimit: 0.25
+#MJCalibrateSignal.MHCalibrationRelTimeCam.ProbLimit:       0.00001
+#MJCalibrateSignal.MHCalibrationRelTimeCam.OverflowLimit:   0.005
+MJCalibrateSignal.MHCalibrationRelTimeCam.PulserFrequency: 50
+
+# -------------------------------------------------------------------------
+# Resource for movie encoding. For more details see IACT wiki
+# -------------------------------------------------------------------------
+#MMoviePrepare.FirstSlice: 0
+#MMoviePrepare.LastSlice:  15
+#MovieFilter.Condition: MMovieData.fMax>5*MMovieData.fMedianPedestalRms
+#MImgCleanStd.CleanLevel1: 8.0
+#MImgCleanStd.CleanLevel2: 4.5
+#MFEvtNumber.FileName: ganymed00001218.root
+#MFEvtNumber.Selector: ThetaSquared.fVal<0.04 && DataType.fVal>0.5
+#MMovieWrite.TargetLength: 5
+#MMovieWrite.NumEvents: 10
+#MMovieWrite.Threshold: 3
+#MMovieWrite.Filename: movie.mpg
+
+# -------------------------------------------------------------------------
+# This is a special option for the datacheck. A task executed as last
+# task in the event processing task list - in the standard software it
+# is skipped
+# -------------------------------------------------------------------------
+#MJCalibrateSignal.FinalFantasy: MHCamFlorian

@@ -1,0 +1,41 @@
+#
+# Reference lines and histogram limits for the data check in pedestal files
+#
+######################################################################
+######################################################################
+#
+# Histogram Limits:
+# 
+######################################################################
+#
+# Mean Pedestals:
+#
+PedestalMin:                 0.
+PedestalMax:                 18.
+#
+# Pedestal RMS:
+#
+PedRmsMin:                   0.
+PedRmsMax:                   3.
+######################################################################
+#
+# Reference Lines:
+# 
+######################################################################
+#
+# Mean Pedestals:
+#
+RefPedClosedLids:            9.635
+RefPedExtraGalactic:         9.93
+RefPedGalactic:              10.03
+
+#
+# Pedestal RMS:
+#
+RefPedRmsClosedLidsInner:    0.37
+RefPedRmsExtraGalacticInner: 1.2
+RefPedRmsGalacticInner:      1.5
+
+RefPedRmsClosedLidsOuter:    0.49
+RefPedRmsExtraGalacticOuter: 0.96
+RefPedRmsGalacticOuter:      1.2

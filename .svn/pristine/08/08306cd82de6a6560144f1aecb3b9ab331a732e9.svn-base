@@ -1,0 +1,5677 @@
+                                                 -*-*- END OF LINE -*-*-
+
+ 2002/12/13: Abelardo Moralejo
+
+    * manalysis/MSigmabar.cc
+      - added cast in first arguments in calls to TMath::Min and
+        TMath::Max otherwise, we got a compilation error in Alpha
+        machines.
+
+
+
+ 2002/12/13: Oscar blanch
+
+    * mgeom/MGeomMirror.[h,cc]
+      - function SetMirrorDeviations added
+
+
+
+ 2002/12/09: Robert Wagner
+
+    * manalysis/MSigmabar.[cc,h]:
+      - added
+
+    * manalysis/MSigmabarCalc.[cc,h]:
+      - added
+
+    * manalysis/MSigmabarParam.[cc,h]:
+      - added
+      - preliminary version for CT1 test
+
+    * manalysis/MApplyPadding.[cc,h]:
+      - added
+
+    * mhist/MHSigmabarTheta.[cc,h]:
+      - added
+
+    * mhist/MHSigmabarPixel.[cc,h]:
+      - added
+      - preliminary version for CT1 test
+
+    * mtemp/MObservatoryLocation.[cc,h]:
+      - added
+
+    * mtemp/MVPObject.[cc,h]:
+      - added
+
+    * mtemp/MVPPlotter.[cc,h]:
+      - added
+
+    * mtemp/MVPTime.[cc,h]:
+      - added
+	
+    * mtemp/TempIncl.h, mtemp/TempLinkDef.h, mtemp/Makefile:
+      - added above mentioned classes
+
+    * mhist/HistLinkDef.h, mhist/Histfile:
+      - added above mentioned classes
+
+    * manalysis/AnalysisLinkDef.h, manalysis/Makefile:
+      - added above mentioned classes
+
+
+
+ 2002/11/25: Thomas Bretz
+
+   * mgui/MCamDisplay.cc:
+     - fixed a bug when sprintf the pointer to the char-array, only
+       took place on alphas.
+
+   * macros/multidimdist2.C:
+     - renamed eventloops (instances had same names)
+     - fixed a type in PrintStatistics (the gamma statistics
+       were printed two times)
+
+   * mbase/MEvtLoop.cc:
+     - take the lowest value (entries from MRead or user input)
+       for the progress bar
+     - reset the progress bar
+
+   * mbase/MFilter.h:
+     - added 'private'
+
+   * meventdisp/MGCamDisplay.[h,cc], meventdisp/MGEvtDisplay.[h,cc],
+     meventdisp/MGFadcDisp.[h,cc], mmain/MMonteCarlo.[h,cc],
+     mmain/MAnalysis.[h,cc], mmain/MBrowser.[h,cc], 
+     mmain/MCameraDisplay.[h,cc], mmain/MDataCheck.[h,cc],
+     mmain/MEvtDisp.[h,cc], mmain/MMars.cc:
+     - changed from TTransientFrame to TMainFrame (with this I
+       get decorations, eg. Close Button)
+
+   * meventdisp/MGEvtDisplay.cc:
+     - Update the layout each time the fEvtInfo has changed
+
+   * mfileio/MCT1ReadAscii.cc, mfileio/MCT1ReadPreProc.cc:
+     - delete return of gSystem->ExpandPathName
+
+   * mfileio/MCT1ReadPreProc.[h,cc]:
+     - added output of Time
+     - added usage of Selector
+     - changed MTask basics to be private
+
+   * mfileio/MRead.[h,cc]:
+     - added comment about selector
+     - added Selector-stuff
+
+   * mfileio/MReadMarsFile.[h,cc], mfileio/MReadTree.[h,cc]:
+     - added 'entries' argument to AddFile
+
+   * mfileio/MReadTree.[h,cc]:
+     - added workaround for a root bug when a file doesn't exist
+     - changed AddFiles to use Add(TChain*)
+     - changed to use Selector
+
+   * mfilter/MF.cc:
+     - Set debug level to suppress output when MFDataChain is created
+
+   * mfilter/MFEventSelector.h:
+     - changed Pre//PostProcess to private
+     
+   * mfilter/MF.cc, mfilter/MFilterList.cc:
+     - changed the use of Pre//PostProcess to CallPre//PostProcess
+   
+   * mhist/MBinning.[h,cc]:
+     - changed comments
+     - added SetEdgesCos
+
+   * mhist/MFillH.[h,cc]:
+     - added GetBinCenterLog
+
+   * mhist/MH3.h:
+     - added default argument to GetHistByName
+
+   * mhist/MHAlphaEnergyTheta.[h,cc], mhist/MHAlphaEnergyTime.h,
+     mhist/MHEffOnTime.[h,cc], mhist/MHEffOnTimeTheta.h,
+     mhist/MHEffOnTimeTime.h, mhist/MHFlux.[h,cc], mhist/MHGamma.[h,cc],
+     mhist/MHMcEnergyMigration.h, mhist/MHThetabarTheta.[h,cc],
+     mhist/MHThetabarTime.h:
+     - changed the output
+     - changed the algorithms to be more modular (more usage of member
+       function)
+     - changed ClassDef to 0
+     - fixed some small bugs (access of TArray[n])
+
+   * mhist/MHHadronness.[h,cc]:
+     - removed shortest distance to (0,1) stuff
+
+   * mhist/MHMcCollectionArea.h:
+     - changed Fill to Double_t
+
+   * mhist/MHTimeDiffTheta.[h,cc], mhist/MHTimeDiffTime.[h,cc]:
+     - in a first draft changed to use 200ns timing of CT1
+     - changed ClassDef to 0
+
+
+
+ 2002/11/22: Thomas Bretz
+
+   * macros/threshold.C:
+     - Simplified the new writing routine
+
+   * mbase/MLog.h:
+     - added a Getter-function for the debug level
+
+   * mbase/MTaskList.cc: 
+     - added another debugging output
+
+   * mfilter/MF.[h,cc]:
+     - made the automatically created chain names unique
+
+   * mfilter/MFDataChain.cc:
+     - corrected the GetRule stuff ({} were missing)
+
+   * mhist/MH3.cc:
+     - added MBinning as class type to FindObject
+     - added BinningHist (without the X) as binning name for a 1D histogram
+
+   * mfileio/MReadMarsFile.cc:
+     - corrected typo
+
+   * mfileio/MCT1ReadPreProc.cc:
+     - fixed a warning
+
+
+
+ 2002/11/22: Abelardo Moralejo
+
+   * macros/threshold.C:
+     - Added 2nd argument to write an output file containing the 
+       energy spectrum histogram.
+
+
+
+ 2002/11/21: Thomas Bretz
+
+   * mbase/MAGIC.h, mbase/MEvtLoop.[h,cc], MTask.cc, MTaskList.cc:
+     - introduced kERROR to stop an eventloop with an error
+
+   * mbase/MTask.h:
+     - made SetFilter virtual
+
+   * mbase/MTaskList.[h,cc]:
+     - added new member function AddToListBefore/After
+     - split the code of the AddToList function into CheckAddToList
+
+   * manalysis/MMultiDimDistCalc.cc:
+     - introduced usage of kERROR in case the matrix is not posdef.
+
+   * macros/collarea.C:
+     - some simplifications
+
+   * mhist/MHMcRate.h, mhist/MHMcIntRate.h, mhist/MHEnergyTime.h,
+     mhist/MHEnergyTheta.h, mfileio/MCTReadPreProc.cc, mfileio/MChain.h,
+     mfileio/MReadMarsFile.h, mfileio/MReadTree.cc, mfileio/MWriteAsciiFile.h,
+     mfileio/MWriteRoootFile.[h,cc], manalysis/MMatrixLoop.h, 
+     manalysis/MEnergyEstimate.h, mbase/MGGroupFrame.h, mbase/MGTask.h,
+     mfilter/MFParticleId.h:
+     - updated documentation
+
+   * mfileio/MCT1ReadPreProc.cc:
+     - Changed MSrcPosCam name from Source to MSrcPosCam
+     - changed the way the MC data is filled into the MC container
+     - updated algorithm to read preproc files
+
+   * mfileio/MReadMarsFile.cc:
+     - printed a warning to the screen in case Camera=V0.5
+
+   * mfileio/structures.h:
+     - changed to version 0.6
+
+   * mmc/MMcEvt.hxx:
+     - added GetTelescopePhi
+     - added GetTelescopeTheta
+
+   * mdata/MDataChain.[h,cc]:
+     - added 'sqr'
+
+   * mfilter/MF.[h,cc]:
+     - added support for MFDataChain
+
+   * mfilter/MFDataChain.[h,cc]:
+     - added
+
+   * mfilter/Makefile, mfilter/FilterLinkDef.h:
+     - added MFDataChain
+
+
+
+ 2002/11/20: Thomas Bretz
+
+   * macros/dohtml.C:
+     - fixed a typo
+
+   * mmain/MAnalysis.cc:
+     - removed the Anti-Source from the hillas calculation
+
+   * mhist/MHFadcPix.[h,cc], mhist/MHFadcCam.[h,cc],
+     mmain/MDataCheck.[h,cc]:
+     - added enhancement for displaying sum of FADC slices
+
+
+
+ 2002/11/20: Abelardo Moralejo
+
+   * macros/collarea.C:
+     - Introduced check before opening output file to avoid annoying 
+       error message.
+
+
+
+ 2002/11/19: Abelardo Moralejo
+
+   * macros/collarea.C:
+     - Removed some strange pieces of text which somehow got into the
+       file (anyone knows how?)
+
+
+
+ 2002/11/19: Thomas Bretz
+
+   * mmain/MMonteCarlo.cc:
+     - exchanged MReadTree with MReadMarsFile for collection area calculation
+ 
+   * mmontecarlo/MMcCollectionAreaCalc.cc:
+     - fixed the uninitialized fTheta
+
+   * macros/MagicHillas.C:
+     - removed the unnecessary second MHillasSrcCalc
+     - removed also the corresponding AddToList for the tasklist
+
+   * mhist/MH.cc:
+     - make FindGoodLimits work
+
+
+
+ 2002/11/19: Abelardo Moralejo
+
+   * macros/collarea.C:
+     - Added 2nd argument to write an output file containing the 
+       collection area histogram.
+
+
+
+ 2002/11/18: Abelardo Moralejo
+
+   * mmain/MMars.cc:
+     - Corrected typo on Mars starting screen.
+
+   * mhist/MHMcCollectionArea.cc:
+     - Added comment.
+
+   * manalysis/MImgCleanStd.cc:
+     - implemented "democratic cleaning" (cut value proportional to square
+       root of pixel area) according to Wolfgang's suggestion.
+
+   * macros/MagicHillas.C:
+     - added missing declaration MHillasSrcCalc csrc2;
+
+   * mgeom/MGeomPix.cc:
+     - fixed some typos in comments
+
+
+
+ 2002/11/18: Thomas Bretz
+
+   * macros/CT1Hillas.C:
+     - changed MWRiteRootFile to write the histograms only
+     - renamed HillasSource to MHillasSrc
+
+   * macros/MagicHillas.C:
+     - removed all anti source stuff (corresponding to star.C)
+     - changed MWRiteRootFile to write the histograms only
+     - renamed HillasSource to MHillasSrc
+
+   * macros/estfit.C:
+     - renamed HillasSource to MHillasSrc
+
+   * macros/estimate.C:
+     - renamed HillasSource to MHillasSrc
+     - changed to display more interesting histograms
+
+   * multidimdist.C:
+     - added Theta
+     - added Alpha
+
+   * macros/star.C
+     - removed wrong HillasSource
+     - added MSrcPosCam
+
+   * starplot.C:
+     - removed all anti source stuff (corresponding to star.C)
+     - renamed HillasSource to MHillasSrc
+
+   * macros/multidimdist2.C:
+     - fixed a typo
+     - added Alpha and Theta
+
+   * mbase/MTime.h:
+     - added minus-operator
+
+   * mdata/MDataChain.[h,cc]:
+     - added floor
+
+   * mhist/MFillH.[h,cc]:
+     - moved MMap and MMap support MHArray
+
+   * mhist/MHArray.[h,cc]:
+     - added MMap
+     - added MMap-support
+     - added legend
+     - added more draw options
+
+   * mhist/MHFadcCam.[h,cc]:
+     - added Fill(const MRawEvtData*)
+     - added const getter functions
+
+   * mhist/MHFadcPix.h:
+     - added const getter functions
+
+   * mmc/MMcCorsikaRunHeader.[h,cc]:
+     - removed underscores from names
+     - removed empty destructor
+
+   * manalysis/MPedestalCalc.[h,cc]:
+     - added (not yet to LinkDef.h and Makefile)
+
+   * mgeom/MGeomMirror.[h,cc], mgeom/MGeomPMT.[h,cc], 
+     mmc/MMcConfigRunHeader.[h,cc], mmc/MMcCorsikaRunHeader.[h,cc]:
+     - changed comments
+     - added missing manalysis-dir (strange!)
+
+   * macros/dohtml.C:
+     - added new macros
+
+
+
+ 2002/11/16: Abelardo Moralejo
+
+   * mmc/MMcCorsikaRunHeader.cc:
+     - added default destructor
+
+
+
+ 2002/11/15: Thomas Bretz
+
+   * mmc/MMcCorsikaRunHeader.[h,cc]:
+     - small changes
+
+   * mmc/McLinkDef.h:
+     - added missing MMcCorsikaRunHeader
+
+
+
+ 2002/11/15: Oscar Blanch
+
+   * mmc/MMcCorsikaRunHeader.[h,cc]:
+     - added
+
+
+
+ 2002/11/14: Thomas Bretz
+
+   * mmain/MAnalysis.cc, mmain/MMonteCarlo.cc, mmain/MDataCheck.cc:
+     - removed SetProgressBar of reader
+
+   * mhist/MHFlux.cc:
+     - localized some variables
+     - get rid of old c-style sprintf
+     - return errorflag in Parab as return value!
+
+   * mgeom/MGeomPMT.cc, mgeom/MGeomMirror.cc:
+     - removed redefinition of a default argument
+
+   * mhist/MHMcIntRate.cc, mhist/MHMcCollectionArea.[h,cc]: 
+     - changed the error calculation according to a suggestion from Raquel
+
+   * mmontecarlo/MMcCollectionAreaCalc.cc: 
+     - for collection area: MMcTrig isn't needed if all showers are
+       triggered showers
+
+   * mmc/MMcConfigRunHeader.cc:
+     - made function definition identical to function declaration
+
+   * macros/star.C:
+     - removed anti source for the moment
+
+   * macros/multidimdist2.C:
+     - added
+
+   * macros/comprob.C, macros/multidimdist.C:
+     - changed to use MHillasSrc instead of HillasSource
+
+   * mhist/MHHadronness.cc:
+     - changed the output of Print a bit
+
+
+
+ 2002/11/13: Thomas Bretz
+
+   * mfilter/MFEventSelector.[h,cc]:
+     - if total number of events read from file the selector worked only for
+       one eventloop - fixed.
+     - changed MReadMarsFile to MRead
+
+   * mbase/MContinue.cc:
+     - fixed a typo
+
+   * mbase/MEvtLoop.cc, meventdisp/MGEvtDisplay.cc:
+     - renamed MReadMarsFile/MReadTree to MRead
+
+   * mfileio/FileIOLinkDef.h, mfileio/Makefile:
+     - added MRead
+
+   * mfileio/MRead.[h,cc]:
+     - added
+
+   * mfileio/MReadMarsFile.[h,cc], mfileio/MReadTree.[h,cc]:
+     - renamed from MReadMarsFile to MRead
+     - derived from MRead
+     - removed progressbar support from MReadTree
+
+   * mfileio/MWriteRootFile.cc:
+     - added a info output
+
+   * mfileio/MCT1ReadPreProc.[h,cc]:
+     - changed to work much much better :)
+
+   * mgeom/GeomLinkDef.h, mmc/McLinkDef.h:
+     - added missing LinkDefs (helllo Oscar!)
+
+   * mgeom/MGeomCamCT1.cc:
+     - mirrored the CT1 camera in x (CT1 default)
+
+   * mgeom/MGeomMirror.[h,cc]:
+     - some small changes
+   
+   * mgeom/MGeomPMT.[h,cc]:
+     - changed usage of TArrayF from pointer to reference
+
+   * mgui/MCamDisplay.cc:
+     - fixed a crash at delete when the user closed a automatically
+       created canvas
+
+   * mhist/MHFadcCam.[h,cc]:
+     - implemented ResetHistograms
+
+   * mhist/MHMatrix.[h,cc]:
+     - implemented ReduceNumberOfRows (preliminary, untested)
+
+   * mmc/MMcConfigRunHeader.[h,cc]:
+     - some small changes
+     - changed usage of TArrayF from pointer to reference
+
+
+
+ 2002/11/11: Thomas Bretz
+
+   * manalysis/MHillas.cc:
+     - moved division by size before test of number of used pixels
+
+   * mfileio/MCT1ReadPreProc.cc:
+     - added a eof-conditional
+
+   * mhist/MH3.cc:
+     - added a 'nonew' option to DrawClone
+
+   * mhist/MHHadronness.cc:
+     - check for NaN in Fill
+
+
+
+ 2002/11/08: Oscar Blanch
+
+   * mgeom/MGeomPMT.[h,cc]:
+     - added
+     - Information about simulated QE
+
+   * mgeom/MGeomMirror.[h,cc]:
+     - added
+     - Mirrors properties
+
+   * mgeom/Makefile:
+     - modified to compile new classes
+
+   * mmc/MMcConfigRunHeader.[h,cc]:
+     - added
+
+   * mmc/Makefile:
+     - modified to compile new classes
+
+
+
+ 2002/11/08: Thomas Bretz
+
+   * mhist/MHMatrix.cc:
+     - implemented a zero suppression
+
+
+
+ 2002/11/07: Thomas Bretz
+
+   * mfilter/Makefile, mfilter/FilterLinkDef.h:
+     - added MFEventSelector
+
+   * mfilter/MFEventSelector.[h,cc]:
+     - added
+
+   * mfilter/MF.[h,cc]:
+     - made gsDef[Name,Title] a static const member
+
+   * manalysis/MMultiDimDistCalc.cc:
+     - changed the default function to kernel
+
+
+
+ 2002/11/07: Oscar Blanch
+   * mmc/MMcEvt.[hxx,cxx]
+     - Some new variable from the reflector header event.
+     - Class version switched to 2
+
+   * mmc/MMcRunHeader.[hxx,cxx]
+     - Varible member fOpticLinksNoise has been introduced
+     - Class version switched to 3
+
+
+ 2002/11/07: Wolfgang Wittek
+
+   * mhist/MHFlux.[h,cc]
+     - changed to avoid warnings : "member initializers will be re-ordered
+                                    to match declaration order"
+
+
+
+ 2002/11/06: Thomas Bretz
+
+   * Makfile.conf.osf5.1:
+     - added
+
+   * mhist/MHMatrix.cc:
+     - changed all math.h functions or similar to TMath
+     - added 2*pow(rows, 1/(4+cols))^2 as the standard kernel window
+
+   * mfileio/MCT1ReadPreProc.cc:
+     - corrected the reading routines
+
+   * mfileio/*.cc:
+     - changed my eMail address
+
+   * mfileio/structures.h:
+     - small changes to make it architecture independant
+
+
+
+ 2002/11/04: Thomas Bretz
+
+   * macros/estimate.C, macros/estfit.C:
+     - added
+     
+   * mfileio/structures.h, mfileio/defines.h:
+     - added from CT1 PreProc 0.5
+
+   * mfileio/MCT1ReadPreProc.[h,cc]:
+     - added 
+
+   * mhist/MHArray.[h,cc]:
+     - added
+
+   * Makefile:
+     - changed the order of the libs to make the linker happy
+     
+   * manalysis/MBlindPixelCalc.[h,cc]:
+     - changed to be able to use also an existing MBlindPixels from the 
+       parlist
+     - changed to use the pixel Id instead of its index number from the evt
+
+   * manalysis/MCameraSmooth.cc:
+     - changed to use the pixel Id instead of its index number from the evt
+       
+   * manalysis/MCerPhotEvt.[h,cc]:
+     - added GetPixById member function
+
+   * manalysis/MCompProbCalc.[h,cc]:
+     - changed Hadroness to Hadronness
+   
+   * manalysis/MHillasExt.cc:
+     - fixed a typo in a comment
+
+   * mbase/MParContainer.[h,cc]:
+     - added New-virtual member function
+
+   * mbase/MTask.[h,cc]:
+     - changed AddToBranchList so that it also accepts comma seperated
+       lists (only when using TString)
+       
+   * mdata/MData.[h,cc], mdata/MDataArray.[h,cc], mdata/MDataChain.[h,cc],
+     mdata/MDataElement.[h,cc], mdata/MDataList.[h,cc]
+     - updated comments
+     - added new GetDataMember member function
+     
+   * mdata/MDataArray.[h,cc]:
+     - added new member function AddEntry(MData*)
+     
+   * mfileio/FileIOLinkDef.h, mfileio/Makefile:
+     - added MCT1ReadPreProc
+     
+   * mfileio/MCT1ReadAscii.cc:
+     - removed fNphot->Clear() (automatically called for each event by
+       Reset();
+       
+   * mhist/HistLinkDef.h, mhist/Makefile:
+     - added MHArray
+     
+   * mhist/MFillH.[h,cc]:
+     - made work with arrays of histograms (MHArray) the mapping is
+       done by a preliminary class MMap
+       
+   * mhist/MH.[h,cc]:
+     - implemented GetHistByName virtual function
+     - implemented GetDataMember virtual function
+     - small changes to debug output
+     
+   * mhist/MH3.[h,cc]:
+     - implemented usage of GetDataMember for AddBranchToList
+     - implemented GetHistByName
+     - implemented New to be used in MHArray
+
+   * mhist/MHAlphaEnergyTheta.h, mhist/MHAlphaEnergyTime.h,
+     mhist/MHEnergyTheta.h, mhist/MHEnergyTime.h,
+     mhist/MHHillas.[h,cc], mhist/MHHillasExt.[h,cc],
+     mhist/MHHillasSrc.[h,cc], mhist/MHMcDifRate.h,
+     mhist/MHMcEfficiency.h, mhist/MHMcEfficiencyEnergy.h,
+     mhist/MHMcEfficiencyImpact.h, mhist/MHMcEnergy.[h,cc],
+     mhist/MHMcEnergyImpact.h, mhist/MHMcEnergyMigration.h,
+     mhist/MHMcIntRate.h, mhist/MHStarMap.h, mhist/MHThetabarTheta.h,
+     mhist/MHThetabarTime.h, mhist/MHTimeDiffTheta.h, 
+     mhist/MHTimeDiffTime.h:
+     - implemented GetHistByName
+   
+   * mhist/MHHadronness.[h,cc]:
+     - some small changes and checks
+     - changed histogram io from standard pointer to '->'
+
+   * mhist/MHMatrix.cc:
+     - updated comments
+     - implemented GetDataMembers
+
+
+
+ 2002/10/31: Thomas Bretz
+
+   * mfileio/MReadTree.cc:
+     - enhanced the validity of the fNuMEntries workaround from
+       3.02.06 to 3.07.01
+
+   * manalysis/MBlindPixelCalc.h, mhist/MBinning.h:
+     - added an explicit cast to get rid of a compiler warning on Alpha
+
+   * mhist/MH.cc:
+     - removed an unused variable to get rid of a compiler warning on Alpha
+
+
+
+ 2002/10/31: Wolfgang Wittek
+
+   * mhist/MHFlux.[h,cc]:
+     - type of fVarname and fUnit changed from char* to TString
+
+
+
+ 2002/10/30: Thomas Bretz
+
+   * mhist/MHMatrix.cc:
+     - changed the return value for the kernel method from log to -log
+     - fixed a typo in an error message
+     - fixed a crash in case the matrix is singular
+
+   * mhist/MMultiDimDistCalc.cc:
+     - check whether calculation of the distance succeeded
+
+   * mfileio/MReadTree.[h,cc]:
+     - implementation which makes sure, that the number of events returned 
+       by GetEntries always is the correct value.
+     - removed const from the GetEntries definition
+     - mainly use GetEntries now instead of fNumEntries
+
+   * manalysis/MCameraSmooth.cc:
+     - removed include of MMcRunHeader
+
+
+
+ 2002/10/29: Thomas Bretz
+
+   * manalysis/MHadroness.[h,cc]:
+     - renamed to MHadronness
+
+   * mhist/MHHadroness.[h,cc]:
+     - renamed to MHHadronness
+     - small changes to the graphical and text output
+
+   * manalysis/Makefile, manalysis/AnalysisLinkDef.h, macros/multidimdist.C,
+     manalysis/MMultiDimDistCalc.[h,cc], macros/comprob.C,
+     mhist/Makefile, mhist/HistLinkDef.h:
+     - changed Hadroness to Hadronness
+
+   * manalysis/MCerPhotAnal.cc:
+     - small changes to the code layout
+
+
+
+ 2002/10/24: Thomas Bretz
+
+   * macros/multidimdist.C:
+     - some changes to make it work with the latest version of Mars
+
+   * mhist/MHMatrix.cc:
+     - changed the Print member function to be more flexible
+
+   * mhist/MHHadroness.[h,cc]:
+     - changed fQfac from TH to TGraph
+     - changed the Qfactor-plot x-axis from Hadronness to Gamma-Acceptance
+
+   * mgui/MCamDisplay.cc:
+     - changed ratio from ratio to sqrt(ratio) in GetColorError
+
+   * mhist/MH3.cc:
+     - changed plotted errors from spread/sqrt(n) to spread
+
+
+
+ 2002/10/19: Abelardo Moralejo
+
+   * manalysis/MCerPhotCalc.cc
+     - Added check of whether a pixel has all its FADC slices empty before
+       subtracting pedestal.
+
+
+
+ 2002/10/18: Thomas Bretz
+
+   * mfileio/MWriteRootFile.cc
+     - make sure that the tree is created in the corresponding file
+
+
+
+ 2002/10/17: Thomas Bretz
+
+   * mraw/MRawEvtPixelIter.[h,cc]
+     - added function to get the sum of squares of the samples
+
+
+
+ 2002/10/16: Abelardo Moralejo
+
+   * manalysis/MCerPhotCalc2.[h,cc], MCerPhotCalc.[h,cc]
+     - Class MCerPhotCalc2 renamed MCerPhotCalc (they were redundant).
+     - Now the default pixel treatment is the same as originally: add 
+       all FADC slices
+
+   * macros/MagicHillas.C
+     - changed accordingly to changes above.
+
+
+
+ 2002/10/16: Thomas Bretz
+
+   * macros/readMagic.C:
+     - added MPrint for MRawEvtHeader
+     - changed to MPrint to new Skip-Style
+
+   * manalysis/MHillasCalc.cc, manalysis/MHillasSrcCalc.cc:
+     - corrected output stream in case of hex or setfill was used
+
+   * mbase/MPrint.[h,cc]:
+     - introduced new behaviour of PreProcess (EnableSkip)
+
+   * mbase/MTaskList.cc:
+     - fixed a bug in Process which caused Histograms to be written
+       after each event
+
+   * meventdisp/MGEvtDisplay.cc:
+     - introduced printing of MRawEvtHeader
+
+   * mmc/MMcEvt.cxx:
+     - some small changes
+     - changed Print output from cout to fLog
+     - changes to the default values
+
+   * mraw/MRawEvtHeader.[h,cc]:
+     - removed the second empty line after Print
+     - added Getter-function for the DAQEvtNumber
+
+   * macros/star.C, macros/starplot.C, macros/threshold.C, macros/trigrate.C,
+     macros/plot.C, macros/plot2.C, macros/MagicHillas.C, macros/CT1Hillas.C,
+     macros/collarea.C:
+     - added ProgressBar
+
+   * macros/flux.C:
+     - fixed some coding bugs (redeclaration of Draw, Draw starting with a
+       capital)
+
+   * macros/MagicHillas.C:
+     - fixed some typos
+
+
+
+ 2002/10/15: Thomas Bretz
+
+   * mbase/MContinue.[h,cc]:
+     - added
+     
+   * Makefile:
+     - added some comments
+     
+   * macros/readMagic.C:
+     - replaced MHillas by MHillasExt
+     - print also MC Information
+
+   * manalysis/MCerPhotEvt.[h,cc]:
+     - use MGeomCam::GetPixRatio
+     - added GetRatio[Min,Max]
+     - added GetErrorPhot[Min,Max]
+
+   * manalysis/MHillas.[h,cc], manalysis/MHillasExt.[h,cc],
+     manalysis/MHillasSrc.[h,cc]:
+     - return error codes
+     - don't display any error message or warning
+
+   * manalysis/MHillasCalc.[h,cc], manalysis/MHillasSrcCalc.[h,cc]:
+     - evaluate error codes returned by MHillas::Calc
+     - added Postprocess
+
+   * manalysis/MMcPedestalCopy.cc:
+     - removed obsolete comment
+
+   * manalysis/MMcPedestalNSBAdd.cc:
+     - added include MGeomPix
+
+   * manalysis/MPedestalCam.[h,cc]:
+     - moved some stuff from header file to source file
+       to get rid of some includes in the header file
+     - adde GetSize
+     - added GetMean[Min,Max]
+
+   * manalysis/MPedestalPix.[h,cc]:
+     - added Clear
+     - added IsValid
+
+   * mbase/BaseLinkDef.h, mbase/Makefile:
+     - added MContinue
+     
+   * mbase/MClone.h:
+     - added GetObject
+
+   * mbase/MEvtLoop.[h,cc]:
+     - added SetProgressBar II
+
+   * mbase/MTask.[h,cc], mbase/MTaskList.[h,cc]:
+     - enhanced some comments
+     - print the name of the filter in PrintStatistic
+     - made the def name and title a static member
+     
+   * meventdisp/MGCamDisplay.[h,cc]:
+     - added displays for: Errors, Phot/Err, Levels and Pedestals
+     
+   * meventdisp/MGEvtDisplay.cc:
+     - Some simplifications
+     - introduced AddTab
+   
+   * mfileio/MCT1ReadAscii.cc:
+     - added include MPedestalPix
+     
+   * mgeom/MGeomCam.[h,cc]:
+     - added GetPixRatio
+
+   * mgui/MCamDisplay.[h,cc]:
+     - added possibilities to display: errors, ratios, levels and pedestals
+
+   * mhist/MHHillasSrc.cc:
+     - some small changes if mmdeg=0
+     
+   * mhist/MHStarMap.cc:
+     - anhanced displayed radius from 2/3r to 5/6r
+
+   * mmain/MMars.[h,cc]:
+     - changed layout
+     - added comments to display
+
+   * mmain/MProgressBar.cc:
+     - added some comments
+
+   * manalysis/MImgCleanStd.cc:
+     - pixels with to many 'used' neighbors are left used
+
+
+ 2002/10/14: Abelardo Moralejo
+
+   * manalysis/McerPhotCalc.cc, manalysis/MCerPhotCalc2.cc
+     - Initialized fEnableFix (before, bad pedestal subtraction if
+       reading camera 0.4 root files)
+
+
+ 2002/10/09: Abelardo Moralejo
+
+   * mhist/MHMcRate.cc:
+     - fixed a bug in total rate calculation (results change very little, 
+       only a 0.2 percent at most)
+
+
+ 2002/09/16: Thomas Bretz
+
+   * mtools/MagicSnake.cc:
+     - removed some debugging output
+     - fixed a small bug in the initialization
+
+
+
+ 2002/09/16: Thomas Bretz
+
+   * manalysis/MCerPhotPix.cc:
+     - shortened output
+
+   * mbase/MEvtLoop.cc:
+     - added a better progressbar support, if MReadTree or MReadMarsFile
+       exists in the Tasklist 
+
+   * mbase/MTaskList.cc:
+     - fixed a bug which caused MParList::Reset not to be called anymore
+       as soon as kCONTINUE was called once.
+
+   * mfileio/MReadTree.[h,cc]:
+     - added AddFiles member function
+
+   * mmain/MProgressBar.[h,cc]:
+     - added as a simple Progress meter for eventloops
+
+   * mmain/Makefile, mmain/MainLinkDef.h:
+     - added MProgressBar
+
+   * manalysis/MHillas.cc:
+     - removed warning in case of no photons. problems with Thomas' files.
+
+   * mbase/Makefile:
+     - added mfileio
+
+
+
+ 2002/09/16: Thomas Bretz
+
+   * macros/rootlogon.C:
+     - added SetMakeSharedLib to make it work correctly on linux
+
+   * manalysis/AnalysisLinkDef.h, manalysis/Makefile:
+     - added MEnergyEstParam
+     - added MMatrixLoop
+
+   * manalysis/MEnergyEstParam.[h,cc], manalysis/MMatrixLoop.[h,cc]:
+     - added
+
+   * manalysis/MEnergyEst.h:
+     - added fImpact provisionally
+     - changed to 'no-storage'
+
+   * manalysis/MHillas.[h,cc], manalysis/MHillasExt.[h,cc],
+     manalysis/MHillasSrc.[h,cc]:
+     - added set function to support Thomas Schweitzers Image files
+
+   * mbase/MFilter.cc:
+     - small changes to output
+
+   * mbase/MLog.[h,cc]:
+     - added IsNull to switch off output completely
+
+   * mbase/MParList.[h,cc]:
+     - added Remove function
+     - added IsOwner function
+     - changes to SavePrimitive
+     - kDoNotReset-support
+
+   * mbase/MTaskList.cc:
+     - make sure, that in sub-tasklist the parameterlist isn't reset
+
+   * mdata/MDataLinkDef.h, mdata/Makefile:
+     - added MDataElement
+     - added mhist-path
+
+   * mdata/MDataChain.[h,cc]:
+     - added support for MDataElement
+
+   * mhist/MH3.[h,cc]:
+     - added enums for log-scale
+     - set logscale automatic when drawing
+     - added 'only' option to draw functions
+     - set colors when 'col' option is given
+
+   * mhist/MHHillas.cc:
+     - better hist range for fCenter
+
+   * mhist/MHMatrix.[h,cc]:
+     - made default name and title a static class member
+     - changed AddColumn now returning the new comlumn index
+     - added Fill to fill Matrix from file
+     - added locking
+     - added IsValid
+     - added GetNumRows
+     - added SetNumRow
+     - added []-operator
+     - added GetNumRow
+
+   * mhist/MHStarMap.cc:
+     - fixed some comments
+
+   * mbase/MEvtLoop.[h,cc], MParContainer.[h,cc]:
+     - added support for writing two or more Evtloops into one macro
+
+
+
+ 2002/09/02: Thomas Bretz
+
+   * mhist/MHMatrix.[h,cc]:
+     - added GetIndexdOfSortedColumn
+     - added SortMatrixByColumn
+
+   * mhist/HistIncl.h:
+     - added TArrayI.h (for MHMatrix.h)
+
+
+
+ 2002/08/19: Thomas Bretz
+
+   * mhist/MHillasExt.cc:
+     - removed a wrong 2 in the calculation of fAsym
+
+
+
+ 2002/08/16: Thomas Bretz
+
+   * mhist/MFillH.cc:
+     - if not title is given create a default title from the names
+
+   * mhist/MHHillas.cc, mhist/MHHillasExt.cc:
+     - use the new MH::Draw[Copy] function
+     - added names to the histograms in MHHillasExt
+
+   * manalysis/MCerPhotPix.h:
+     - unimportant change
+
+   * manalysis/MImgCleanStd.cc:
+     - added comment
+
+   * mhist/MH.[h,cc]:
+     - added function to draw two histograms in one pad with
+       a layout of two stat boxes and a legend: Draw[Copy]
+     - added comments
+     - added another sanity check in SetBinning(TH1*,TH1*)
+
+
+
+ 2002/08/14: Thomas Bretz
+
+   * mbase/MTask.[h,cc], mbase/MTaskList.[h,cc]:
+     - added second argument to PrintStatistics
+
+
+
+
+
+ 2002/08/12: Thomas Bretz
+
+   * manalysis/MBlindPixelCalc.[h,cc]:
+     - fixed a typo in the SetUseCentralPixel
+     - only use pixels without starlight for interpolation
+
+
+
+ 2002/08/09: Thomas Bretz
+
+   * mbase/MIter.[h,cc]:
+     - added
+
+   * mbase/BaseLinkDef.h, mbase/Makefile:
+     - added MIter
+
+   * mdata/MDataChain.cc:
+     - added sanity check in StreamPrimitive
+
+   * mfilter/MF.[h,cc]:
+     - fixed StreamPrimitive
+     - don'w stream standard name and title.
+     - added default constructor
+
+   * mfilter/MFDataMeber.cc:
+     - strip spces from value before returning GetRule
+
+   * mfilter/MFilterList.[h,cc]:
+     - fixed StreamPrimitive
+     - don't stream standard name and title.
+
+
+
+ 2002/08/08: Thomas Bretz
+
+   * manalysis/MHillasSrc.cc:
+     - use double dist instead of single fDist for calculation
+
+   * manalysis/MMultiDimDistCalc.[h,cc]:
+     - added support for the kernel method
+     - added stream primitive
+     - changed version number to 1
+     - adapted to new MHMatrix (using MDataArray)
+
+   * mdata/MDataArray.[h,cc]:
+     - added
+
+   * mdata/DataLinkDef.h, madata/Makefile:
+     - added MDataArray
+
+   * mfileio/MWriteRootFile.cc:
+     - fixed some bugs in StreamPrimitive
+     - StreamPrimtive doesn't write the default name/title anymore
+
+   * mhist/MHMatrix.[h,cc]:
+     - replaced the Arrays for the rules by a MDataArray
+     - implemented StreamPrimitive
+     - implement the use of the kernel function for num<0
+     - multiply fM2 by nevts-1
+     - added sanity check in case of dists[i]<0
+
+   * mhist/MHHillas.[h,cc]:
+     - added fUsedPix, fCorePix
+     - added fUsedPix, fCorePix to plots
+     - changed layout of plots
+     - changed name and title of MakeDefCanvas
+
+   * mhist/MHHillasSrc.[h,cc]:
+     - changed plot of Alpha from fabs(fAlpha) to fAlpha
+     - changed name and title of MakeDefCanvas
+
+   * mhist/MHillasExt.[h,cc]:
+     - changed layout of plots
+     - changed name and title of MakeDefCanvas
+     - made independant of MHillas
+     - exchanged the usage of the Fill-argument (MHillasExt) and the
+       stored pointer (MHillasSrc)
+     - changed the default binning of asym to be symmetric
+
+   * mbase/MTask.cc:
+     - fixed wrong streaming of filter name
+
+   * macros/starplot.C:
+     - added
+
+   * macros/dohtml.C:
+     - added starplot.C
+
+   * macros/MagicHillas.C, macros/CT1Hillas.C:
+     - changed to use new stylish Hillas Histograms
+
+   * macros/star.C:
+     - changed to interpolate pixels around hot spots
+     - write Sourcs and AntoSource to RunHeaders
+
+
+
+ 2002/08/07: Thomas Bretz
+
+   * macros/dohtml.C:
+     - added missing paths
+
+   * manalysis/MBlindPixelCalc.[h,cc]:
+     - replaced booleans by fFlags
+     - added StreamPrimitive
+     - changed version number to 1
+
+   * manalysis/MHillasSrcCalc.[h,cc]:
+     - added correct initializations for the pointers
+     - made the pointers persistent
+
+   * manalysis/MImgCleanStd.cc, manalysis/MSrcPosCam.cc,
+     mfileio/MWriteRootFile.cc:
+     - don't stream name and title if not necessary
+
+   * mbase/MEvtLoop.[h,cc]:
+     - added some output
+     - added print function
+     - added gListOfPrimitives to delete BIT(15) of streamed containers
+     - Added default argument for Read and Write
+
+   * mbase/MParContainer.cc:
+     - added usage of gListOfPrimitives
+
+   * mbase/MParList.cc, mbase/MTaskList.cc, mhist/MBinning.cc:
+     - fixed a bug when only the title is different from the default
+
+   * mhist/MHHillas.cc:
+     - fixed the wrong usage of ApplyBinning for the 2D-Hist fCenter
+
+
+
+ 2002/08/06: Thomas Bretz
+
+   * mhist/MHHillas.cc:
+     - fixed setting of binning for fCamera
+
+   * mhist/MH.cc, mhist/MBinning.cc:
+     - added sanity check in ApplyBinning and Apply
+
+   * mbase/MFilterList.[h,cc]:
+     - moved to mfilter
+
+   * mbase/Makefile, mbase/BaseLinkDef.h, 
+     mfilter/Makefile, mfilter/FilterLinkDef.h:
+     - changed accordingly
+
+
+
+ 2002/08/05: Thomas Bretz
+
+   * mbase/MEvtLoop.[h,cc]:
+     - added a warning in case of duplicate names in the lists
+     - added orresponding member functions (HasDuplicateNames)
+     - added some sanity checks, checking for an open file
+
+   * mbase/MFilter.[h,cc]:
+     - added GetRule virtual member function
+
+   * mbase/MFilterList.[h,cc]:
+     - added GetRule 
+     - added StreamPrimitive
+     - added name and title to the constructor
+     - set version number to 1
+
+   * mbase/MTask.h:
+     - removed const qualifiers from fFilter (seems, that the root io
+       doesn't like it)
+
+   * mdata/MDataChain.[h,cc], mdata/MDataList.[h,cc], mdata/MDataMember.[h,cc],
+     mdata/MDataValue.[h,cc]:
+     - set class version to 1
+     - added default constructor if missing
+     - added fDataMember to MDataMember (formaly fName isn't stored)
+
+   * mfilter/MF.[h,cc], mfilter/MFAlpha.[h,cc], mfilter/MFDataMember.[h,cc],
+     mfilter/MFParticleId.[h,cc], mfilter/MFTriggerLvl1.[h,cc]:
+     - added StreamPrimitive
+     - removed const qualifiers from data members
+     - added the "!" to the data member storing the result
+     - added GetRule
+
+   * mhist/MFillH.[h,cc]:
+     - fixed some small bugs in StreamPrimitive
+
+   * mhist/MH3.[h,cc]:
+     - added the missing const-qualifier of StreamPrimitive
+
+   * mbase/MParContainer.[h,cc]:
+     - implemented setting a unique id in SavePrimitive
+     - imnplemented GetUniqueID 
+     
+   * manalysis/MHillasSrcCalc.cc, manalysis/MImgCleanStd.cc,
+     manalysis/MSrcPosCam.cc, mbase/MEvtLoop.cc, mbase/MParList.cc,
+     mbase/MTaskList.cc, mfileio/MReadTree.cc, mfileio/MWriteRootFile.cc,
+     mhist/MF.cc, mfilter/MFAlpha.cc, mfilter/MFDataMember.cc,
+     mfilter/MFParticleId.cc, mfilter/MFTriggerLvl1.cc, mhist/MBinning.cc,
+     mhist/MFillH.cc, mhist/MH3.cc:
+     - changed the 'instance' name to the UniqueName
+     - in some files: implemented a static constant name and title, which
+       is used to descide whether the name and/or title should be stream
+       in the constructor-call in StreamPrimitive
+
+
+
+ 2002/08/06: Wolfgang Wittek
+
+   * mbase/MTask.cc:
+     - redefinition of default argument in MTask::SavePrimitive removed
+
+
+
+ 2002/08/02: Thomas Bretz
+
+   * manalysis/MHillasSrcCalc.[h,cc], manalysis/MImgCleanStd.cc,
+     manalysis/MSrcPosCam.cc, mbase/MParContainer.[h,cc],
+     mfileio/MReadTree.cc, mfileio/MWriteRootFile.cc, mhist/MBinning.cc:
+     - added comments
+
+   * manalysis/MSrcPosCam.cc, mfileio/MWriteRootFile.cc, mhist/MFillH.cc:
+     - fixed a missing " in SavePrimitive
+
+   * mbase/MTask.[h,cc], mhist/MBinning.[h,cc], mhist/MH3.[h,cc]:
+     - implemented SavePrimitive
+
+   * mbase/MEvtLoop.[h,cc]:
+     - added MakeMacro
+     - added Read and Write
+
+   * mbase/MParContainer.[h,cc], mbase/MParList.[h,cc], 
+     mbase/MTaskList.[h,cc]:
+     - added GetNames, SetNames virtual functions
+
+   * mdata/MData.[h,cc], mdata/MDataChain.[h,cc], mdata/MDataList.[h,cc],
+     mdata/MDataValue.[h,cc], mdata/MDataMember.[h,cc]:
+     - implemented GetRule
+     - move Code from Print to GetRule
+     - removed Print
+
+   * mhist/MH3.[h,cc]:
+     - implemented default constructor
+
+   * manalysis/MHillasSrcCalc.[h,cc], manalysis/MImgCleanStd.[h,cc],
+     manalysis/MSrcPosCam.[h,cc], mbase/MParList.[h,cc], mbase/MTask.h,
+     mbase/MTaskList.[h,cc], mfileio/MReadTree.[h,cc], 
+     mfileio/MWriteRootFile.[h,cc], mhist/MBinning.[h,cc], 
+     mhist/MFillH.[h,cc], mhist/MH3.[h,cc]:
+     - renamed SavePrimitive to StreamPrimitive
+     - implemented more accurate streaming
+     - removed some "//!" from the data members
+
+   * mbase/MParContainer.[h,cc]:
+     - new virtual function StreamPrimitive
+     - implemented flag whether this container has been streamed already
+
+   * mbase/MTask.[h,cc]:
+     - corrected streaming of primitive to stream filters correctly
+     - increased version number to 1
+
+   * mhist/MBinning.[h,cc]:
+     - move SetEdges and SetEdgesLog to the source file
+     - implemented a flag telling something about the type of the binning
+
+
+
+ 2002/08/01: Thomas Bretz
+
+   * manalysis/MHillasSrcCalc.[h,cc], manalysis/MImgCleanStd.[h,cc],
+     manalysis/MSrcPosCam.[h,cc], mbase/MEvtLoop.[h,cc], 
+     mbase/MParContainer.[h,cc], mbase/MParList.[h,cc],
+     mbase/MTaskList.[h,cc], mfileio/MReadTree.[h,cc],
+     mfileio/MWriteRootFile.[h,cc], mhist/MFillH.[h,cc]:
+     - added SavePrimitive
+
+   * mbase/MEvtLoop.h, mbase/MParList.h, mbase/MTaskList.h,
+     mfileio/MReadMarsFile.h, mfileio/MReadTree.h, 
+     mfileio/MWriteRootFile.h, mhist/MFillH.h:
+     - changed from ClassVersion 0 to ClassVersion 1
+   
+   * mfileio/FileIOLinkDef.h:
+     - added MChain
+
+   * mfileio/MReadMarsFile.cc, mfileio/MReadTree.cc, 
+     mfileio/MWriteRootFile.cc, mhist/MFillH.cc:
+     - added default constructor
+
+   * mfileio/MReadTree.cc:
+     - moved MChain to its own file
+
+   * mfileio/MWriteRootFile.cc:
+     - added default constructor to MRootFileBranch
+     - changed Version number from 0 to 1
+
+   * mfileio/Makefile, mfileio/FileIOLinkDef.h:
+     - MChain added
+
+   * mfileio/MChain.[h,cc]:
+     - added (from MReadTree.cc)
+
+   * manalysis/MHillas.[h,cc]:
+     - don't draw ellipse if values are invalid
+     - add used and core pixels to Print-output
+
+   * manalysis/MHillasExt.cc:
+     - reordered some comments
+
+   * mdata/MDataChain.[h,cc]:
+     - fixed a bug causing usage of '-' sometime not to work
+     - added handling of '+' sign
+
+   * mfileio/MReadTree.h:
+     - changed some comments
+
+   * mhist/MBinning.[h,cc]:
+     - added Apply
+
+   * mhist/MHHillas.[h,cc], mhist/MHHillasSrc.[h,cc], 
+     mhist/MHHillasExt.[h,cc]:
+     - added default binning (usefull for the Magic Camera)
+     - some changes to the layout
+     - added support for the sign in MHHillasExt
+
+   * manalysis/MBlindPixelCalc.[h,cc]:
+     - added the possibility to use the interpolation of the
+       surrounding pixels
+     - clean the array with the blind pixel IDs at any ReInit
+
+   * manalysis/MBlindPixels.h:
+     - IsBlind now checks also for the validity of the array
+
+   * manalysis/MCerPhotPix.h:
+     - added Set-function
+
+   * manalysis/MHillas.cc:
+     - Don't ouput a warning if fSize==0 or fNumUsedPixels<0
+       (happens too often)
+
+   * manalysis/MCameraSmooth.[h,cc]:
+     - added
+
+   * manalysis/Makefile, manalysis/AnalysisLinkDef.h:
+     - added MCameraSmooth
+
+
+
+ 2002/07/31: Thomas Bretz
+
+   * mgeom/MGeomPix.[h,cc]:
+     - added bits to flag pixel sin the two most outer rings
+     - added IsInOutermostRing and IsInOuterRing member function
+     - added CheckOuterRing mebmber function
+     - set the bit for the most outer ring in the member function to
+       initialize the next neighbors.
+
+   * mgeom/MGeomCam.[h,cc]:
+     - added InitOuterRing to initialize the bits for the secendmost 
+       outer ring
+
+   * mgeom/MGeomCamMagic.cc:
+     - Call InitOuterRing
+
+   * manalysis/MHillasExt.[h,cc]:
+     - removed AsciiRead member function
+     - reset fConc/fConc1 to -1 instead of 0
+     - replaced float by Float_t
+     - replaced Float_t for m3x/y, dzx and dzy by Double_t
+     - replaced maxpixx and maxpixy by maxpixid
+     - added somew new calculations (still in comments)
+     - scaled nphot by the ratio of the area of the current pixel to
+       the pixel with id zero to make a fair comparison in the maxpix
+       findinng
+
+   * manalysis/MSrcPosCam.[h,cc]:
+     - removed AsciiRead/Write member function
+
+   * manalysis/MImgCleanStd.cc:
+     - changed ispixused array size from max to max+1
+
+   * macros/MagicHillas.C:
+     - use the default binning of the histograms
+
+   * mhist/MH.[h,cc]:
+     - changed argument of SetBinning from TArrayD* to TArrayD&
+     - added ScaleArray
+     - added ScaleAxis
+     - proved that ScaleAxis is really working
+     - Added ApplyBinning
+
+   * mhist/MHHillas.[h,cc], mhist/MHHillasSrc.[h,cc]:
+     - corrected the default binning
+     - take use of MH::ApplyBinning
+     - don't stop execution if no binning was found (take default)
+     - made sure, that rescaling of the axis is working properly
+
+
+
+ 2002/07/29: Thomas Bretz
+
+   * manalysis/MImgCleanStd.[h,cc]:
+     - changed ispixused from static size to dynamicly allocated size
+       (thanks to Markus Gaug)
+
+
+
+ 2002/07/29: Thomas Bretz
+
+   * mhist/MH.[h,cc]:
+     - added FindGoodLimits (taken from TTreePlayer)
+     - added GetMinimumGT
+
+   * mbase/MAGIC.h:
+     - removed kPI (redefinition in TVector2.h)
+
+   * mbase/BaseLinkDef.h:
+     - removed kPI (redefinition in TVector2.h)
+
+
+
+ 2002/07/26: Abelardo Moralejo
+
+   * mhist/MH.cc
+     - Fix: removed default arguments of ScaleAxis(...)  (did not 
+       compile on alphas).
+
+
+
+ 2002/07/25: Abelardo Moralejo
+
+   * manalysis/MCerPhotCalc2.[h,cc]:
+     - Changed fWeight into a TArrayF to make the class usable for
+       any number of FADC slices.
+     - added procedure SetDefaultWeights for initialization.
+
+   * macros/MagicHillas.C: 
+     - changed accordingly
+
+
+
+ 2002/07/25: Wolfgang Wittek, Thomas Bretz
+
+   * mhist/MHHillas.[h,cc], mhist/MHHillasSrc.[h,cc]:
+     - added some more histograms showing the new parameters.
+
+   * mhist/MH.[h,cc]:
+     - added ScaleAxis member functions
+
+
+
+ 2002/07/25: Thomas Bretz
+
+   * mtools, mtools/Makefile, mtools/ToolsLinkDef.h, mtools/ToolsIncl.h:
+     - added
+
+   * mgeom, mgeom/Makefile, mgeom/GeomLinkDef.h, mgeom/GeomIncl.h:
+     - added
+
+   * Makefile:
+     - mtools added
+     - mgeom added
+
+   * mtools/MagicCivilization.[h,cc], mtools/MagicDomino.[h,cc],
+     mtools/MagicShow.[h,cc], mtools/MagicSnake.[h,cc]:
+     - added
+
+   * mgui/MineSweeper.[h,cc]:
+     - moved to mtools
+
+   * mgui/MGeom*.[h,cc]:
+     - moved to mgeom
+
+   * mgeom/MGeomCamMagic.cc:
+     - corrected 48(!) wrong entries in the Next Neighbor table
+
+   * mmain/Makefile, eventdisp/Makefile:
+     - added mgeom
+
+   * mgui/Makefile, mgui/LinkDef.h, mhist/Makefile, manalysis/Makefile:
+     - removed MGeom* and MineSweeper
+
+   * macros/rootlogon.C:
+     - added new include paths
+
+   * manalysis/MCerPhotEvt.cc, mgeom/MGeomCam.cc:
+     - removed include of MHexagon
+
+
+
+ 2002/07/23: Thomas Bretz
+
+   * mgui/MineSweeper.cc, mgui/MCamDisplay.cc:
+     - fixed a bug which could caused the destructor of the created canvas
+       not to be called if the object was deleted.
+
+   * mgui/MCamDisplay.h:
+     - some reordering
+
+   * mgui/MHexagon.cc:
+     - return the correct distance to primitive
+     - do a sanity check in DistancetoPrimitive
+
+   * mhist/HistLinkDef.h:
+     - added missing classes
+
+
+
+ 2002/07/23: Wolfgang Wittek, Thomas Bretz
+
+   * manalysis/MHillas.cc, manalysis/MHillasSrc.cc:
+     - replaced algorithms by the ones from the corresponding TDAS note
+     - made results of calculations (hopefully) more accurate
+     - added some output warnings and sanity checks
+     - changed the default parameters in the Reset function
+
+   * manalysis/MHillasSrc.[h,cc]:
+     - added fCosDeltaAlpha
+     - made Calc returning a Bool_t
+
+   * manalysis/MHillasSrcCalc.cc:
+     - make use of the return value of MHillasSrc::Calc 
+
+
+
+ 2002/07/22: Abelardo Moralejo
+
+   * manalysis/MCerPhotCalc2.[h,cc]:
+     -added procedure SetWeights.
+
+   * macros/MagicHillas.C:
+     -added example on how to use MCerPhotCalc2
+
+
+
+ 2002/07/22: Thomas Bretz
+
+   * mgui/MCamDisplay.cc:
+     - removed some unecessary includes
+     - replaced *fPixels by *this
+
+   * mgui/MineSweeper.[h,cc]:
+     - added more comments
+     - removed some unnecessary includes
+     - replaced enum constants for colors by the root ones
+     - added gInterpreter->DeleteGlobal(this)
+     - removed the deletion of the self-allocated fDrawingPad
+     - added kUserBits, replacing kBitMask
+
+
+
+ 2002/07/16: Thomas Bretz
+
+   * macros/plot.C, macros/plot2.C, macros/star.C, macros/comprob.C:
+     - updated the comments in the macros
+     
+   * mgui/MHexagon.cc:
+     - added a sanity check in DistanceToPrimitive
+
+   * mgui/MCamDisplay.[h,cc]:
+     - added DistanceToPrimitive
+     - declared virtual functions as virtual (easier to read in the Dox)
+
+   * mfileio/MWriteAsciiFile.[h,cc]:
+     - renamed AddContainer and AddRule to AddColumn and AddColumns
+
+   * macros/MagicHillas.C:
+     - adopted to new names of MWriteAsciiFile member functions
+
+
+
+ 2002/07/16: Wolfgang Wittek
+
+   * new 
+     ---
+     mhist    : MHEffOnTime     (replaces MHEffOnTimeTime and
+                                          MHEffOnTimeTheta)
+                MHThetabarTheta (forgotten to comit last time)
+                MHThetabarTime  (forgotten to comit last time)
+                MHGamma         (makes the subtraction SRC-ASRC and
+                                 counts the events with alpha<alpha0)
+
+   * modified 
+     --------
+     Mars     : Makefile.conf.general 
+                Changelog
+
+
+     mhist    : Makefile
+                HistLinkDef.h 
+                MHFlux             (performs the flux calculation)
+
+                MHAlphaEnergyTheta (replace BinningAlpha by BinningAlphaFlux)
+                MHAlphaEnergyTime  (replace BinningAlpha by BinningAlphaFlux)
+
+     macros   : flux.C       (replace some code by MHGamma,
+                              replace MHEffOnTimeTime and MHEffOnTimeTheta
+                              by MHEffOnTime)
+
+   * removed
+     -------
+     mhist    : MHEffOnTimeTime
+                MHEffOnTimeTheta
+
+
+
+ 2002/07/15: Abelardo Moralejo
+
+   * manalysis/MCerPhotCalc2.[h,cc]
+     - converted fWeight into a static variable.
+
+
+
+ 2002/07/11: Thomas Bretz
+
+   * mgui/MGeomCamCT1.cc:
+     - fixed a bug in the NN-Table (127 doesn't exist, 126 missing)
+
+   * mgui/MCamDisplay.cc:
+     - changed some gPad to fDrawingPad
+     - added kNoContextMenu and kCannotPick flags for the Primitives
+     - scaled the size of the pixel numbers text with the pixel radius
+
+   * mgui/MineSweeper.[h,cc]:
+     - added
+
+   * mgui/Makefile, mgui/GuiLinkDef.h:
+     - added MineSweeper
+
+   * Makefile:
+     - added missing mfileio
+
+
+
+ 2002/07/11: Abelardo Moralejo
+
+   * manalysis/MCerPhotCalc2.[h,cc]
+     - new class to compute nphe weighting FADC slices.
+
+
+
+ 2002/07/10: Oscar Blanch
+
+   * manalysis/MCerPhotAnal.[h,cc]
+     - new class to compute nphe. First version.
+
+
+
+ 2002/07/10: Abelardo Moralejo
+
+   * macros/MagicHillas.C:
+     -added MMcEvt container to hillas.root output
+
+
+
+ 2002/07/10: Thomas Bretz
+
+   * mmain/Makefile:
+     - added -I../mfileio
+
+   * manalysis/MCerPhotPix.h:
+     - renamed IsCorePixel to IsPixelCore
+     - renamed SetCorePixel to SetPixelCore
+
+   * manalysis/MHillas.[h,cc]:
+     - added fNumCorePixel
+     - added fNumUsedPixel
+
+   * manalysis/MImgCleanStd.cc, manalysis/MCerPhotEvt.cc:
+     - renamed IsCorePixel and SetCorePixel
+
+
+
+ 2002/07/08: Thomas Bretz
+
+   * macros/rootlogon.C:
+     - added include pathes for ACLIC
+
+   * mfileio, mfileio/FileIOLinkDef.h, mfileio/FileIOIncl.h, 
+     mfileio/Makefile:
+     - new directory
+
+   * mbase/MWriteAsciiFile.[h,cc], mbase/MWriteRootFile.[h,cc],
+     mbase/MReadTree.[h,cc], mbase/MReadMarsFile.[h,cc],
+     manalysis/MCT1ReadAscii.[h,cc]:
+     - moved to mfileio
+
+   * mbase/Makefile, mbase/BaseLinkDef.h, mbase/BaseIncl.h,
+     manalysis/Makefile, manalysis/AnalysisLinkDef.h, 
+     manalysis/AnalysisIncl.h, meventdisp/Makefile:
+     - changed accordingly
+
+   * meventdisp/MGCamDisplay.cc:
+     - cd to right canvas before drawing camera display
+
+   * meventdisp/MGEvtDisplay.[h,cc]:
+     - added the "Geometry"-Tab
+     - added MC informations to gui
+
+   * mgui/MCamDisplay.[h,cc]:
+     - added DrawPixelNumbers
+     - added buttons to change the palette online
+
+   * mgui/MHexagon.h:
+     - added Getter functions
+
+   * macros/MagicHillas.C:
+     - added read.DisableAutoScheme()
+
+   * mhist/MH.[h,cc]:
+     - changed Fill to be non abstract anymore
+
+
+
+ 2002/07/04: Abelardo Moralejo
+
+   * macros/trigrate.C:
+     - Introduced some style improvements suggested by T. Bretz.
+
+
+
+ 2002/07/04: Abelardo Moralejo
+
+   * mmontecarlo/MMcTriggerRateCalc.h,cc:
+     - Now the dimension of fTrigger is set dynamically, to allow
+       the processing of files with an arbitrarily large number of 
+       trigger conditions inside.
+
+   * macros/trigrate.C:
+     - Adapted the macro to changes above, and added a third argument:
+       the name of a file containing pure NSB events from which the
+       accidental trigger rate is calculated. Previously, this had to 
+       be introduced in the macro by hand by the user.
+
+
+
+ 2002/06/14: Thomas Bretz
+
+   * mhist/MBinning.cc:
+     - Initialize the binning with 10 edges from 0 to 1
+
+
+
+ 2002/06/13: Thomas Bretz
+
+   * mdata/MData.cc:
+     - changed ostream.h to ofstream.h to make it compile on alpha
+
+
+
+ 2002/06/10: Thomas Bretz
+
+   * mbase/MReadMarsFile.cc:
+     - changed name of fRun to ReadRunHeaders
+
+   * mbase/MReadTree.cc:
+     - changed output to show name of class
+
+   * macros/plot.C:
+     - added
+
+   * macros/plot2.C:
+     - added
+
+   * manalysis/MHillas.cc:
+     - changed atan2 to atan for fDelta
+
+   * mbase/MAGIC.h, mbase/BaseLinkDef.h:
+     - changed definitions for Particle Id to enum
+
+   * mbase/MGList.cc:
+     - IsA()->InheritsFrom() replaced with InheritsFrom()
+
+   * mbase/MWriteAsciiFile.cc:
+     - IsA()->InheritsFrom() replaced with InheritsFrom()
+     - removed some debug outputs
+
+   * mbase/MDataChain.[h,cc]:
+     - implemented sign '-'
+
+   * mhist/MH.h:
+     - changed default canvas size to 580x435
+
+   * mhist/MHHadroness.cc:
+     - added some more output to Print
+
+   * mhist/MHMatrix.h:
+     - changed some i,j to x,y
+     - removed fabs from distance calculation
+     - added sqrt to distance calculation
+
+   * mmc/MMcEvt.cxx:
+     - changed output of Print
+
+
+
+ 2002/06/06: Thomas Bretz
+
+   * manalysis/MHillasSrc.cc:
+     - changed atan2 to atan for fAlpha
+
+
+
+ 2002/06/05: Thomas Bretz
+
+   * mbase/MWriteAsciiFile.[h,cc]:
+     - changed the code completely to support rules (data chains), too.
+       the interface stayed the same.
+
+   * mdata/MDataChain.cc, mhist/MHMatrix.cc:
+     - added math.h for alpha compilers
+
+   * mbase/MParContainer.h:
+     - changes IsReadyToSave to const
+
+   * mdata/MData.[h,cc]:
+     - added AsciiWrite
+
+   * mdata/MDataChain.[h,cc], mdata/MDataList.[h,cc], mdata/MDataValue.h:
+     - added IsReadyToSave
+
+   * mdata/MDataMember.[h,cc]:
+     - added a new constructor
+     - added IsReadyToSave
+
+
+
+ 2002/06/04: Thomas Bretz
+
+   * mhist/MHCompProb.[h,cc]:
+     - added
+
+   * mhist/MHMatrix.cc:
+     - corrected some bugs in the algorithm to calculate the distance
+
+   * mhist/Makefile:
+     - added -I../mmc
+
+   * mbase/Makefile:
+     - added -I../mdata
+
+   * mhist/MHHadroness.cc:
+     - some changes to the layout of the drawn histograms
+
+
+
+ 2002/06/03: Thomas Bretz
+
+   * mhist/MHCompProb.[h,cc]:
+     - added
+
+   * mhist/MHHadroness.[h,cc]:
+     - added
+
+   * mhist/HistLinkDef.h, mhist/Makefile:
+     - added MHCompProb
+     - added MHHadroness
+
+   * mhist/MFillH.cc:
+     - added a info-output
+
+   * mhist/MH3.cc:
+     - excluded temporary profiles from directory
+
+   * mhist/MHMatrix.[h,cc]:
+     - added code to calculate multi-dimensional distances
+     - added comments
+
+   * mbase/MAGIC.h:
+     - changed kGAMMA to 1
+
+   * mbase/MParList.[h,cc]:
+     - added Replace-function
+
+   * mbase/MReadMarsFile.[h,cc]:
+     - added correct seeking for the run headers
+
+   * mbase/MReadTree.[h,cc]:
+     - added GetFileIndex()
+
+   * mbase/MTaskList.cc:
+     - changed fTasksProcess.Delete() to fTasksProcess.Clear()
+
+   * mbase/MWriteAsciiFile.[h,cc]:
+     - added some code for future usage (in comments)
+
+   * mbase/MLogo.[h,cc]:
+     - added (not in use)
+
+   * mfilter/MFParticleId.[h,cc]:
+     - added
+
+   * mfilter/Makefile, mfilter/FilterLinkDef.h:
+     - added MFParticleId
+
+   * manalysis/MHadroness.[h,cc]:
+     - added
+
+   * manalysis/MCompProbCalc.[h,cc]:
+     - added
+
+   * manalysis/MMultiDimDistCalc.[h,cc]:
+     - added
+                                                           
+   * manalysis/AnalysisLinkDef.h, manalysis/Makefile:
+     - added MHadroness
+     - added MCompProbCalc
+     - added MMultiDimDistCalc
+
+   * manalysis/Makefile:
+     - added ../mdata
+     - added ../mhist
+
+   * macros/star.C:
+     - added
+
+   * macros/comprob.C:
+     - added
+
+   * macros/multidimdist.C:
+     - added
+  
+  * macros/dohtml.C:
+     - added star.C
+     - added comprob.C
+     - added multidimdist.C
+
+  * mdata/MData.h:
+     - added ()-operator
+
+  * mdata/MDataList.cc:
+     - removed 'all' modifier in Print-statement
+
+  * mdata/MDataChain.[h,cc]:
+     - added default constructor
+
+  * mdata/MReadTree.cc:
+     - fixed a root bug for root versions<3.03/00 (the open file in
+       the TChain was not deleted (closed))           
+
+   * mbase/MReadMarsFile.[h,cc]:
+     - store parlist instead of tasklist
+     - check for run types between files
+     - check for used reflector version (because of a bug in the program)
+
+   * mmc/MMcRunheader.hxx:
+     - added GetReflVersion()
+
+   * mmontecarlo/MMcTriggerRateCalc.cc:
+     - changed particle Id numbers to predefined constants
+
+
+
+ 2002/05/29: Thomas Bretz
+
+   * mhist/MHMatrix.[h,cc]:
+     - added
+
+   * mhist/HistLinkDef.h, mhist/Makefile
+     - added MHMatrix
+
+   * mhist/MH.h:
+     - added Finalize-function prototype to be called at the end of
+       the eventloop
+
+   * mhist/MFillH.cc:
+     - added call to Finalize-function to in PostProcess
+
+   * mhist/MH3.cc:
+     - removed old includes
+
+   * mhist/MDataChain.cc:
+     - fixed a harmfull bug in the constructor. fOperatorType wasn't
+       correctly initialized
+
+   * mhist/MDataMember.cc:
+     - added some output in case of failures
+
+   * mgui/MGeomCam.[h,cc]:
+     - renamed fMm2Deg to fConvMm2Deg to be consistent with the Getter
+       function name
+
+
+
+ 2002/05/13: Thomas Bretz
+
+   * mbase/MReadTree.cc:
+     - changed the Notify-workaround from GetEntry to LoadTree.
+
+   * mfilter/MFDataMember.[h,cc]:
+     - changed class to use MDataMember instead of a direct access to
+       TMethodCall
+
+   * mfilter/Makefile:
+     - added path to mdata
+
+
+
+ 2002/05/06: Thomas Bretz
+
+   * mbase/MReadMarsFile.cc, mbase/MReadTree.cc, mbase/MTaskList.cc:
+     - implemented usage of the return value of the Notofy function
+
+   * mdata/MDataChain.[h,cc]:
+     - implemented single-argument operators (like abs or exp)
+
+
+
+ 2002/05/03: Thomas Bretz
+
+   * mars.cc:
+     - changed version to 0.8
+     - added logo stuff
+
+   * merpp.cc:
+     - changed usage-output
+
+   * mgui/MCamDisplay.cc, mgui/MGeomCam.cc, mgui/MGeomCamCT1.cc, 
+     mgui/MGeomCamMagic.cc, mgui/MHexagon.cc, mhist/MBinning.cc,
+     mhist/MFillH.cc, mhist/MH.cc, mhist/MHAlphaEnergyTheta.cc,
+     mhist/MHAlphaEnergyTime.cc, mhist/MHEffOnTimeTheta.cc,
+     mhist/MHEffOnTimeTime.cc, mhist/MHEnergyTheta.cc, MHEnergyTime.cc,
+     mhist/MHMcCollectionArea.cc, mhist/MHStarMap.cc, mmain/MMars.cc,
+     mmontecarlo/MMcCollectionAreaCalc.cc
+     - changed mail address
+     - added missing copyright notices
+     - added missing class description
+
+   * mbase/MWriteRootFile.cc, mbase/MWriteAsciiFile.cc:
+     - added AddToBranch call to AddContainer(const char*, const char*)
+
+
+
+ 2002/04/30: Thomas Bretz
+
+   * macros/MagicHillas.C:
+     - made eventloop infinite
+
+   * macros/tar.C:
+     - implemented some sanity checks (existing files)
+
+   * mgui/MCamDisplay.[h,cc]:
+     - changed to use DeepSea palette in root versions newer than 3.01/05
+     - fixed a bug which caused the destructor to do strange thing
+       (the uncloned fGeomCam was deleted)
+     - implemented a more accurate deletion of the objects in the
+       TClonesArrays by using TClonesArray::Delete
+     - Implemented deletion of automatically created TCanvas
+     - Implemented a sanity check in Draw and DrawPhotNum
+
+   * macros/readCT1.C, macros/readMagic.C:
+     - changed to Handling of the gui and keyboard input
+     - implemented the filename as function argument
+
+   * manalysis/MCT1ReadAscii.cc:
+     - Expanded filename to support filnames containing '~'
+
+   * mhist/MH3.h:
+     - removed 'const' to make 0.7 root 3.01/06 compatible
+
+   * mdata/MDataMember.cc, mdata/MDataValue.cc, mdata/MDataChain.cc:
+     - removed a 'redefinition of default argument'
+
+   * mdata/MFDataMember.cc:
+     - fixed a bug in the process function (second switch was never reached)
+
+
+
+ 2002/04/29: Thomas Bretz
+
+   * macros/tar.C:
+     - added
+
+   * Makefile:
+     - changed "make tar" to use macros/tar.C and root
+
+
+
+ 2002/04/29: Wolfgang Wittek
+
+   * mhist/Makefile, mhist/HistLinkDef.h 
+     - MHThetabarTheta and MHThetabarTime were added
+
+   * mhist/MHThetabarTheta.[h,cc], mhist/MHThetabarTime.[h,cc]:
+     - added
+
+   * mhist/MHMcEnergyMigration.[h,cc]:
+     - added
+
+
+
+ 2002/04/27: Oscar Blanch
+
+   * mmc/MMcRunHedaer.cxx, mmc/MMcTrig.cxx, mmc/MMcTrigHeader:
+     - description of variables that have been introduced in the second
+       version of this Containers.
+
+
+
+ 2002/04/26: Thomas Bretz
+
+   * mhist/MHFadcCam.cc:
+     - start numbering of pixels with 1
+
+   * mhist/MHFadcPix.[h,cc]:
+     - overloaded clone to get rid of the histograms in any directory
+     - removed some unnecessary StrDup calls
+     - changed binning (Thanks to Abelardo)
+
+   * mdata/MData.[h,cc]:
+     - documentation added
+     - implemented a new abstract member function: IsValid
+
+   * mdata/MDataChain.cc, mdata/MDataList.cc:
+     - changed logging output
+     - documentation added
+
+   * mdata/MDataList.h, mdata/MDataMember.h, mdata/MDataValue.h:
+     - implemented IsValid
+
+   * mdata/MDataMember.cc:
+     - Don't preprocess if fCall is already available
+     - documentation added
+
+   * mdata/MDataValue.cc:
+     - documentation added
+
+   * mhist/MHMcDifRate.h, mhist/MHMcEfficiency.h, 
+     mhist/MHMcEfficiencyEnergy.h, mhist/MHMcEfficiencyImpact.h, 
+     mhist/MHMcEnergyImpact.h:
+     - corrected class description
+
+   * mbase/MParList.cc:
+     - fixed a bug in CreateObjList
+
+
+
+ 2002/04/25: Thomas Bretz
+
+   * mmontecarlo/MMcCollectionAreaCalc.[h,cc]:
+     - counts now the number of simulated showers
+     - implemented some sanity checks (corsika version, etc)
+
+   * mhist/MMcCollectionArea.[h,cc]:
+     - added a first implementation of a calculation using only triggered
+       events
+
+   * mhist/MH.[h,cc]:
+     - changed the first argument in SetBinning (according to the number
+       of axis) to TH2 or TH3
+
+   * mhist/MH2.cc:
+     - changed the first argument in SetBinning (according to the number
+       of axis) to TH2 or TH3
+
+   * macros/collarea.C:
+     - replaces MReadTree by MReadMarsFile
+
+   * mmc/MMcRunHeader.hxx:
+     - added GetAllEvtsTriggered
+
+
+
+ 2002/04/24: Thomas Bretz
+
+   * mbase/MReadTree.cc:
+     - made use of TBranch::GetClassName root version dependant 
+
+   * manalysis/MCerPhotCalc.[h,cc]:
+     - added a fix (ped.mean - 0.5) for files from camera with version <= 40
+
+   * mmc/MMcRunHeader.hxx:
+     - added some Getter functions
+
+   * mdata/MDataChain.cc:
+     - use rule as a title if no title ios given
+
+   * mhist/MH3.[h,cc]:
+     - added usage of Data-Chains
+     - added a profiling option to the draw functions
+     - use the title (rule) of the data-chain as axis title
+
+   * mhist/Makefile:
+     - added mdata-path
+
+   * mbase/MParContainer.h:
+     - changed some output in GetterFunction
+
+
+
+ 2002/04/24: Wolfgang Wittek
+
+   * Work was done on the calculation of photon fluxes as a function of
+     Theta and as a function of time. The work is still in progress.
+
+   * macros/wowflux.C
+     - the macr0 was added (extended and improved version of flux.C)
+     - the macro steers the calculation of photon fluxes as a function
+       of Theta and time
+     - the macro is not yet complete; testing and developing is going on
+
+   * mhist/MHAlphaEnergyTheta.[h,cc], mhist/MHAlphaEnergyTime.[h,cc],
+     mhist/MHEffOnTimeTheta.[h,cc], mhist/MHEffOnTimeTime.[h,cc],
+     mhist/MHTimeDiffTheta.[h,cc], mhist/MHTimeDiffTime.[h,cc]:
+     - documentation was added 
+     - histogram axes were labeled
+
+   * mhist/MHEffOnTimeTheta.cc:
+     - range in which the fit of the distribution of time differences
+       is to be performed has been calculated
+     - new histograms were added (chi2/NDF, lambda, N0del)
+
+
+
+ 2002/04/23: Thomas Bretz
+
+   * madata/Makefile, mdata/DataIncl.h, mdata/DataLinkDef.h,
+     mdata/MData.[h,cc], mdata/MDataValue.[h,cc], mdata/MDataList.[h,cc],
+     mdata/MDataChain.[h,cc], mdata/MDataMember.[h,cc]:
+     - added
+
+   * mmc/MMcEvt.[hxx,cxx]:
+     - added correct units for fImpact
+
+
+
+ 2002/04/22: Thomas Bretz
+
+   * Makefile:
+     - added a chapter how to compile mars using shared libraries
+
+   * NEWS:
+     - updated
+ 
+   * mfilter/MF.[h,cc]:
+     - added 
+
+   * mfilter/MFDataMember.[h,cc]:
+     - added 
+
+   * mhist/MH3.[h,cc]:
+     - added 
+
+   * mhist/MHHillasExt.[h,cc]:
+     - added 
+     
+   * macros/rootlogon.C:
+     - added make() function
+     - splitted rootlogon()
+     
+   * mbase/MFilterList.cc:
+     - fixed a bug in the constructor
+     - small changes to the print function
+     
+   * mbase/MParContainer.[h,cc]:
+     - Added GetterMethod-Function
+
+   * mbase/MParList.cc:
+     - Added a security check in case no def. constructor of the new class 
+       is available
+     - changed print function
+     
+   * mbase/MReadTree.cc:
+     - changed so that the class type of the branch is used for creation of 
+       a new object instead of its name
+
+   * mbase/MTaskList.[h,cc]:
+     - fixed the check for the Process function. Only base classes
+       of first order have been checked
+       
+   * mfilter/FilterLinkDef.h, mfilter/Makefile:
+     - added MF, MFDataMember
+
+   * mhist/HistLinkDef.h, mhist/MFillH.cc:
+     - added MH3, MHHillasExt
+
+   * mhist/MFillH.cc:
+     - small changes
+
+   * mhist/MH.[h,cc]:
+     - changed name handling in MakeDefCanvas to TString
+
+   * mhist/MHHillas.cc:
+     - exchanged Get*axis()->SetTitle with Set*Title()
+     
+   * mhist/MHHillas.h:
+     - made SetMm2Deg virtual (for MHHillasExt)
+
+   * mhist/MHStarMap.[h,cc]:
+     - changed layout from mm to deg
+
+   * mhist/MHHillasSrc.cc:
+     - fixed a bug which made it unpossible to display fDist in degrees
+
+
+
+ 2002/04/19: Thomas Bretz
+
+   * mbase/MTaskList.cc:
+     - fixed a heavy bug which caused PreProcess to crash (GetListOfBases
+       return a List of TBaseClasses not a List of TClass objects)
+     - added a security check to Process whether we have something to process or not.
+
+   * macros/CT1Hillas.C:
+     - changed to the new Hillas classes
+
+   * macros/readCT1.C:
+     - fixed a bug causing readCT1.C to crash when reading the first event 
+       being a pedestal event
+
+
+
+ 2002/04/17: Thomas Bretz
+
+   * mbase/MParContainer.cc:
+     - case label TMethodCall::kOther changed to default to get rid of
+       some warnings in newer root's (missing case label kString)
+
+   * mbase/MAGIC.h:
+     - changed defintion of Glog so that it now works on Alpha machines, too.
+
+
+
+ 2002/04/16: Thomas Bretz
+
+   * mhist/MHHillas.cc:
+     - Fixed a 'redefinition of default argument' on alpha
+
+
+
+ 2002/04/15: Thomas Bretz
+
+   * mgui/MGeomCam.cc:
+     - Added SetReadyToSave to Constructor
+
+   * mhist/MH.cc:
+     - Added some #ifdef conditionals for a fix in root
+
+   * mfilter/MFAlpha.[h,cc]:
+     - made IsExpressionTrue inline
+
+
+
+ 2002/04/05: Thomas Bretz
+
+   * mmain/MDataCheck.cc:
+     - exchanged order in call to MFillH constructor
+     - made eventloop infinite (only 300 events have been processed)
+
+   * mbase/MEvtLoop.h:
+     - added GetTaskList
+
+   * mbase/MTaskList.[h,cc]:
+     - introduced fTasksProcess which contains only the tasks
+       which overloads the process function so that processing
+       tasks doesn't waste time if a tasks doesn't have the process
+       function
+
+   * mgui/MGeomPix.[h,cc]:
+     - corrected calculation of pixel area
+
+
+
+ 2002/04/04: Thomas Bretz
+
+   * mbase/MLog.cc:
+     - stripped last character (CR) from output redirected to GUI    
+
+
+
+ 2002/03/21: Thomas Bretz
+
+   * mhists/MH.cc:
+     - TAxis::Set resets the axis title so I implemented a workaround
+       in SetBinning so that the axis title survives.
+
+   * mhists/MHEffOnTimeTheta.cc, MHEffOnTimeTime.cc:
+     - replaced Get*axis()->SetTitle() by Set*Title()
+     - corrected the Name in MakeDefCanvas
+
+
+
+ 2002/03/20: Thomas Bretz
+
+   * macros/flux.C:
+     - fixed a small bug (thanks to Wolfgang)
+
+   * mhist/MHHillas.[h,cc]:
+     - added more scaling options
+     - added setting for scaling factor
+
+   * mhist/MHStarMap.cc:
+     - changed sign of t (due to a mail of Wolfgang)
+
+   * mhist/MHTimeDiff*.cc:
+     - removed an implicit down-cast (TH1D --> TH1)
+
+
+
+ 2002/03/15: Oscar Blanch
+
+   * mmc/McLinkDef.h
+     - Automatic scheme evolution for all MC format classes.
+       It has been checked that it keeps compatibility with old files.
+
+   * mmc/MTriggerDefine.h
+     - Enlarge number of trigger pixels.
+
+   * mmc/MTrigger.[cxx,hxx]
+     - Trigger zone has been enlarged. Now information about status
+       of the pixel is saved for all Camera pixels.
+     - Old files can still be read but becareful when one looks at the
+       data member fPixelsFirst which is an array of different size for
+       the new and old files.
+     - ClassDef version upgraded to 2.
+
+   * mmc/MTriggerHedaer.[cxx,hxx]
+     - Member data fElecNoiseTrig, which has information about the 
+       electronic noise in the trigger chain, has been introduced.
+     - Trigger zone has been enlarged. Now information about status
+       of the pixel is saved for all Camera pixels.
+     - Old files can still be read but becareful when one looks at the
+       data member fThreshold which is an array of diferent size for
+       the new and old files.
+     - ClassDef version upgraded to 2.	
+
+
+
+ 2002/03/13: Oscar Blanch
+
+   * mmc/MMcRunHeader.[cxx,hxx]
+     -  Several new variable members have been added
+     -  Version number updated to 2
+
+
+
+ 2002/03/12: Thomas Bretz
+
+   * mmontecarlo/MMcTimeGenerate.cc (thanks to Wolfgang):
+     - removed wrong comment for Process
+     - changed Int_t to UInt_t (more readable)
+     - replaced unit: ms -> 0.1ms
+
+
+
+ 2002/03/08: Thomas Bretz
+
+   * manalysis/MHillasSrc.[h,cc]:
+     - added fHeadTail
+     - changed version number to 2.
+
+
+
+ 2002/03/07: Thomas Bretz
+
+   * mbase/MParContainer.[h,cc], MWriteAsciiFile.[h,cc]:
+     - added a scale value which can be used in case you are writing
+       single data mambers
+
+
+
+ 2002/03/04: Thomas Bretz
+
+   * mbase/MParContainer.cc:
+     - changed AsciiWrite so that only base classes with a version
+       id > 0 are written (important for MParContainer)
+
+
+
+ 2002/03/01: Thomas Bretz
+
+   * mhist/MHMcEfficiencyEnergy.[h,cc], mhist/MHMcEfficiencyImpact.[h,cc],
+     mhist/MHMcDifRate.[h,cc], mhist/MHMcIntRate.[h,cc]:
+     - added
+
+   * mhist/Makefile, mhist/HistLinkDef.h:
+     - added MHMcEfficiencyEnergy and MHMcEfficiencyImpact
+     - added MHMcDifRate and MHMcIntRate
+
+   * mhist/MHMcCollectionArea.[h,cc]:
+     - changed instantiation of collection area histogram
+     - added settings for the binning
+     - replaced division by root function
+     - added Calc-functions
+     - added GetHist
+
+   * mhist/MHMcEfficiency.[h,cc]:
+     - changed pointers in Calc functions to references
+
+
+
+
+
+ 2002/02/28: Thomas Bretz
+
+   * mhist/MHMcEnergyImpact.[h,cc], mhist/MHMcEfficiency.[h,cc]:
+     - added
+     
+   * mhist/Makefile, mhist/HistLinkDef.h:
+     - added MHMcEnergyImpact and MHMcEfficiency
+
+   * mhist/*.cc:
+     - repaced some *&-> casts by &.
+
+   * mhist/MHMcCollectionArea.[h,cc]:
+     - changed to be able to use new MHMcEfficiency.
+
+
+
+ 2002/02/21: Abelardo Moralejo
+
+   * manalysis/MHillasExt.cc :
+     - added #include <math.h>  (else, fabs not recognized by OSF)
+
+
+
+ 2002/02/21: Thomas Bretz
+ 
+   * manalysis/MHillas.[h,cc]:
+     - changed fMeanx and fMeany to fMeanX and fMeanY to match the names
+       of the getter functions, needed by TDataMember::GetterMethod
+     - commented out WriteAscii (replaced by more general in MParContainer
+       and MWriteAsciiFile)
+
+    * manalysis/MHillasSrc.[h,cc], mmc/MMcEvt.[hxx, cxx]:
+      - commented out WriteAscii (replaced by more general in MParContainer
+        and MWriteAsciiFile)
+
+    * manalysis/MHillasExt.[h,cc]:
+      - added necessary Getter Methods
+     
+    * mbase/MFilterList.cc:
+      - removed a nonsens comment
+    
+    * mbase/MGList.cc:
+      - relay on the bugfix for DynamicCast
+    
+    * mbase/MParContainer.[h,cc]:
+      - implemented WriteDataMember to have a more general interface
+        for readable output.
+      - changed ofstream to a more general ostream
+  
+    * mbase/MWriteAsciiFile.[cc,h]:
+      - generalized ascii writer to be able to write single data members
+
+
+
+ 2002/02/13: Thomas Bretz
+
+   * Makefile:
+     - made 'make dox' dependant on existance of shared object
+
+
+     
+ 2002/02/13: Thomas Bretz
+
+   * macros/MagicHillas.C, mhist/MHHillas.[h,cc], mhist/MHHillasSrc.[h,cc]:
+     - implemented variable binning (MBinning)
+     - implemented conversion to degrees (thanks to rudy)
+     
+   * mgui/MGeomCam.[h,cc], mgui/MGeomCamCT1.cc, mgui/MGeomCamMagic.cc:
+     - implemented fMm2Deg and fCamDist
+
+
+
+ 2002/01/23: Thomas Bretz
+
+   * macros/flux.C:
+     - fixed some bugs
+     - uncommented all drawing
+     
+   * mhist/MBinning.h:
+     - changed SetEdges(TArrayD)
+     
+   * mhist/MH.cc:
+     - SetBinning(..., TAxis*,...) didn't work. Corrected.
+     
+   * mhist/MHAlphaEnergyTheta.cc, mhist/MHAlphaEnergyTime.cc,
+     mhist/MHEffOnTimeTheta.cc, mhist/MHEffOnTimeTime.cc,
+     mhist/MHTimeDiffTheta.cc, mhist/MHTimeDiffTime.cc:
+     - changed wrong titles, names, etc.
+     - changed way of drawing projections
+     - fixed usage of MH::SetBinning(TH1*)
+
+
+     
+ 2002/01/22: Thomas Bretz
+ 
+   * mhist/MHHillasSrc.[h,cc], mhist/MHFadcCam.[h,cc]:
+     - changed return type of Fill to Bool_t
+   
+   * mfilter/MFAlpha.[h,cc]:
+     - added
+
+   * mfilter/MFill.[h,cc]:
+     - implemented a new calling style which allows you to let MFillH
+       create the necessary histogram objects
+
+   * mmain/MAnalysis.cc, macros/MagicHillas.C:
+     - changed to new stylish MHillas parameter containers
+
+   * meventdisp/MGEvtDisplay.cc, mgui/MCamDisplay.cc,
+     mmain/MDataCheck.[h,cc]:
+     - fixed a warning in red hat linux
+  
+   * mfilter/FilterLinkDef.h, mfilter/Makefile:
+     - added MFAlpha
+  
+   * mhist/MHHillas.[h,cc], mhist/MHHillasSrc.[h,cc]:
+     - added SetupFill and usage of MBinning objects
+
+   * manalysis/MEnergyEst.[h,cc], manalysis/MEnergyEstimate.[h,cc],
+     mhist/MHTimeDiffTime.[h,cc], mhist/MHEnergyTheta.[h,cc],
+     mhist/MHEnergyTime.[h,cc], mhist/MHAlphaEnergyTheta.[h,cc],
+     mhist/MHAlphaEnergyTime.[h,cc], mhist/MHTimeDiffTheta.[h,cc],
+     mmontecarlo/MMcTimeGenerate.[h,cc]:
+     - added
+
+   * manalysis/Makefile:
+     - added MEnergyEst.cc
+     - added MEnergyEstimate.cc
+   
+   * mbase/MFilter.[h,cc], mfilter/MF*.[h,cc]:
+     - added name and title to constructor
+
+   * macros/flux.C:
+     - added
+
+
+
+ 2002/01/21: Thomas Bretz
+ 
+   * mbase/MReadMarsFile.cc, mbase/MReadTree.[h,cc]:
+     - implemented GetFileName
+
+   * mmc/MMcEvt.[hxx,cxx]
+     - implemented WriteAscii
+   
+   * mgui/MGeomPix.h:
+     - implemented first version of GetA
+
+   * mhist/MBinning.h:
+     - small changes to formulas
+     
+   * mhist/MH.[h,cc]:
+     - implemented SetBinnign functions
+
+   * macros/readMagic.C:
+     - removed MPedestalCam
+
+
+
+ 2002/01/19: Thomas Bretz
+ 
+   * mbase/MParContainer.cc:
+     - generalized virtual function AsciiWrite
+   
+   * changed to fit new MHillas inhertance model:
+     - manalysis/MHillas.[h,cc]
+     - manalysis/MHillasCalc.[h,cc]
+     - mhist/MHHillas.[h,cc]
+     - mhist/MHStarMap.[h,cc]
+
+   * added to fit new MHillas inhertance model:
+     - manalysis/MSrcPosCam.[h,cc]
+     - manalysis/MHillasSrc.[h,cc]
+     - manalysis/MHillasSrcCalc.[h,cc]
+     - manalysis/MHillasExt.[h,cc]
+     - mhist/MHHillasSrc.[h,cc]
+
+   * manalysis/MCerPhotEvt.[cc,h]:
+     - introduced weighting with pixel size in GetNumPhotonsMin
+     - introduced weighting with pixel size in GetNumPhotonsMax
+
+   * mgui/MCamDisplay.cc:
+     - weight the displayed color with the pixel size
+
+
+
+ 2002/01/18: Thomas Bretz
+ 
+   * mhist/MBinning.[h,cc]:
+     - added (not yet in Makefile)
+   
+   * mbase/MWriteAsciiFile.cc:
+     - fixed a bug: replaced GetSize by GetEntries
+     
+   * mbase/MReadTree.cc:
+     - changed EnableBranch to accept "Master.Sub" also
+
+
+
+ 2002/01/16: Thomas Bretz
+ 
+   * mars.cc:
+     - changed version number to 0.7
+
+   * NEWS:
+     - changed current version to 0.7
+
+   * manalysis/MMcPedestalNSBAdd.cc:
+     - small changes to output
+ 
+   * mbase/MParList.[h,cc]:
+     - added FindObject with class type argument
+   
+   * mbase/MWriteAsciiFile.cc
+     - replaced call to InheritsFrom by new FindObject
+ 
+ 
+ 
+ 2002/01/15: Thomas Bretz
+
+   * manalysis/MBlindPixelCalc.[h,cc]:
+     - added more comments
+     - removed a debug statement
+    
+   * manalysis/MBlindPixels.[h,cc]:
+     - added more comments
+    
+   * manalysis/MCerPhotCalc.cc:
+     - changed the warning output
+    
+   * manalysis/MMcPedestalCopy.h:
+     - added comments
+    
+   * manalysis/MMcPedestalNSBAdd.[h,cc]:
+     - added comments
+     - changed call to AddedToBranchList
+    
+   * mbase/MWriteAsciiFile.cc:
+     - added comments
+    
+   * mmc/MMcRunHeader.[hxx,cxx]:
+     - made getter const
+
+   * meventdisp/MGCamDisplay.cc:
+     - updated to use MBlindPixelCalc
+
+   * mbase/MEvtLoop.cc:
+     - replaced wrong "MTasklist" by "MTaskList"
+
+
+
+ 2002/01/14: Thomas Bretz
+ 
+   * manalysis/MMcPedestalCopy.cc, manalysis/MMcPedestalNSBAdd.cc:
+     - added comments
+
+   * mbase/MReadMarsFile.cc:
+     - changed output when switching to new file
+     
+   * meventdisp/MGFadcDisp.cc:
+     - made char array in constructor const
+     - changed char-array to TString
+
+   * mmain/MBrowser.[h,cc]:
+     - changed char-arrays to TString
+
+   * mmain/MDataCheck.[h,cc]:
+     - made char array in constructor const
+     
+   * Makefile.conf.linux, Makefile.conf.linux-gnu:
+     - changed to O5
+     
+   * mbase/MEvtLoop.cc:
+     - check for inheritance from MTaskList
+
+   * manalysis/MPedestalCopy.cc, manalysis/MPedestalNSBAdd.cc:
+     - small changes
+   
+   * mbase/MWriteAsciiFile.[h,cc]:
+     - changed to be able to write more than one container in a line
+
+
+
+ 2002/01/11: Oscar Blanch Bigas
+
+   * mmain/MAnalysis.cc:
+     - added MBlindPixelCalc step.
+
+   * macros/trigrate.C:
+     - the list of MHMcRate is created using from and to instead of
+       only dimension. Otherwise the case of a single trigger option is
+       not well treated.
+
+   * mhist/MHMcRate.[h,cc]:
+     - added funtion members SetFlux and SetIncidentRate and small
+       modification in CalcRate member function
+
+   * mmontecarlo/MMcTriggerRateCalc.cc:
+     - now this task sets the parameters to know the incident particle
+       flux using MHMcRate::SetFlux. The value are decided by the task
+       itself depending on the fPartId.
+
+   * manalysis/MBlindPixelCalc.cc:
+     - rename MMcRunHeader:GetStarFieldDe to MMcRunHeader:GetStarFieldDec. 
+
+   * mmc/MMcRunHeader.[hxx, cxx]:
+     - rename MMcRunHeader:GetStarFieldDe to MMcRunHeader:GetStarFieldDec. 
+
+
+
+ 2002/01/10: Oscar Blanch Bigas
+
+   * mbase/Makefile:
+     - added -I../MRawFormat in the included directories for compile
+       and link. It was needed to use this Makefile to compile the
+       files inside the drectory while compiling Monte Carlo programs.
+
+   * mraw/Makefile:
+     - added -I../MBase in the included directories for compile
+       and link. It was needed to use this Makefile to compile the
+       files inside the drectory while compiling Monte Carlo programs.
+
+   * mbase/Makefile:
+     - added -I../MBase- in the included directories for compile
+       and link. It was needed to use this Makefile to compile the
+       files inside the drectory while compiling Monte Carlo programs.
+
+   * mbase/MReadTree.cc:
+     - changed #include "../mraw/MRawEvtData.h" by #include
+       "MRawEvtData.h" to remove dependencies on the directory tree naming.
+
+
+
+ 2002/01/09: Oscar Blanch Bigas
+   
+   * manalysis/MPedestalCam.[h,cc]:
+     - added CheckBounds function to check that program does not try to
+       access pedestal outside the camera size.
+
+   * manalysis/MCerPhotCalc.h:
+     - Member data const MPedestalCam *fPedestals -> MPedestalCam
+     *fPedestals.
+
+   * manalysis/MCerPhotCalc.cc:
+     - Sanity check to avoid searching to pedestals outside the camera
+       size has been added.
+
+   * mmc/MMcRunHeader.[h,cxx]:
+     - added functions GetStarField[De,Ra].
+
+   * manalysis/MBlindPixels.[h,cc]:
+     - new containet that has a list of pixels that should not be used
+       in the analysis for any reason (corrupted, star in them, ...).
+
+   * manalysis/MBlindPixelCalc.[h,cc]:
+     - It is a task used to set up the list of blind pixels. Currently
+       it recognises the CrabNebula starfield and then switch off the
+       Theta Taury pixels. Blind pixels can be also introduced through
+       the macro or analysis program.
+
+   * manalysis/Makefile:
+     - added MBlindPixels and MBlinPixelCalc.
+
+   * manalysis/AnalysisLinkDef.h:
+     - added MBlindPixels and MBlinPixelCalc.
+
+   * macros/MagicHillas.C:
+     - added MBlindPixelCalc to avoid bias results due to Star Field
+       NSB.
+
+   * macros/readMagic.C:
+     - added MBlindPixelCalc to avoid bias results due to Star Field NSB while
+       computing the Hillas parameters.
+
+
+
+ 2001/12/19: Thomas Bretz
+  
+   * mbase/MEvtLoop.cc:
+     - added #ifdef directive to make it work on older root also
+      
+   * mbase/MReadTree.cc:
+     - added #ifdef directive to get rid of the memory leak in prior
+       root 3.02/* versions
+	    
+   * macros/MagicHillas.C, macros/readMagic.C, meventdisp/MGCamDisplay.cc,
+     mmain/MAnalysis.cc:
+     - changes MMcPedestalNSB to MMcPedestalNSBAdd
+     
+   * manalysis/MMcPedestalCopy.[h,cc], manalysis/MMcPedestalNSBAdd.[h,cc]:
+     - reorganized ReInit, PreProcess.
+     - moved some code from ReInit to PreProcess to make the code
+       simpler. At the moment we don't intend to change the 
+       objects in the parlist while runtime.
+
+   * manalysis/MMcPedestalNSB.[h,cc]:
+     - removed
+
+   * mbase/MReadMarsFile.cc:
+     - read the first run header twice. To make it available in the
+       PreProcess of all tasks
+   
+   * mbase/MTaskList.cc:
+     - fixed a bug in the ReInit function. The ReInits where calles with 
+       a NULL-pointer
+
+
+
+ 2001/12/18: Oscar Blanch
+								 
+   * manalysis/Makefile:
+     - Removed MMcPedestalNSB from compilation and added
+       MMcPedestalNSBAdd.
+
+   * manalysis/AnalysisLinkDefine.h:
+     - Removed MMcPedestalNSB from class list and added
+       MMcPedestalNSBAdd.
+
+   * manalysis/MMcPedestalCopy.[h,cc]
+     - added ReInit function.
+     - move all actions needed to redo for each run from PreProcess
+       to ReInit
+     - fix bug of Pedestal and Pedestal fluctuaions correspondence.
+
+   * manalysis/MMcPedestalNSBAdd.[h,cc]
+     - new name for old MMcPedestalNSB.[h,cc]
+     - added ReInit function.
+     - move all actions needed to redo for each run from PreProcess
+       to ReInit
+     - information about pixel size is used from MGeomCam.
+
+   * manalysis/MCerPhotCalc.[h,cc]
+     - remove fNumLoGainFadcSlices and fNumHiGainFadcSlices members
+     - fix bug of Pedestal and Pedestal fluctuaions correspondence.
+
+
+ 2001/12/18: Thomas Bretz
+ 
+   * manalysis/MMcPedestalCopy.cc:
+     - changed output
+     
+   * manalysis/MMcPedestalNSB.cc:
+     - changed output
+     - simplified initialization in PreProcess
+     
+   * mbase/MAGIC.h:
+     - added kSKIP
+     
+   * mbase/MParList.cc:
+     - added a check for the correct inheritance in FindCreateObj
+   
+   * mbase/MTask.cc:
+     - added support for kSKIP in PreProcess
+
+   * mbase/MTaskList.[h,cc]
+     - added support for kSKIP in PreProcess
+     - added Remove function (private)
+
+
+
+ 2001/12/17: Thomas Bretz
+ 
+   * .rootrc:
+     - added Root.Html.DescriptionStyle
+     - added Root.Html.SearchEngine
+     
+   * macros/dohtml.C:
+     - changed to use THtml (root >= 3.02/06 only)
+     
+   * manalysis/Makefile:
+     - changed order to get rid of some wranings
+   
+   * mbase/BaseLinkDef.h:
+     - removed MHtml
+     
+   * mbase/MEvtLoop.cc:
+     - exchanged gSystem->ProcessEvents() by gClient->ProcessEventsFor()
+       to make gui update faster
+       
+   * mbase/MGList.cc:
+     - added a missing sanity check (workaround for a root bug)
+     
+   * mbase/MReadTree.cc:
+     - uncomment EnableBranchCoosing for AutoEnablingScheme
+       (don't know why there was a comment which made things realy slow)
+     - changed the auto enabling scheme, so that a branch isn't enabled
+       more than once. This doesn't hurt, but the output may confuse the
+       users.
+       
+    * mbase/MTask.cc:
+      - added a simple not really necessary check whether the branch is
+        already in the list
+        
+    * mbase/MWriteRootFile.cc:
+      - changed kFillTree to a local const
+      
+    * mbase/Makefile:
+      - removed MHtml.cc
+    
+    * mfilter/MFTriggerLvl1.cc:
+      - changed AddBranchToList to use the correct container name
+
+
+
+ 2001/12/14: Thomas Bretz
+ 
+   * mbase/MReadMarsFile.[h,cc], mbase/MReadFild.[h,cc]:
+     - corrected handling of ReInit/Notify (at the moment I assume 
+       one run per file)
+     - made sure, that we don't get memory leaks when using MReadTree 
+       more than once because the pointer to the pointer isn't deleted.
+     - added a small class MChain which enhances TChain by a function to
+       reset fTree. This is used to control when notification are
+       happening
+
+   * mbase/MTask.cc:
+     - reset the number of executions before the preprocessing
+
+
+
+ 2001/12/11: Thomas Bretz
+
+   * mbase/MGGroupFrame.cc:
+     - removed default arguments from source file
+
+   * mbase/MGList.cc:
+     - changed cast in IsExisting to ?:
+
+   * NEWS:
+     - changed
+
+   * manalysis/MCerPhotCalc.cc, mfilter/MTriggerLvl1.cc,
+     mmontecarlo/MMcCollectionAreaCalc.cc,
+     mmontacarlo/MMcThresholdCalc.cc,
+     MMcTriggerRateCalc.cc:
+     - added Masterbranch name to AddToBranchList
+
+   * manalysis/MMcPedestalCopy.cc:
+     - added Masterbranch name to AddToBranchList
+     - fixed a bug in the branch name
+
+   * mbase/MGList.[h,cc]:
+     - added a better output if a picture wasn't found
+
+   * mbase/MReadTree.[h,cc]:
+     - added support for branches with master branch names to auto scheme
+       (first the complete branch name is tried and if this isn't found
+        only the subbranch name is used to enable the branch)
+
+   * mbase/MWriteRootFile.cc:
+     - appended a '.' to all newly create branches
+
+   * mmain/MBrowser.cc, mmain/MMars.cc:
+     - add the gui elements only if the corresponding picture was found
+
+   * mmain/MMars.[h,cc]:
+     - removed fPic1
+     - removed fPic2
+     - changed TList to MGList
+
+   * mraw/MRawFileWrite.cc:
+     - added a '.' to all branch names
+
+   * mbase/MTask.[h,cc]:
+     - added Prototype for ReInit-function
+
+   * mbase/MTaskList.[h,cc]:
+     - implemented ReInit for a task list
+
+   * mhist/MHFadcCam.h:
+     - added '->' to fArray
+
+
+
+ 2001/12/10: Thomas Bretz
+
+   * mmc/*.hxx:
+     - Changed MPARCONTAINER_H to MARS_MParContainer
+
+   * meventdisp/MGCamDisplay.cc:
+     - added MMcPedestalCopy to task list
+     - added MMcPedestalNSB  to task list
+
+   * mmain/MAnalysis.cc:
+     - added MMcPedestalCopy to task list
+     - added MMcPedestalNSB  to task list
+     - changed reader from MReadTree to MReadMarsFile
+
+   * meventdisp/MGEvtDisplay.cc:
+     - changed reader from MReadTree to MReadMarsFile
+
+   * macros/MagicHillas.C, macros/readMagic.C:
+     - removed unnecessary MReadTree
+
+
+
+ 2001/11/28: Oscar Blanch Bigas
+
+   * mbase/MReadMarsFile.cc:
+     - Added process of fRun = new MReadTree("RunHeaders", fname),
+       needed to read RunHeaders tree information.
+
+   * manalysis/MCerPhotCalc.h:
+     - Added fNumLoGainFadcSlices and fNumHiGainFadcSlices member
+       variables because they are needed for Pedestal substraction.
+
+   * manalysis/MCerPhotCalc.h:
+     - Change in the methode to substract the pedestal. The new
+       methode is valid either for MC data and real data but only for
+       the current integration (GetSumHiGainSamples()).
+
+   * macros/readMagic.C:
+     - Added several tasks in the task list:
+	     MReadMarsFile to read  RunHeaders Tree
+	     MPedestalCopy and MPedestalNSB to treat correctly pedestals.
+
+   * macros/MagicHillas.C:
+     - Added several tasks in the task list:
+	     MReadMarsFile to read  RunHeaders Tree
+	     MPedestalCopy and MPedestalNSB to treat correctly pedestals.
+
+   * mmc/MMcRunHeader.hxx:
+     - Added GetNumPheFromDNSB().
+
+   * mmc/MMcFadcHeader.hxx:
+     - Added GetAmplitud().
+
+   * manalysis/MMcPedestalNSB.h / .cc:
+     - New class which adds to the pedestal rms the contribution from
+      the diffuse NSB.
+
+   * manalysis/Makefile:
+     - New class MMcPedestalNSB added.
+
+   * manalysis/AnalysisLinkDefine.
+     - New class MMcPedestalNSB added.
+
+
+
+ 2001/11/16: Thomas Bretz
+
+   * mhist/MHMcCollectionArea.cc:
+     - set the ReadyToSave bit in CalcEfficiency.
+
+   * mmontecarlo/MMcThresholdCalc.cc:
+     - set the ReadyToSave bit after the calculation has been finished.
+
+   * mhist/MHMcRate.cc:
+     - set the ReadyToSave bit in CalcRate
+
+
+
+ 2001/11/16: Thomas Bretz
+
+   * mbase/MEvtLoop.cc:
+     - removed clock.Print()
+
+   * mbase/MGList.[cc,h]:
+     - added support for TGPictures
+
+   * mbase/MReadTree.[h,cc]:
+     - set ReadyToSave-bit only if reading was successfull
+     - made SetReadyToSave private
+
+   * mbase/MTaskList.cc:
+     - corrected a small bug in the output
+
+   * mbase/MWriteRootFile.cc:
+     - added a workaround in Print (don't know why it fails for me)
+     - removed fTrees.SetOwner()
+
+   * mbase/MTask.cc:
+     - removed include of TOrdCollection, TMethod
+     - some changes to the output
+
+   * mbase/MParContainer.h:
+     - removed old comments
+
+   * mmain/MAnalysis.cc, mmain/MCameraDisplay.cc, mmain/MDataCheck.cc,
+     mmain/MEvtDisp.cc, mmain/MMonteCarlo.cc:
+     - changed Widget IDs to root style enums
+     - moved enumerations in the range below 0x100
+
+   * mmain/MBrowser.[h,cc]:
+     - removed some of the member variables, accessed via MGList now
+     - changed TList to MGList
+     - added a file-filter combo-box
+
+   * mars.cc:
+     - changed output
+
+
+
+ 2001/11/15: Thomas Bretz
+
+   * mbase/MArray.cc, mbase/MArrayB.cc,mbase/MArrayS.cc,
+     mbase/MClone.cc, mbase/MEvtLoop.cc, mbase/MFilter.cc,
+     mbase/MFilterList.cc, mbase/MGGroupFrame.cc, mbase/MGList.cc,
+     mbase/MGTask.cc, mbase/MInputStreamID.cc, mbase/MLog.cc,
+     mbase/MLogManip.cc, mbase/MParContainer.cc, mbase/MParList.cc,
+     mbase/MPrint.cc, mbase/MReadMarsFile.cc, mbase/MReadTree.cc,
+     mbase/MTime.cc, mbase/MWriteAsciiFile.cc, mbase/MWriteFile.cc,
+     mbase/MWriteRootFile.cc, manalysis/MCT1ReadAscii.cc,
+     manalysis/MCerPhotCalc.cc, manalysis/MHillas.cc,
+     manalysis/MHillasCalc.cc, manalysis/MMcPedestalCopy.cc,
+     manalysis/MPedCalcPedRun.cc, manalysis/MPedestalCam.cc,
+     manalysis/MPedestalPix.cc, manalysis/MCerPhotEvt.cc,
+     manalysis/MCerPhotPix.cc, manalysis/MImgCleanStd.cc,
+     manalysis/MImgCleanStd.cc, mdatacheck/MDumlEvtHeader.cc,
+     mdatacheck/MGDisplayAdc.cc, meventdisp/MGCamDisplay.cc,
+     meventdisp/MGEvtDisplay.cc, meventdisp/MGFadcDisp.cc,
+     mfilter/MFTriggerLvl1.cc, mgui/MGeomCam.cc, mgui/MGeomCamMagic.cc,
+     mgui/MGeomCamCT1.cc, mgui/MgeomPix.cc, mgui/Mhexagon.cc,
+     hist/MFillH.cc, mhist/MH.cc, mhist/MHFadcCam.cc, mhist/MHFadcPix.cc,
+     hist/MHHillas.cc, mhist/MHMcCollectionArea.cc, mhist/MHMcEnergy.cc,
+     mhist/MHMcRate.cc, mhist/MHStarMap.cc, mmain/MAnalysis.cc,
+     mmain/MBrowser.cc, mmain/MCameraDisplay.cc, mmain/MDataCheck.cc,
+     mmain/MEvtDisp.cc, mmain/MMars.cc, mmain/MMonteCarlo.cc,
+     mmontcarlo/MMcCollectionAreaCalc.cc, mmontecarlo/MMcThresholdCalc.cc,
+     mmontecarlo/MMcTriggerRateCalc.cc, mraw/MrawCrateArray.cc,
+     mraw/MRawCrateData.cc, mraw/MRawEvtData.cc, mraw/MRawEvtHeader.cc
+     mraw/MRawEvtPixelIter.cc, mraw/MRawEvtFileRead.cc, 
+     mraw/MRawEvtFileWrite.cc, mraw/MRawEvtRunHeader.cc
+     - changed mailing address of author according to THtml of root 3.02
+
+   * mbase/MClone.cc, mbase/MEvtLoop.cc, mbase/MFilterList.cc,
+     mbase/MGTask.cc, mbase/MParContainer.cc, mbase/MParList.cc,
+     mbase/MPrint.cc, mbase/MReadMarsFile.cc, mbase/MReadTree.cc,
+     mbase/MWriteAsciiFile.cc, mbase/MWriteFile.cc,
+     mbase/MWriteRootFile.cc, manalysis/MCerPhotEvt.cc, 
+     manalysis/MCerPhotPix.cc, manalysis/MImgCleanStd.cc,
+     mgui/MGeomCam.cc, mgui/MGeomCamMagic.cc, mgui/MGeomCamCT1.cc, 
+     mgui/MgeomPix.cc, mgui/Mhexagon.cc, hist/MFillH.cc, mhist/MHMcEnergy.cc,
+     mhist/MHMcRate.cc, mmontcarlo/MMcCollectionAreaCalc.cc,
+     mmontecarlo/MMcThresholdCalc.cc, mmontecarlo/MMcTriggerRateCalc.cc
+     mraw/MRawCrateData.cc, mraw/MRawEvtData.cc, mraw/MRawEvtHeader.cc
+     mraw/MRawEvtPixelIter.cc, mraw/MRawEvtFileRead.cc, 
+     mraw/MRawEvtFileWrite.cc, mraw/MRawEvtRunHeader.cc
+     - changed output to new style logging (verbosity level introduced)
+
+   * mbase/MGTask.h:
+     - added default to CreateGui
+
+   * mbase/MLog.cc
+     - chnaged comparision between output and debug level from >= to >
+
+   * mbase/MLogManip.h:
+     - added defintions for debug levels
+
+   * mbase/MReadTree.[h,cc]:
+      - added support for filters
+      - SetReadyToSave added
+      - Print added
+
+   * mbase/MTaskList.[h,cc], MTask.[h,cc]:
+     - changed TOrCollection to TList, because TList can be stored in a 
+       root file.
+
+   * mbase/MTask.[h,cc]:
+     - added GetFilter function (used in MReadTree)
+
+   * manalysis/MImgCleanStd.cc:
+     - same changed to the GUI layout
+     - added Print member function
+
+   * meventdisp/MGCamDisplay.cc:
+     - added group frame around some gui elements
+
+   * mfilter/MFTriggerLvl1.cc:
+     - fixed missing Init call
+     - added missing AddToBranchList call
+
+   * mars.cc:
+     - added command line option to set the verbosity level
+
+   * merpp.cc:
+     - added setup for highest verbosity level
+
+
+
+ 2001/11/14: Thomas Bretz
+
+   * macros/dohtml.C:
+     - added missing path to mfilter
+   
+   * manalysis/MHillas.cc:
+     - changed the degree symbol back to 'deg', it seems that the code
+       for it isn't common
+   
+   * mhist/MH.cc:
+     - added comment for MakeDefCanvas
+
+   * mhist/MHFadcCam.[h,cc]:
+     - removed old comments (SaveHist)
+
+   * mhist/MHHillas.cc:
+     - changed the Name of fAlpha back. Symbols are nonsens in the name.
+     
+   * mbase/MGList.[h,cc], mbase/MGTask.[h,cc], mbase/MGGroupFrame.[h,cc]:
+     - added
+
+   * Makefile.conf.linux, Makefile.conf.linux-gnu:
+     - changed to O3
+     - added -fnonnull-objects
+     - added -Woverloaded-virtual
+
+   * macros/readCT1.C, macros/readMagic.C:
+     - changed to use MClone
+
+   * manalysis/MImgCleanStd.[h,cc]:
+     - derived from TGTask
+     - added CreateGuiElements 
+     - added ProcessMessage
+
+   * mbase/BaseLinkDef.h, mbase/Makefile:
+     - added MGTask
+     - added MGList
+     - added MGGroupFrame
+
+   * mbase/MInputStreamID.cc:
+     - rmoved old comment
+
+   * mbase/MParContainer.[h,cc]:
+     - changed output
+     - made Hash const
+     - added GetDiscriptor
+
+   * mbase/MParList.[h,cc]:
+     - made FindObject const correct (see TObject)
+
+   * mbase/MTask.[h,cc]:
+     - changed output to use GetDescriptor
+     - made Call* functions virtual (used in TGTask)
+
+   * mbase/MTaskList.[h,cc]:
+     - made FindObject const correct (see TObject)
+     - changed output to use GetDescriptor
+
+   * mbase/MTime.cc:
+     - code reformatting
+
+   * mbase/MWriteRootFile.cc:
+     - small changes in output
+
+   * mgui/MHexagon.cc:
+     - changed output according to TEllipse and similar
+     - made ls const
+
+   * mhist/MFillH.cc:
+     - changed output to use GetDescriptor
+
+   * mmain/MAnalysis.[h,cc]:
+     - changed to use new GUI of MImgCleanStd
+
+   * mraw/MRawEvtData.cc:
+     - small changes to output
+     - better sanity check for non existing fRunHeader
+
+
+
+ 2001/11/09: Thomas Bretz
+
+   * mars.cc, merp.cc, macros/rootlogon.C:
+     - added MArray::Class()->IgnoreTObjectStreamer();
+
+
+
+ 2001/11/08: Thomas Bretz
+
+   * meventdisp/MGCamDisplay.cc:
+     - changed enums to root style
+     - get rid of the problem of button deletion by adding the buttons 
+       as first entries to the list
+
+   * mmain/MMonteCarlo.cc:
+     - changed enums to root style
+     - get rid of the problem of button deletion by adding the buttons 
+       as first entries to the list
+
+   * manalysis/MCerPhotCalc.cc, manalysis/MPedCalcPedRun.cc,
+     mhist/MHFadcCam.cc:
+     - removed 'Fadc' from function names
+
+   * manalysis/MCerPhotEvt.[h,cc]:
+     - made AddPixel inline
+   
+   * manalysis/MMcPedestalCopy.cc:
+     - added output
+
+   * manalysis/MPedestalCam.cc:
+     - removed FIXME
+
+   * Makefile's:
+     - some reordering
+     - changed to the output
+
+   * mbase/MReadTree.cc:
+     - removed setting of AutoDel-flag (this was not intended and doesn't
+       work for a TChain, yet)
+
+   * meventdisp/MGCamDisplay.cc, meventdisp/MGFadcDisp.cc:
+     - moved SetWMSizeHints to base class
+
+   * meventdisp/MGEvtDisplay.cc:
+     - added a random move and the SetWMSizeHints
+
+   * mhist/MHHillas.cc:
+     - replaced some text by Latex-formulas
+
+   * mmain/MBrowser.cc:
+     - added a menu entry for opening a TBrowser
+     - added a random move
+
+   * mmain/MMars.[h,cc]:
+     - changed enums to root style
+     - moved size specification from header to source
+     - changed SetWMSizeHints call
+
+   * mraw/MrawEvtPixelIter.[h,cc]:
+     - added fNum[Hi,Lo]GainSamples to make GetSum* faster
+     - removed 'Fadc' from function names
+
+
+
+ 2001/11/07: Thomas Bretz
+
+   * Makefile:
+     - changed order in 'mrproper'
+
+   * manalysis/MCT1ReadAscii.cc, manalysis/MCerPhotCalc.cc:
+     - added InitSize
+
+   * manalysis/MCerPhotEvt.[h,cc]:
+     - introduces InitSize to speed up things
+     - changed []-operator to an unchecked access
+
+   * manalysis/MPedestalCam.h:
+     - changed ExpandCreateFast to ExpandCreate (due to lack of good dox)
+     - changed []-operator to an unchecked access
+
+   * mbase/MEvtLoop.cc:
+     - changed 'total' to 'real' time.
+
+   * mgui/MGeomCam.[h,cc]:
+     - moved []-operator code back to class definition, due to runtime speed
+     - changed []-operator to an unchecked access
+
+   * mhist/MHHillas.cc:
+     - changed 'degree' to Latex-style
+
+   * manalysis/MImgCleanStd.cc:
+     - we are now initialising an array holding the used pixel to prevent
+       looping through all pixel thousands of times
+       (MCerPhotEvt::IsPixelUsed)
+
+   * mbase/MWriteAsciiFile.cc:
+     - enhanced the documentation
+
+   * mmain/MBrowser.[h,cc]:
+     - enhanced the functionality to display the filename
+     - improved the layout
+
+   * mmain/MMars.cc:
+     - added calling of 'netscape' for the two picture buttons
+
+
+
+ 2001/11/06: Thomas Bretz
+
+   * mbase/MReadMarsFile.[h,cc]:
+     - added
+
+   * manalysis/MMcPedestalCopy.[h,cc]:
+     - moved copying to PreProcess
+     - removed Process
+
+   * mbase/Makefile, mbase/BaseLinkDef.h
+     - added MReadMarsFile
+
+   * mbase/MReadTree.[h,cc]:
+     - added a list of TObjects to be called when file in the chain 
+       is changed
+
+   * Makefile.conf.linux, Makefile.conf.linux-gnu:
+     - removed -g flag
+
+   * mraw/MRawRunHeader.h:
+     - fixed return type of GetNumEvents
+
+   * mraw/MRawCrateArray.[h,cc]:
+     - added SetSize which takes care of the size of the array
+     - changed the access to an unchecked one
+
+   * mraw/MRawCrateData.h
+     - derives from MParContainer now
+
+   * mraw/MRawEvtData.[h,cc]:
+     - made Print const
+     - changed so, that the arrays are dreed and allocated only
+       as less as possible
+
+   * mraw/MRawFileRead.[h,cc]:
+     - changed to support faster I/O of MRawEvtData and MRawCrateArray
+     - added sanity check (warning) to PostProcess
+
+   * mraw/MRawFileWrite.cc:
+     - removed deletion of trees (done by ~TFile)
+     - switched of AutoSave by use of a big size
+     - removed '.' from Branch names (each tree contains only one master
+       branch with equal subbranches)
+
+   * macros/readCT1.C:
+     - fixed a small bug
+
+   * manalysis/MCerPhotCalc.cc:
+     - removed Clear from Process (done by Reset now)
+
+   * manalysis/MCerPhotEvt.[h,cc]:
+     - added reset-function
+     - some small changes to the code layout
+
+   * mmc/MMcFadcHeader.[h,cc], mmc/MMcTrig.[h,cc]:
+     - chenged constructor to support fName and fTitle
+
+   * mbase/MReadTree.cc:
+     - removes '.' from a branch name now before searching/creating the object
+
+
+
+ 2001/11/01: Thomas Bretz
+ 
+   * mbase/MParContainer.cc:
+     - removed 'newname' from TObject::Clone call.
+
+   * mbase/MParContainer.h:
+     - layout changes
+
+   * mbase/MParList.h:
+     - changed destructor definition to virtual
+
+   * mbase/MReadTree.[h,cc]:
+     - added initialization for fProgress
+     - changed output
+     - move some code to new functions
+     - branch enabling now checks for the existance of the branch
+     - veto branch disables the corresponding sub branches now physically
+     - changed comments
+
+   * mdatacheck/MGDisplayAdc.cc:
+     - added some sanity checks
+
+   * meventdisp/MGCamDisplay.cc, meventdisp/MGEvtDisplay.[h,cc],
+     meventdisp/MGFadcDisp.cc:
+     - moved some code to MGEvtDisplay
+
+   * mhist/MFillH.cc:
+     - added warning to comment
+
+   * mhist/MHFadcCam.[h,cc]:
+     - added Clone-function. It seems, that this is necessary since 
+       root 3.01
+
+   * mhist/MHFadcPix.cc:
+     - changed axis titles
+
+   * mmain/MAnalysis.cc:
+     - added progress bar
+
+   * mmain/MBrowser.[h,cc]:
+     - added layout hints to fTop1,2,3
+     - adde Create/DestroyProgrssBar
+
+   * mmain/MDataCheck.cc:
+     - changes to the layout
+     - disable auto scheme
+     - added progress bar
+
+   * mmain/MMonteCarlo.[h,cc]:
+     - layout changes
+     - added progress bar
+     
+   * mraw/MRawEvtData.cc:
+     - new sanity check in Draw
+
+
+
+ 2001/11/01: Thomas Bretz
+
+   * macros/MagicHillas.C:
+     - changed Draw to DrawClone
+
+   * manalysis/MCerPhotPix.h:
+     - some layout changes
+
+   * mbase/MParList.cc: 
+     - fixed a bug in the dstructor which causes the d'tor to crash when
+       the owner bit was set
+     - changed some TCollection loop to macro ForEach
+
+   * mbase/MTaskList.cc:
+     - changed some TCollection loop to macro ForEach
+
+   * meventdisp/MGEvtDisplay.[h,cc]:
+     - added filemenu
+
+   * mgui/MCamDisplay.[h,cc], mgui/MHexagon.[h,cc]:
+     - added SavePrimitive function
+
+   * mhist/MHHillas.cc:
+     - changed 'deg' to '°'
+
+   * mmain/MDataCheck.cc:
+     - changed name of enums for buttons
+
+   * Makefile.conf.osf1:
+     - added some more exclusion flags to get rid of to much informations
+
+   * Makefile:
+     - changed flags of tar from '-cvf' to 'cvf' so that it runs on alpha, too
+
+   * mbase/MAGIC.h:
+     - put brackets around defines, to make it compile on alpha
+
+   * mbase/MEvtLoop.cc, mbase/MParList.cc, mbase/MTask.cc, 
+     mgui/MGeomCam.cc, mhist/MHFadcPix.cc, mmc/MMcTrig.cxx:
+     - removed inline statement, to make it link on alpha
+
+
+
+ 2001/10/31: Thomas Bretz
+
+   * Makefile:             
+     - changed MrProper output   
+
+   * Makefile.conf.general, Makefile.conf.linux,
+     Makefile.conf.linux-gnu, Makefile.conf.osf:
+     - added ARCHDEF environment
+
+   * manalysis/MHillas.[h,cc]:
+     - added units
+
+   * mbase/BaseLinkDef.h:
+     - added '+' for MTime
+
+   * mbase/MAGIC.h:
+     - let Linux find gLog when creating dictionary
+
+   * mbase/MHtml.h:
+     - removed include of TNamed
+
+   * */Makefile
+     - reordered *.cc filed to get rid of some 'rootcint' warnings
+
+   * mgui/MCamDisplay.cc:
+     - added SetBorderMode(0)
+   
+   * mgui/MHexagon.[h,cc]:
+     - changed Print-output to fit into two lines
+     - made Print appear in the context menu
+
+   * merpp.cc:
+     - Added MParContainer::Class()->IgnoreTObjectStreamer()
+
+   * mbase/MEvtLoop.[h,cc],  mbase/MReadTree.[h,cc],
+     mmain/MAnalysis.[h,cc]:
+     - added support for a progressbar
+
+   * mbase/MFilterList.h:
+     - added SetOwner-support
+
+   * mbase/MLogManip.h:
+     - added 'dec' manipulator to dbginf
+
+   * mbase/MTask.h:
+     - added GetNumExecutions
+
+   * mraw/RawLinkDef.h:
+     - added '+' for MRawEvtPixelIter, MRawCrateArray, MRawCrateData and
+       MRawFile[Read,Write]
+
+
+
+ 2001/10/30: Thomas Bretz
+
+   * macros/MagicHillas.C
+     - removed precreated objects
+
+   * macros/readCt1.C:
+     - fixed a bug (-> instead of .)
+
+   * *LinDef.h:
+     - added a '+' to all 'new' classes. 'new' means, that the object
+       is not yet used in Monte Carlo Files.
+
+   * *.h:
+     - changed defines from CLASS_H to MARS_Class type (like root)
+
+   * MMcPedestalCopy.[h,cc]:
+     - added AddToBranchList stamements
+
+   * manalysis/MPedestalPix.h, manalysis/MCerPhotPix.h, mgui/MGeomPix.h:
+     - changed derivement from TObject to MParContainer to be sure
+       fBits are not written, without specifying this for any TObject
+       derived class
+
+
+
+ 2001/10/29: Thomas Bretz
+
+   * Makefile.rules:
+     - changed the output
+
+   * macros/rootlogon.C:
+     - Added IgnorTObjectStreamer
+
+   * manalysis/MCT1ReadAscii.cc:
+     - changed fFileNames to a TList of TNamed objects
+
+   * mbase/MArray.h:
+     - removed include of MArray.h
+
+   * mbase/MParContainer.[h,cc]:
+     - changed fName, fTitle from pointer to static object
+     - Changed ClassVersion to 0
+
+   * mbase/MParList.[h,cc]:
+     - changed fName, fTitle from pointer to static object
+     - changed include of TObjArray to a forward declaration
+       (for faster compilation)
+     - simplified the code
+
+   * mbase/MInputStreamID.[h,cc]:
+     - changed fStreamId from char* to TString
+     - Changed ClassVersion to 0
+ 
+   * mbase/MReadTree.[h,cc]:
+     - changed veto-list to an array of TNamed objects
+     - implemented auto enabeling
+
+   * mbase/MTask.[h,cc]:
+     - implemented fListOfBranches for auto enabeling
+     
+   * mbase/MTaskList.[h,cc]:
+     - changed fName, fTitle from pointer to static object
+     - changed include of TObjArray to a forward declaration
+       (for faster compilation)
+
+   * mbase/MWriteRootFile.cc:
+     - changed fName, fTitle from pointer to static object
+     - set splitlevel in TTree::Branch to default
+     - changed kSaveNow to kFillTree
+
+   * mhist/MFillH.cc:
+     - changed fName, fTitle from pointer to static object
+     - check inharitance from MH
+
+   * mhist/MH.[h,cc]:
+     - changed fName, fTitle from pointer to static object
+     - implementation of simplified static MakeDefCanvas
+
+   * mhist/MHFadcCam.h:
+     - removed include of TH1
+
+   * mhist/MHFadcPix.[h,cc]:
+     - implemented persistent pixid
+     - get rid of 'fixed string sizes'
+     - Delete histograms from file structure (SetDirectory)
+     - changed Root's MakeDefCanvas to TH1::MakeDefCanvas
+     - removed include of TH1
+
+   * mhist/MHHillas.cc
+     - changed fName, fTitle from pointer to static object
+     - Delete histograms from file structure (SetDirectory)
+     - changed Root's MakeDefCanvas to TH1::MakeDefCanvas
+     - changed DrawClone to DrawCopy
+
+   * mhist/MHMcCollectionArea.[h,cc]:
+     - changed fName, fTitle from pointer to static object
+     - Delete histograms from file structure (SetDirectory)
+     - changed Root's MakeDefCanvas to TH1::MakeDefCanvas
+     - changed DrawClone to DrawCopy
+     - changed binning to log scale
+     - removed include of TH1
+
+   * mhist/MHMcEnergy.cc, mhist/MHStarMap.cc:
+     - changed fName, fTitle from pointer to static object
+     - Delete histograms from file structure (SetDirectory)
+     - changed Root's MakeDefCanvas to TH1::MakeDefCanvas
+
+   * manalysis/MCerPhotEvt.cc, manalysis/MHillas.cc, 
+     manalysis/MHillasCalc.cc, manalysis/MImgCleanStd.cc, 
+     manalysis/MMcPedestalCopy.cc, manalysis/MPedestalCam.cc,
+     mbase/MClone.cc, mbase/MPrint.cc, mbase/MTime.h,
+     mbase/MWriteAsciiFile.cc, mgui/MGeomCam.cc, mhist/MHFadcCam.cc, 
+     mhist/MHMcRate.cc, mmc/MMcTrig.cxx, mraw/MRawCrateArray.cc, 
+     mraw/MRawEvtData.cc, mraw/MRawEvtHeader.cc, mraw/MRawFileRead.cc:
+     - changed fName, fTitle from pointer to static object
+
+   * manalysis/MCerPhotCalc.cc, manalysis/MPedCalcPedRun.cc, 
+     mmontecarlo/MMcThresholdCalc.[h,cc], 
+     mmontecarlo/MMcTriggerRateCalc.[h,cc], 
+     mmontecarlo/MMcCollectionAreaCalc.[h,cc]:
+     - changed fName, fTitle from pointer to static object
+     - changed to use auto enabling scheme
+
+   * macros/threshold.C, macros/collarea.C, macros/trigrate.C:
+     - removed UseLeaf
+
+   * macros/CT1Hillas.C, macros/readMagic.C:
+     - made run again
+
+   * mraw/MRawFileWrite.cc:
+     - changed fName, fTitle from pointer to static object
+     - changed TTree::Branch to use default split level (99)
+     - added the missing important '.' to the Branch names!
+
+   * mraw/MRawRunHeader.[h,cc]:
+     - changed fName, fTitle from pointer to static object
+     - implemented enum for Run Type
+
+
+
+ 2001/10/26: Thomas Bretz
+
+   * Makefile.rules:
+     - changed output
+
+   * readraw.cc:
+     - changed name and description in TROOT
+     - removed argument in MMcEvt::Print()
+
+   * manalysis/MCerPhotEvt.[h,cc], manalysis/MCerPhotPix.[h,cc],
+     manalysis/MHillas.[h,cc], mmc/MMcEvt.[hxx,cxx],
+     mmc/MMcFadcHeader.[hxx,cxx], mmc/MMcTrig.[hxx,cxx],
+     mmc/MMcTrigHeader.[hxx,cxx]:
+     - according to root 3.01 made Print const
+
+   * mbase/BaseLinkDef.h:
+     - added MPrint
+
+   * mbase/MPrint.[h,cc]:
+     - added
+
+   * mbase/MClone.[h,cc]:
+     - changed MParContainer to a more general TObject
+
+   * mbase/Makefile:
+     - MPrint.cc added
+
+   * meventdisp/MGCamDisplay.[h,cc], meventdisp/MGEvtDisplay.[h,cc],
+     meventdisp/MGFadcDisp.[h,cc]:
+     - introduced fInitOk for the case PreProcessing failed
+
+   * mmain/MMonteCarlo.cc:
+     - added correction for use of several trigger conditions
+     - speedup threshold calc by usage of UseLeaf
+
+   * magiclogo.xpm, marslogo.xpm:
+     - changed
+
+   * mmain/MMonteCarlo.cc:
+     - added a workaround for the <TClass::TClass> no dictionary for MMc*
+       problem
+
+   * mbase/MWriteRootFile.[h,cc]:
+     - simplified code by removing MRootFileTree class
+
+   * mbase/MLog.cc:
+     - changed char[len+1] to 'new' statement
+
+
+
+
+ 2001/10/23: Thomas Bretz
+
+   * mbase/MLog.[h,cc]:
+     - replaced usage of tmpnam by mkstemp
+
+   * mgui/MCamDisplay.[h,cc]:
+     - Paint function added which maintains the aspect ratio of the image
+     - DrawPhotErr removed
+     - removed gPad->Clear, so that we can draw into pads not only
+       canvases
+
+   * mhist/MFillHFadc.[h,cc], mhist/MFillHHillas.[h,cc],
+     mhist/MFillHStarMap.[h,cc]:
+     - removed
+
+   * mmontecarlo/MMcTriggerRateCalc.[h,cc]:
+     - removed unused spectral index and flux
+
+   * mmontecarlo/MMcThesholdCalc.[h,cc],:
+     mbase/MParList.[h,cc]:
+     - fixed the Dimension handling
+
+   * mmontecarlo/MMcTriggerRateCalc.[h,cc],
+     - fixed the Dimension handling
+     - added destructor
+
+   * macros/trigrate.C:
+     - fixed some small things
+     - accelerated by use of MReadTree::UseLeaf
+
+   * mhist/MHMcCollectionArea.h:
+     - changed default argument of DrawClone from NULL to "".
+       NULL caused the interpreter to crash.
+
+   * mbase/MFilterList.[h,cc], mbase/MParContainer.[h,cc],
+     mbase/MParList.[h.cc], mbase/MTime.[h,cc],
+     mgui/MGeomCam.[h,cc], mgui/MGeomPix.[h,cc],
+     mgui/MHexagon.[h,cc], mhist/MHMcEnergy.[h,cc],
+     mhist/MHMcRate.[h,cc], mraw/MRawCrateData.[h,cc],
+     mraw/MRawEvtHeader.[h,cc], mraw/MRawRunHeader.[h,cc]:
+     - according to root 3.01 I made Print() const
+
+   * mdatacheck/MViewAdcSoectra.[h,cc], mdatacheck/MShowSpect.[h,cc]:
+     - removed
+
+   * mbase/MReadTree.cc:
+     - removed default argument from GetEntry-call
+
+   * mbase/MTask.[h,cc]:
+     - introduced mapping function for (Pre/Post)&Process
+     - according to root 3.01 I made Print() const
+     - added PrintStatistics
+     - added call counter
+
+   * mbase/MTaskList.[h,cc]:
+     - adapted to new MTask mapping functions
+     - according to root 3.01 I made Print() const
+     - added PrintStatistics
+     - moved some functionality to MTask-Mapper functions
+
+   * mmain/MMonteCarlo.cc:
+     - adapted to some changes in other classes
+     - some small simplifications
+     - accelerated, by use of UseLeaf
+     - workaround for the ButtonGroup/Button delete bug
+
+   * mmain/MAnalysis.cc:
+     - workaround for the ButtonGroup/Button delete bug
+
+
+
+ 2001/10/23: Thomas Bretz
+
+   * macros/dohtml.C:
+     - changed macro names
+
+   * macros/getCollArea.C:
+     - renamed to collarea.C
+     - make use of new fast MReadTree
+
+   * macros/getRate.C:
+     - renamed to trigrate.C
+
+   * macros/getThreshold.C:
+     - renamed to threshold.C
+
+   * Makefile.depend:
+     - removed
+
+   * mgui/MCamDisplay.[h,cc]:
+     - fixed wrong usage of new operator in TClonesArray
+     - the aspect ratio of the Canvas is used now to display geometries
+       correctly (no 'small CT1 camera anymore)
+     - replaced include of MCerPhotPix by a forward declaration
+     - replaced include of MHexagon by a forward declaration
+
+   * mgui/MGeomCam.[h,cc]:
+     - added GetMaxRadius()-function
+     - added CalcMaxRadius()-function
+     - replaced include of MGeomPix by a forward declaration
+     - replaced include of TObjArray by a forward declaration
+
+   * mgui/MGeomCamMagic.cc, mgui/MGeomCamCT1.cc:
+     - call CalcMaxRadius in the constructor
+
+
+
+ 2001/10/22: Thomas Bretz
+
+   * mhist/MH*.[h,cc]:
+     - changed DrawClone according to root 3.01/06 to 'const'
+
+
+
+ 2001/10/16: Thomas Bretz
+
+   * mbase/MReadTree.[h,cc]:
+     - added some output statements
+     - added comments
+     - added UseLeaf
+     - changed AddFile to Int_t
+     - simplified GetEntry call
+
+   * mgui/MGeomCam.[h,cc], MGeomCamCT1.[h,cc], MGeomCamMagic.[h,cc]:
+     - added come comments
+     - removed Draw-function
+   
+   * mars.cc:
+     - Changed name of TROOT object to 'mars'
+
+   * merpp.cc:
+     - changed name of TROOT object to 'merpp'
+     - added some more ouput
+
+   * mbase/MBaseLinkDef.h:
+     - added MRootFileBranch
+     - added MRootFileTree
+
+   * mgui/MGeomPix.cc, mbase/MClone.cc, mraw/MRawRunHeader.cc:
+     - added comments
+
+   * mbase/MEvtLoop.cc:
+     - added missing include
+     - added another time output
+
+   * mbase/MWriteRootFile.cc:
+     - added ClassImp
+   
+   * mhist/MFillH.cc, mmontecarlo/MMcCollectionAreaCalc.cc:
+     - changed output
+   
+   * mhist/MHMcCollectionArea.cc:
+     - small fixes
+     - changed error calculation according to Ciro
+
+   * macros/CT1Hillas.C:
+     - fixes some bugs (typos)
+
+
+
+ 2001/10/05: Thomas Bretz
+
+   * manalysis/MHillas.cc, manalysis/MImgCleanStd.cc, mbase/MClone.[h,cc],
+     mbase/MFilterList.h, mbase/MWriteFile.h, mbase/MWriteRootFile.h,
+     mdatacheck/MGDisplayAdc.cc, meventdisp/MGCamDisplay.cc, 
+     meventdisp/MGCamDisplay.h, meventdisp/MGEvtDisplay.h,
+     mgui/MGeomPix.h, mhist/MFillH.h, mhist/MHHillas.h,
+     mmain/MAnalysis.h, mmain/MBrowser.h, mmain/MCameraDisplay.h,
+     mmain/MDataCheck.h, mmain/MEvtDisp.h, mmain/MMonteCarlo.h,
+     mraw/MRawFileRead.cc
+     - comments updated
+     
+   * mbase/MFilter.[h,cc]:
+     - made IsExpressionTrue abstract
+     
+   * meventdisp/MGEvtDisplay.cc:
+     - fixed a bug that only every second event was displayed
+
+   * meventdisp/MGFadcDisp.[h,cc]:
+     - reorganized code (changing pixel number drawed the histogram twice)
+     
+   * mgui/MCamDisplay.[h,cc]:
+     - added fDrawingPad to make sure that all output goes into the same pad
+     
+   * mhist/HistLinkDef.h, mhist/Makefile:
+     - removed old MFillH* classes
+
+
+
+ 2001/10/02: Thomas Bretz
+
+   * mbase/MClone.[h,cc],
+     meventdisp/MGCamDisplay.[h,cc],
+     meventdisp/MGEvtDisplay.[h,cc],
+     mmain/MCameraDisplay.[h,cc]:
+     - added
+     
+   * macros/readMagic.C:
+     - fixed a  "'->' and '.' mixed bug"
+     
+   * manalysis/MCT1ReadAscii.cc:
+     - added initialisation of fIn
+     
+   * manalysis/MCerPhotEvt.[h,cc]:
+     - made IsPixelExisting const
+     - made IsPixelCore const
+     - made IsPixelUsed const
+     - made GetNumPhotons[Min,Max] const
+
+   * mbase/BaseLinkDef.h, mbase/Makefile:
+     - added MClone
+     
+   * mbase/MEvtLoop.[h,cc], mbase/MParList.[h,cc], mbase/MTaskList.[h,cc]:
+     - added SetOwner-support
+     
+   * mdatacheck/DataCheckLinkDef.h, mdatacheck/Makefile:
+     - removed MShowSpect
+     - removed MViewAdcSpect
+     
+   * mdatacheck/MDumpEvtHeader.cc:
+     - added missing descriptions
+     
+   * mdatacheck/MGDisplayAdc.[h,cc]:
+     - small changes
+     
+   * meventdisp/EvtDispLinkDef.h:
+     - added MGEvtDisplay
+     - added MGCamDisplay
+     
+   * meventdisp/MGFadcDisp.[h,cc]:
+     - derived from MGEvtDisplay
+     - most of the code moved to MGEvtDisplay to support MGCamDisplay, too
+     
+   * meventdisp/Makefile:
+     - added MGCamDisplay
+     
+   * mgui/MCamDisplay.[h,cc]:
+     - cleaned
+     - reorganized
+     
+   * mgui/MHexagon.cc:
+     - added missing descriptions
+     
+   * mhist/MHFadcPix.cc:
+     - reorganized some code in the constructor which creates the 'names'
+     
+   * mhist/MHHillas.cc, mhist/MHMcCollectionArea.cc, 
+     mhist/MHMcEnergy.cc, mhist/MHStarMap.cc:
+     - Draw-function supports a default canvas now
+   
+   * mmain/MDataCheck.cc:
+     - added/rorganized comments
+     - removed usage of MViewAdcSpectra
+     
+   * mmain/MMars.[h,cc]:
+     - added new "Camera Display" Button
+     
+   * mmain/MainLinkDef.h, mmain/Makefile:
+     - added MCameraDisplay
+
+
+
+ 2001/09/28: Thomas Bretz
+
+   * macros/getRate.C:
+     - changed TObjArray to a non-pointer object
+     - added Printing of the result at the end of the macro
+     
+   * mhist/MHMcCollectionArea.[h,cc], mhist/MHMcEnergy.[h,cc]:
+     - added DrawClone
+     
+   * mhist/MHMcRate.[h,cc]:
+     - added a dummy for DrawClone
+     
+   * mmain/MMonteCarlo.[cc, h]:
+     - added Gui elements
+     - added CalculateCollectionArea (not yet tested)
+     - added CalculateTriggerRate (not yet tested)
+     - added Threshold (not yet tested)
+
+   * mmontecarlo/MMcTriggerRateCalc.cc:
+     - removed output stuff from PostProcessing
+
+   * meventdisp/MGFadcDisp.[h,cc], mdatacheck/MGDisplayAdc.[h,cc]:
+     - reorganized code (constructor)
+     - reorganized deletion of gui objects
+     - fixed many, many memory leaks
+
+
+
+ 2001/09/27: Thomas Bretz
+
+   * mmain/MBrowser.cc:
+     - added comments
+
+   * mmain/MAnalysis.[h,cc]:
+     - added entry field for cleaning levels
+     - restructured code a bit
+
+   * mhist/MFillH.cc:
+     - fixed missing initialization of member variables in Init
+
+   * mhist/MHHillas.[h,cc]:
+     - Added comments
+     - Added DrawClone
+     - Removed kCanDelete bits from Draw function
+
+   * mhist/MHStarMap.[h,cc]:
+     - Added comments
+     - Added DrawClone
+     - moved some code from the Draw-functions to PrepareDrawing
+
+
+
+ 2001/09/26: Thomas Bretz
+
+   * mmain/MMars.[cc,h], mmain/MBrowser.[cc,h], MDataCheck.[cc,h],
+     mmain/MEvtDisp.[cc,h], mmain/MMonteCarlo.[cc,h]:
+     - reorganized code (constructor)
+     - reorganized deletion of gui objects
+     - fixed many, many memory leaks
+     - small changes in layout
+
+   * mmain/MAnalysis.[h,cc]:
+     - added
+
+   * macros/*:
+     - added Copyright notice
+     - added some small sanity checks
+
+   * macros/MagicHillas.C:
+     - fixed '->' bug
+     - changed MFillHStarMap to MFillH
+     
+   * mbase/MReadTree.cc, mraw/MRawFileWrite.cc:
+     - removed an old debug statement
+     
+   * mmain/MMars.cc:
+     - added new Analysis functionality
+     
+   * mmain/MainLinkDef.h:
+     - addded MAnalysis
+     
+   * mmain/Makefile:
+     - added MAnalysis.cc
+     
+   * mmc/McLinkDef.h:
+     - removed nonsens define statement
+
+
+
+ 2001/09/25: Thomas Bretz
+
+   * Makefile:
+     - changed make tar so that 'CVS/Root' isn't added to the tar-file anymore
+       It contains the origin (CVSROOT) of the repository and my confuse
+       people triing to commit changed files from such an archive to
+       the repository
+       
+   * mmain/MBrowser.[cc,h]:
+     - reorganized code (constructor)
+     - reorganized deletion of gui objects
+     - fixed many, many memory leaks
+
+   * mmain/MMars.[cc,h]:
+     - reorganized code (constructor)
+     - reorganized deletion of gui objects
+     - fixed many, many memory leaks
+
+
+
+ 2001/09/20: Thomas Bretz
+
+   * mbase/MLog.[h,cc]:
+     - made working with Cosy
+     - fixed gui stuff to work like expected
+
+   * manalysis/MCerPhotPix.h:
+     - replaced TROOT.h by MAGIC.h
+
+   * mfilter/MFTriggerLvl1.h:
+     - added description
+
+
+
+ 2001/09/20: Thomas Bretz
+
+   * released Version 0.4
+
+   * mevtdisp/MGFadcDisp.cc, mmain/MMars.cc:
+     - switched to root version >= 3.00
+     
+   * Makefile.conf.linux:
+     - added to support the new Linux distributions
+
+   * .rootrc:
+     - removed references to MARSSYS
+
+
+
+ 2001/09/13: Thomas Bretz
+ 
+   * Makefile.conf.linux-gnu:
+     - removed "-Woverloaded-virtual". it doesn't really help
+
+
+
+ 2001/08/02: Thomas Bretz
+
+   * macros/getRate.C:
+     - make use of new stylish lists of containers
+
+
+   * macros/CT1Hillas.C, macros/getCollArea.C:
+     - make use of return value of Eventloop
+
+   * macros/merpp.C:
+     - changed return type to void
+
+
+
+ 2001/07/23: Thomas Bretz
+ 
+   * mbase/MParList.cc:
+     - redifinition of default argument: fixed
+
+
+
+ 2001/07/23: Thomas Bretz
+ 
+   * mmontecarlo/MMcThresholdCalc.[cc,h]:
+     - changed PreProcess action to new stylish lists of containers
+
+   * mhist/Makefile:
+     - removed MEnergies.cc
+
+   * mhist/HistLinkDef.h:
+     - removed MEnergies.cc
+   
+   * mbase/MReadTree.cc:
+     - removed a bug which causes MReadTree to show strange behaviour.
+       We cannot use GetBranch()->SetAddress() we have to use
+       SetBranchAddress.
+       
+   * macros/MagicHillas.C:
+     - changed to new stylish histogram fillers.
+
+   * mhist/MHMcRate.cc:
+     - some simplifications to the constructors
+     - some accelerations of the rate calculation
+     
+   * mhist/MHHillas.C:
+     - added axis descriptions (thanks to Rudy)
+
+
+
+ 2001/07/20: Thomas Bretz
+ 
+   * mhist/MH.cc:
+     - added comments
+
+   * mhist/MFillH.cc:
+     - added comments
+
+   * mbase/MParList.[h,cc]:
+     - Added AddToList from a TObjArray
+     - Added GetClassName
+     - Added GetObjName
+     - Added FindObjectList
+     - Added FindCreateObjList
+     - Added CreateObjList
+
+   * mhist/MHMcEnergies.[h,cc]:
+     - deleted
+
+   * mhist/MHMcEnergy.[h,cc]:
+     - rewrote constructor in a way that MHMcEnergies isn't needed anymore
+     - added a SetName function which replaces the old constructor somehow
+
+   * macros/getThreshold.C:
+     - make use of some new features
+
+
+
+ 2001/07/19: Thomas Bretz
+ 
+   * mbase/MEvtLoop.cc:
+     - added comments
+     
+   * mbase/MTaskList.cc:
+     - changed the wrong 'break' for kCONTINUE into 'return kTRUE'
+     
+   * mhist/MH.[cc,h]
+     - added
+
+   * mhist/MFillH.[cc,h]
+     - added
+     - in principal MFillHHillas, MFillHFadc and MFillHStarMap
+       can be deleted now
+     
+   * mhist/HistLinkDef.h:
+     - added MH
+     - added MFillH
+     
+   * mhist/MFillHFadc.cc:
+     - moved source for filling to corresponding histogram class
+     
+   * mhist/MFillHHillas.cc:
+     - included MHillas.h
+     
+   * mhist/MHFadcCam.[cc, h]:
+     - added Fill
+     - made FillHi, FillLo private
+     
+   * mhist/MHHillas.[cc, h], mhist/MHStarMap.[h,cc]:
+     - changed Fill function to new style
+     - derived class from MH
+
+   * mhist/Makefile:
+     - added MH.cc
+     - added MFillH.cc
+
+
+
+ 2001/07/18: Oscar Blanch
+ 
+   * macros/getRate.C:
+     - Macro to compute the trigger rate from a MonteCarlo file
+
+   * mhist/MHMcRate.[h,cc]:
+     - Container to store trigger rate information
+     - Draw() functin member to be implemented
+
+   * mmontecarlo/MMcTriggerRateCalc.[h,cc]:
+     - Task to compute trigger rate
+
+
+
+ 2001/07/13: Thomas Bretz
+
+   * mbase/MEvtLoop.[h,cc]:
+     - Added a result value to Eventloop to be able to detect if the
+       execution was successfull
+     - changes postProcess to return the return value from 
+       MTaskList::PostProcess
+     
+   * mbase/MParList.cc:
+     - FindCreateObj removes now a 'dot' from the end of an indexed
+       object name like "Events;7."
+     
+   * mbase/MReadTree.cc:
+     - small changes to the output
+
+   * mbase/MTask.[h,cc]:
+     - added Preprocessed flag. This enables the tasklist to only postprocess
+       already preprocessed tasks
+
+   * mbase/MTaskList.cc:
+     - don't postprocess non preprocessed tasks
+   
+   * mhist/MHMcCollectionArea.cc:
+     - added descriptions to histrograms
+     - changed names of histograms
+     - added drawing of canvas to Draw-functions
+
+   * mhist/MHMcEnergy.[h,cc]:
+     - added variables to store the calculated result
+     - changed names and titles of histogram
+     - added axis titles to histogram
+     - moved result calculation into fit-function
+
+   * mmontecarlo/MMcCollectionAreaCalc.cc:
+     - added name of input container to be able to process another
+       container than "MMcTrig"
+
+   * mmontecarlo/MMcThresholdCalc.cc:
+     - removed trailing dot from container name creation
+   
+   * mhist/MMcThresholdCalc.cc:
+     - removed a wrong '.' behind the number when processing more than
+       one trigger condition
+
+   * mraw/MRawRunHeader.cc:
+     - added "Monte Carlo Data" as runtype
+
+
+
+ 2001/07/10: Thomas Bretz
+
+   * mhist/MHMcEnergy.h:
+     - renamed SetBins to SetNumBins
+     
+   * mmontecarlo/MMcThresholdCalc.cc:
+     - changed style of comments
+     - moved sqrt(2) from Postprocess to header.
+     
+   * mmontecarlo/MMcEnerHisto.[cc,h], mmontecarlo/MMcEnerThre.[cc,h], 
+     mmontecarlo/MMcEnerThreCalc.[cc,h]:
+     - removed
+
+   * mmontecarlo/MCollArea.[cc,h], mmontecarlo/MCollAreaTrigger.[cc,h]:
+     - removed
+
+
+
+ 2001/07/09: Thomas Bretz
+ 
+   * mbase/MParList.cc:
+     - made handling of already existing containers in AddToList a bit 
+       more convinient
+     
+   * mbase/MTaskList.[h,cc]:
+     - added come comments
+     - made handling of already existing tasks in AddToList a bit 
+       more convinient
+     - Added name-argument to constructor
+     
+   * mraw/MRawFileRead.[cc, h]:
+     - move file-open check from constructor to PreProcess
+     - added variable for filename
+     
+   * mraw/MRawFileWrite.[cc,h]:
+     - moved fOut->Write from PostProcess to destructor
+     - removed PostProcess
+
+
+
+ 2001/07/06: Thomas Bretz
+ 
+   * mfilter/FilterIncl.h, mfilter/FilterLinkDef.h, 
+     mfilter/MFTriggerLvl1.[h,cc], mfilter/mfilter/Makefile:
+     - added
+     
+   * Makefile
+     - mfilter added
+     
+   * Makefile.conf.linux-gnu:
+     - added some warning options
+     
+   * Makefile.conf.osf1:
+     - enhanced warnings
+     
+   * manalysis/MCerPhotEvt.cc:
+     - removed a small buf from the constructor
+     
+   * BaseLinkDef.h:
+     - added MFilter
+     - added MFilterList
+     
+   * mbase/MLog.[h,cc]:
+     - added a non-empty copy constructor to make cxx happy
+     
+   * mbase/MParList.[h,cc]:
+     - added second overload-function FindObject
+   
+   * mbase/MTask.h:
+     - added all Filter stuff
+     
+   * mbase/MTaskList.cc:
+     - changed debug output
+     - added filter-stuff to Process
+     
+   * mbase/MTaskList.h:
+     - changed Print default option from NULL to ""
+     
+   * mbase/Makefile:
+     - added MFilter
+     - added MFilterList
+   
+   * mhist/MFillHFadc.cc:
+     removed a small bug in the PreProcessing
+   
+   * manalysis/MCerPhotEvt.h, manalysis/MHillas.cc, manalysis/MHillas.h, 
+     manalysis/MImgCleanStd.cc, manalysis/MPedestalCam.h, mgui/MGeomCam.h,
+     mhist/MFillHHillas.h, manalysis/MHillasCalc.h, manalysis/MCerPhotCalc.h,
+     manalysis/MImgCleanStd.h, mhist/MFillHStarMap.h, mhist/MHHillas.cc,
+     mhist/MHHillas.h, mhist/MHStarMap.cc, mhist/MHStarMap.h,
+     mmc/MMcFadcHeader.hxx, mmc/MMcFadcHeader.hxx, mmc/MMcTrig.hxx,
+     mmontecarlo/MMcThresholdCalc.h:
+     - made more const-correct
+
+   * manalysis/MCT1ReadAscii.cc, manalysis/MCerPhotCalc.cc, 
+     manalysis/MHillasCalc.cc, manalysis/MImgCleanStd.cc,
+     manalysis/MMcPedestalCopy.cc, manalysis/MPedCalcPedRun.cc,
+     mhist/MFillHFadc.cc, mhist/MFillHHillas.cc, mhist/MFillHStarMap.cc,
+     mmontecarlo/MMcThresholdCalc.cc, mraw/MRawFileRead.cc,
+     mraw/MRawFileWrite.cc:
+     - added comments
+
+   * manalysis/MCT1ReadAscii.cc, manalysis/MCerPhotCalc.cc, 
+     manalysis/MCerPhotPix.cc, manalysis/MHillas.cc,
+     manalysis/MHillasCalc.cc, manalysis/MImgCleanStd.cc, 
+     manalysis/MMcPedestalCopy.cc, manalysis/MMcPedestalCopy.h,
+     manalysis/MPedCalcPedRun.cc, manalysis/MPedestalCam.cc, 
+     manalysis/MPedestalPix.cc,
+     mbase/MArray.cc, mbase/MArrayB.cc, mbase/MArrayS.cc, mbase/MEvtLoop.cc, 
+     mbase/MLog.cc, mbase/MParList.cc, mbase/MReadTree.cc, mbase/MTask.cc, 
+     mbase/MTime.cc, mbase/MWriteAsciiFile.cc, mbase/MWriteFile.cc, 
+     mbase/MWriteRootFile.cc,
+     mhist/MFillHFadc.cc, mhist/MFillHFadc.cc, mhist/MFillHHillas.cc,
+     mhist/MFillHStarMap.cc, mhist/MHFadcCam.cc, mhist/MHFadcPix.cc,
+     mhist/MHHillas.cc, mhist/MHMcCollectionArea.cc, mhist/MHMcEnergies.cc,
+     mhist/MHMcEnergy.cc, mhist/MHStarMap.cc, mraw/MRawCrateArray.cc,
+     mraw/MRawCrateData.cc, mraw/MRawEvtData.cc, mraw/MRawEvtHeader.cc,
+     mraw/MRawEvtPixelIter.cc, mraw/MRawFileRead.cc,
+     mraw/MRawFileWrite.cc, mraw/MRawRunHeader.cc:
+     - added semicolon after ClassImp to make my editor happy
+
+   * mmain/MEvtDisp.cc:
+     - removed a wrong comma in the enumerations
+     
+   * mmontecarlo/MMcThresholdCalc.cc:
+     - made compile on osf by removing brackets in new steatement (constructor)
+     
+
+
+ 2001/07/05: Thomas Bretz
+
+   * macros/CT1Hillas.C:
+     - changed the wrong pointers to dots.
+     
+   * macros/getThreshold.C:
+     - added some comments
+     - removed the canvas creation
+     - drawing replaced by a loop
+     - changed trigger conditions to 1 (should work with any MC file)
+     
+   * macros/readMagic.C:
+     - changed the event counter to the number of the event in the file
+     - removed icound
+     
+   * manalysis/MPedCalcPedRun.cc, manalysis/MCerPhotCalc.cc,
+     mbase/MParContainer.cc, mbase/MParContainer.h, mbase/MParList.cc,
+     mbase/MParList.h, mbase/MTaskList.cc, mbase/MWriteAsciiFile.cc,
+     mbase/MWriteRootFile.cc, mhist/MFillHFadc.cc, mhist/MFillHHillas.cc,
+     mhist/MFillHStarMap.cc,
+     - changed HasChanged to ReadyToSave
+     
+   * mbase/MReadTree.cc:
+     - added some comments
+     
+   * mhist/MHMcEnergies.h:
+     - fixed bug in []-operator
+     
+   * mhist/MHMcEnergy.cc:
+     - added canvas creation to draw function
+   
+   * mmontecarlo/MMcThresholdCalc.cc:
+     - fixed a bug in the constructor
+ 
+ 
+ 
+ 2001/06/20: Thomas Bretz
+ 
+   * macros/merpp.C:
+     - fixed type in comment
+     
+   * manalysis/MHillas.cc:
+     - fixed 'FIXME' comment
+   
+   * mbase/MWriteFile.[h,cc]:
+     - added
+  
+   * mbase/MWriteRootFile.[h,cc]:
+     - added
+   
+   * mbase/BaseLinkDef.h:
+     - Added MWriteFile
+     - Added MWriteRootFile
+   
+   * mbase/MEvtLoop.cc:
+     - fixed the counting in the eventloop
+     
+   * mbase/MWriteAsciiFile.[h,cc]:
+     - changed class that it is based on MWriteFile now
+   
+   * mbase/Makefile:
+     - added MWriteFile
+     - added MWriteRootFile
+   
+   * mhist/MFillHFadc.[h,cc]:
+     - added set for HasChanged (new PostProcess)
+   
+   * mhist/MFillHHillas.cc:
+     - added set for HasChanged (new PostProcess)
+   
+   * mhist/MFillHStarMap.cc:
+     - added set for HasChanged (new PostProcess)
+
+   * mhist/MHHillas.cc:
+     - Set kCanDelete to make sure, that the histograms are deleted
+       together with the canvas
+     
+   * mraw/MRawFileWrite.[h,cc]:
+     - changed the handling of opening, closing and checking file
+
+
+
+ 2001/06/13: Thomas Bretz
+
+   * ./.../*.h:
+     - added some comments and corrected some descriptions.
+     
+   * mbase/MParContainer.[h,cc]:
+     - added a 'dummy' function for AsciiRead, AsciiWrite
+
+   * mbase/MWriteAsciiFile.[h,cc]:
+     - added new constructor (specify directly the pointer to the class)
+
+   * mgui/MHexagon.cc:
+     - made Copy-function more readable
+
+   * mgui/MParContainer.cc:
+     - made Copy-function more readable
+
+   * mhist/MHMcEnergies.[h,cc]:
+     - files added as a container to make handling of several MHMcEnergy easier
+   
+   * mbase/MAGIC.h:
+     - encapsulated include of TROOT
+
+   * mbase/MTaskList.cc:
+     - added SetHasChange and Reset to PostProcess
+
+   * mhist/HistLinkDef.h
+     - added MHMcEnergies
+     
+   * mhist/MHMcEnergy.[h,cc]:
+     - added name and title to constructor
+     - added number to name of container
+   
+   * mmontecarlo/MMcThresholdCalc.cc:
+     - corrected typo in creation of the container names
+   
+   * mraw/MRawEvtData.cc:
+     - Set kCanDelete in Draw function
+
+
+
+ 2001/06/12: Thomas Bretz
+
+   * mmontecarlo/MMcEnerThreCalc.[cc,h] 
+     - copied to mmontecarlo/MMcThresholdCalc.[cc,h]
+
+   * mmontecarlo/MMcEnerThreHistos.[h,cc]
+     - copied to mmhist/MHMcEnergy.[h,cc]
+
+   * mbase/Makefile:
+     - added MWriteAsciiFile.cc
+   
+   * mhist/HistIncl.h:
+     - added TF1.h
+
+   * mhist/HistLinkDef.h:
+     - added MHMcEnergy
+ 
+   * mhist/Makefile
+     - added MHMcEnergy
+   
+   * mmontecarlo/MCollArea.h:
+     - fixed typo in ifndef
+   
+   * mmontecarlo/Makefile:
+     - added MMcThresholdCalc.cc
+     - removed MMcEnerHisto.cc
+     - removed MMcEnerThre.cc
+     - removed MMcEnerThreCalc.cc
+
+   * mmontecarlo/MonteCarloLinkDef.h:
+     - added MMcThresholdCalc.cc
+     - removed MMcEnerHisto.cc
+     - removed MMcEnerThre.cc
+     - removed MMcEnerThreCalc.cc
+ 
+   * mbase/MWriteAsciiFile.[h,cc]: 
+     - added
+
+   * manalysis/MCT1ReadAscii.h: 
+     - removed fFileName from class definition
+ 
+   * manalysis/MCerPhotCalc.cc: 
+     - use of SetHasChanged added
+ 
+   * manalysis/MHillas.[h,cc]: 
+     - Reset added
+     - AsciiRead added
+     - AsciiWrite added
+     - use of SetHasChanged added
+
+   * manalysis/MPedCalcPedRun.[h,cc]:
+     - made fNumHiGainSamples a class member
+     - renamed some member functions
+     - made the 'internal' member functions private
+     - added SetHasChanged
+     - made these functions const
+     
+   * mbase/BaseLinkDef.h
+     - MWriteAsciiFile added
+   
+   * mbase/MEvtLoop.cc:
+     - some small changes to the logging output
+   
+   * mbase/MParContainer.cc:
+     - fHasChanged added 
+   
+   * mbase/MParContainer.h:
+     - Reset prototype added
+     - HasChanged added
+     - SetHasChanged added
+   
+   * mbase/MParList.[cc,h]:
+     - SetHasChanged added
+     - Reset added
+   
+   * mbase/MTaskList.cc:
+     - Process: call SetHasChanged before looping
+     - Process: call Reset before looping
+   
+   * mbase/MTaskList.h:
+     - fParList added to class definition
+
+
+
+ 2001/04/27: Thomas Bretz
+
+   * macros/merpp.C:
+     - made the merpp-macro Mars 0.3 compatible
+
+
+
+ 2001/04/19: Thomas Bretz
+
+   * mbase/MParList.cc:
+     - added stripping of the string after last semicolon (classname)
+
+   * mbase/MReadTree.cc:
+     - added Veto funtionality to PreProcess
+     - added HasVeto
+     - added fVetoList
+     - added VetoBranch
+
+
+
+ 2001/04/18: Thomas Bretz
+
+   * mbase/MHtml.[cc.h]:
+     - Added
+     
+   * mbase/*.cc:
+     - changed comments of member functions to new MHtml-Style
+
+
+
+ 2001/04/09: Thomas Bretz
+
+   * mbase/MParList.cc:
+     - Added the possibility to specify a different object name in
+       FindCreateObj
+
+   * .rootrc:
+     - changed the style for the html documentation
+    
+   * macros/dohtml.C:
+     - added SetXwho
+    
+   * (*.cc):
+     - added the copyright comment block
+  
+   * mgui/MGeomCamMagic.cc:
+     - added some comments to all these numbers
+  
+   * mraw/MRawEvtPixelIter.h:
+     - added Jump member function which jumps directly to the pixel with a
+       given id
+      
+
+
+ 2001/04/09: Thomas Bretz
+
+   * mgui/MGeomPix.cc:
+     - fixed a small error in SetNeighbors (thanks to Oscar)
+     
+   * mgui/MGFadcDisp.[h,cc]:
+     - Fixed many small errors which caused the display to display nonsens
+       in some situations
+
+
+
+ 2001/04/04: Thomas Bretz
+
+   * mraw/MRawEvtData.[cc,h]:
+     - changed wrong return type of GetNumPixels to UShort_t
+
+   * mmain/MBrowser.[cc,h]:
+     - made the dialog somehow work like it should
+
+
+
+ 2001/04/03: Thomas Bretz
+
+   * manalysis/MCT1ReadAscii.cc:
+     - the pedestal values read from the file are now stored in MeanRms 
+       instead of Sigma
+   
+   * manalysis/MCerPhotCalc.cc:
+     - The pedestal mean Rms is used as the pixel error
+   
+   * MImgCleanStd.cc:
+     - CleanStep1: the '<' was replaced by a '<=' to clean also pixels 
+       with value=noise=0
+     
+   * MMcPedestalCopy.cc:
+     - All the pedestal values are now filled in (are they calculated correctly?)
+   
+   * mgui/MGeomCamMagic.cc:
+     - Forgot to initialize the Nextneighbors of the Magic Camera
+       (thanks to Oscar)
+     
+   * mhist/MHStarMap.cc:
+     - I changed the model of the display (colors and bin width) to
+       get a 'better' result
+
+
+
+ 2001/04/02: Thomas Bretz
+ 
+   * mraw/MRawEvtHeader.h, mraw/MRawFileWrite.cc:
+     - added constants (kTT*) for trigger type
+   
+   * manalysis/MImgCleanStd.[h,cc]:
+     - added changeable cleaning levels
+ 
+   * manalysis/MHillas.cc:
+     - added some more sanity checks to the calculation
+     
+   * manalysis/MCT1ReadAscii.[h,cc]:
+     - added some kind of chain feature (AddFile) to process more than one file
+ 
+   * mgui/MGeomPix.[h,c]:
+     - added interface to pixel neighbors
+ 
+   * mgui/MGeomCamCT1.[cc,h], mgui/MGeomCamMagic.[cc,h]:
+     - creates the neighbor geomtry now, too
+ 
+   * manalysis/MImgCleanStd.[cc,h]:
+     - switched to new stylish neighbors from MGeomCam
+
+
+
+ 2001/03/30: Thomas Bretz
+ 
+   * mdatacheck/MH*, mdatacheck/MFillH*:
+     - moved to mhist
+   
+   * mraw/MrawEvtPixelIter:
+     - IsLoGain -> HasLoGain
+   
+   * mgui/MG*:
+     - renamed
+     - moved to mmain
+     - move Browser functionality to MBrowser
+ 
+   * mmain/, mhist:
+     - new
+
+
+
+ 2001/03/21: Thomas Bretz
+                            
+   * manalysis/MHillas.[h,cc]:
+     - fixed some minor errors, added sanity check (N<2) to Calc
+
+   * manalysis/MFillHHillas.cc:
+     - skip event if Hillas calculations fails
+     
+   * macros/getCollArea.C, macros/readMagic.C, 
+     mdatacheck/MViewAdcSpectra.cc, meventdisp/MGFadcDisp.cc:
+     - changed order in MReadTree constructor
+
+   * manalysis/MCT1ReadAscii.[h,cc]:
+     - changed to use MPedestalCam
+     
+   * manalysis/MCT1Pedestals.[h,cc]:
+     - removed
+     
+   * manalysis/Makefile, manalysis/AnalysisLinkDef.h:
+     - removed MCT1Pedestals
+     
+   * mbase/BaseLinkDef.h:
+     - added const values from Magic.h
+     
+   * mbase/MLogManip.h:
+     - changed style of dbginf
+   
+   * mbase/MParList.cc:
+     - make use of dbginf
+     
+   * mbase/MReadTree.[h,cc]:
+     - switched from a TTree to a TChain object
+     - chnaged order of variables of the constructor
+
+
+
+ 2001/03/21: Thomas Bretz
+                                                                  
+   * macros/CT1Hillas.C, manalysis/MImgCleanStd.cc, manalysis/MImgCleanStd.h,
+     manalysis/MMcPedestalCopy.cc, manalysis/MMcPedestalCopy.h,
+     manalysis/MCerPhotCalc.h, manalysis/MCerPhotCalc.cc, mdatacheck/MHHillas.h,
+     mdatacheck/MHHillas.cc, mdatacheck/MFillHFadc.cc, mdatacheck/MFillHFadc.h,
+     mdatacheck/MHFadcCam.cc, mdatacheck/MHFadcCam.h, mdatacheck/MHFadcPix.cc,
+     mdatacheck/MHFadcPix.h, mdatacheck/MFillHHillas.cc, 
+     mdatacheck/MFillHHillas.h
+     - added
+
+   * mdatacheck/MHistosAdc.[h,cc]:
+     - replaced by MHFadc[Cam,Pix]
+
+   * mdatacheck/MFillAdcSpect.[h,cc]:
+     - replaced by MFillHFadc
+
+   * macros/readCT1.C:
+     - uses the new classes now
+     - calculates and displays hillas
+
+   * manalysis/AnalysisLinkDef.h:
+     - added MCerPhotCalc, MImgCleanStd, MMcPedestalCopy
+
+   * manalysis/MCT1ReadAscii.cc:
+     - PreProcess uses FindCreateObj now
+
+   * manalysis/MCerPhotEvt.cc, manalysis/MPedestalCam.cc:
+     - changed the new back to 'new with placement'
+
+   * manalysis/MCerPhotEvt.[h, cc]:
+     - removed cleaning from this class
+
+   * manalysis/MHillas.cc:
+     - some small changes in the naming inside Calc()
+
+   * manalysis/MHillas.h:
+     - added Get-functions
+     
+   * manalysis/MPedestalCam.h:
+     - added InitSize-function
+     
+   * manalysis/MPedestalPix.h:
+     - made Get-functions const
+     
+   * manalysis/Makefile:
+     - added MMcPedestalCopy, MImgCleanStd, MCerPhotCalc
+     
+   * mbase/MLogManip.h:
+     - "l." before line number
+     
+   * mbase/MParList.cc:
+     - added the autodelete feature for automatically created classes
+     
+   * mdatacheck/DataCheckLinkDef.h:
+     - added MHFadc[Cam,Pix], MHHillas
+     - removed MHistosAdc
+     - added MFillHFadc, MFillHHillas
+     
+   * mdatacheck/MGDisplayAdc.[h,cc], MShowSpect.[h,cc],
+     mdatacheck/MViewAdcSpectra.[h,cc], :
+     - changed from MHistaosAdc to MHFadcCam
+     
+   * mdatacheck/Makefile:
+     - added MFillHFadc.cc, MFillHHillas.cc
+     - removed MFillAdcSpect.cc
+
+   * manalysis/MCT1ReadAscii.h, mbase/MEvtLoop.h, mbase/MLog.h,
+     mbase/MParList.h, mbase/MReadTree.h, mbase/MTask.h,
+     mbase/MTaskList.h, mdatacheck/MDumpEvtHeader.h,
+     meventdisp/MGFadcDisp.h, mgui/MCamDisplay.h,
+     mgui/MCamNeighbor.h, mgui/MGDataCheckMain.h,
+     mgui/MGEventDispMain.h, mgui/MGMarsMain.h,
+     mgui/MGMonteCarloMain.h, mgui/MGPrototyp.h, mgui/MHexagon.h,
+     mmontecarlo/MCollAreaTrigger.h, mraw/MRawEvtPixelIter.h,
+     mraw/MRawFileRead.h, mraw/MRawFileWrite.h:
+     - set version number to '0' (no i/o for this class)
+
+   * mgui/MGeomCamCT1.cc:
+     - new claculation algorith for the CT1 camera. It is more
+       exact in the camera plain
+       
+   * mgui/MHexagon.cc:
+     - removed Draw-function (it is inherited from TObject)
+     
+   * mmc/MMcFadcHeader.hxx:
+     - Added get-functions
+     
+
+
+
+ 2001/03/20: Thomas Bretz
+                                                                  
+   * manalysis/MPedestalPix.[h,cc], manalysis/MPedestalCam.[h,cc],
+     manalysis/MHillas.[h,cc], manalysis/MHillasCalc.[h,cc],
+     mgui/MGeomCamCT1.[h,cc], mgui/MGeomCamMagic.[h,cc]
+     - added
+
+   * macros/readCT1.C:
+     - added calculation of Hillas parameters
+     - changed from pointers to objects
+
+   * manalysis/AnalysisLinkDef.h, manalysis/Makefile:
+     - added MPedestalPix/Cam, MHillas, MHillasCalc
+
+   * manalysis/MCerPhotEvt.[h,cc]:
+     - removed fType
+     - commented out Draw function - should be fixed soon
+     - renamed *Nb* to *Num*
+     - renamed Get[Min,Max]NumPhotons to GetNumPhontons[Min,Max]
+
+   * meventdisp/MGFadcDisp.[h,cc]:
+     - changed parameter of ReadinEvent to unsigned
+
+   * mgui/GuiLinkDef.h, mgui/Makefile:
+     - added MGeomCamCT1, MGeomCamMagic
+
+   * mgui/MCamDisplay.[h,cc]:
+     - changed constructor argument from int to MGeomCam
+     - renamed *Nb* to *Num*
+
+   * mgui/MGeomCam.[h,cc]:
+     - removed all camara specific stuff
+     - MGeomCam is now used as a base class for the classes
+       MGeomCam[Magic,CT1] which are containing the camera specific stuff
+
+   * mgui/MGeomPix.h:
+     - added Set function
+
+
+
+ 2001/03/02: Thomas Bretz
+   
+   * manalysis/Makefile, mdatacheck/Makefile, meventdisp/Makefile,
+     mgui/Makefile: 
+     - new
+   
+   * mbase/MParList.[cc,h]: 
+     - Added FindCreateObj member function
+     - added a name to the constructor
+ 
+   * mbase/MReadTree.cc: 
+     - changed to use FindCreateObj
+
+   * mdatacheck/MDumpEvtHeader.cc: 
+     - removed fPixelIter from member list
+     - changed cout to *fLog
+   
+   * mdatacheck/MViewAdcSpectra.cc:
+     - removed a HUGE memory leak. All the objects in the list (and the
+       lists itself were NEVER deleted)
+   
+   * mdatacheck/MFillAdcSpect.cc
+     - removed fPixelIter from member list
+     - changed cout to *fLog
+     - changed to use FindCreateObj
+     - changed high and low to hi and lo
+   
+   * mdatacheck/MShowSpect.cc
+     - changed cout to *fLog
+     - added a name to the constructor
+   
+   * mraw/MRawFileRead.cc:
+     - changed to use FindCreateObj
+   
+   * mdatacheck/MGDisplayAdc.[h,cc]: 
+     - added some new member functions to make code more clear
+     - removed fHists from the destructor
+   
+   * mdatacheck/MHistosAdc.h:
+     - changed high and low to hi and lo
+
+   * macros/dohtml.C:
+     - added manalysis
+
+
+
+ 2001/03/01: Thomas Bretz
+
+   * Makefile: 
+     - added headers to dependencies
+ 
+   * Makefile.rules: 
+     - added headers to dependencies
+ 
+   * merpp.cc: 
+     - changed from pointers to objects
+     - added compression level support
+ 
+   * readraw.cc: 
+     - removed unnecessary includes
+ 
+   * mbase/MArray*.*: 
+     - changed all Int_t to UInt_t
+ 
+   * mbase/MLogManip.h: 
+     - changed name of __DINF__ to dbginf
+ 
+   * mraw/MRawCrateData.[h,cc], mraw/MRawEvtHeader.[h,cc],
+     mraw/MRawRunHeader.[h,cc]: 
+     - changed ifstream to istream
+     
+   * mraw/MRawEvtData.cc: 
+     - changed the reading, which speeds up merpp by a factor of 10
+   
+   * mraw/MRawEvtData.h: 
+     - added flag to InitArrays and DeletePixels 
+       (not yet used)
+
+   * mraw/MRawFileRead.h: 
+     - removed pParList from parameter list
+ 
+   * manalysis/AnalysisLinkDef.h
+     - removed MReadCT1Ascii, added MCT1ReadAscii
+     - added MCT1Pedestals
+   
+   * manalysis/MCerPhotEvt.[h,cc]:
+     - changed the constructor a little bit
+     - rewrote Print() to make it a bit more readable
+     - moved MCerphotPix to new File
+     - added many lines of comments
+     - exchanged old stylish new call with new stylish(=) one
+     - replaced all accesses to fPixels with the [] operator to make this
+       lines more readable
+     - made all variable declarations const-correct,
+     - I changed the style of the cleaning method from if(a){if()b{if(c){}}}
+       to if(!a)continue; if(!b)continue if(!c) continue; to make it more
+       compact, readable and easier to understand
+     - renamed the Boolean-functions to Is* to get a stricter structure
+     - replaced mapping function to access the pixel list entries by the new 
+       operator to get rid of more than the necessary number of member 
+       functions without loosing speed or readability
+     - renamed GetMinimum/MaximumPhoton to GetMin/MaxNumPhotons to be 
+       more exact
+   
+   * mgui/MCamGeom.* splitted and changed to MGeomCam/Pix:
+     - added a new operator to access the TObjArray
+     - removed unnecessary code from CreateCT1
+ 
+   * mbase/MAGIC.h: 
+     - added kPI
+ 
+   * mbase/MReadTree.cc: 
+     - added some comments
+ 
+   * mgui/MCamDisplay.[h,cc]: 
+     - added some comments, reordered a bit the calls in the constructor 
+       to get a 'straight forward structure', MGeomCam is now only
+       locally used where it is needed, replaced access to the 
+       TClonesArrays by new member-function to get a more readable code,
+       replaced old stylish new call with new stylish one, made
+       variable decleration const-correct, introduced a new member function
+       to set the pixel color, renamed the overloaded Draw functions to
+       DrawPhotons, DrawPhotErr to prevent missunderstatements, changed
+       the 'layout' of GetColor to make it easier to understand the algorithm,
+   
+   * mgui/MCamNeighbor.[h, cc]:
+     - changed to new log-interface
+     - exchanged -9999 by -1
+     - skipped the exits
+     - you must check for -1 one in any case
+     - this means a warning should be enough
+   
+   * mgui/MHexagon.[h,cc]:
+     - added new constructor whcih uses a MGeomPix-object
+
+
+
+ 2001/02/28: Thomas Bretz
+
+   * mbase/MParList.[h,cc]: 
+      - changed return type of FindObject back to TObject
+      - it seems so, that some compilers don't like overriding the
+        return type of a virtual member function
+
+
+
+ 2001/02/23: Thomas Bretz
+
+   * mraw/MRawEvtPixelIter.h: 
+      - added GetSum* functions
+
+   * mbase/MParList.[h,cc]: 
+      - Removed unnecessary fNext-stuff
+
+
+
+ 2001/02/22: Thomas Bretz
+
+   * merpp.cc, readraw.cc, mbase/MParContainer.cc, mbase/MParList.cc,
+     mbase/MParList.h, mbase/MReadTree.cc, mbase/MTask.cc, mbase/MTask.h,
+     mbase/MTaskList.cc, mbase/MTime.cc, mdatacheck/MDumpEvtHeader.cc,
+     mdatacheck/MShowSpect.cc, meventdisp/MGFadcDisp.cc, mgui/MGPrototyp.h,
+     mmc/MHeaderTrig.cxx, mraw/MRawCrateArray.cc, mraw/MRawEvtData.cc,
+     mraw/MRawEvtHeader.cc, mraw/MRawFileRead.cc, mraw/MRawFileWrite.cc,
+     mraw/MRawRunHeader.cc:
+      - exchanged cout with the new logging style (gLog, *fLog)
+
+   * mraw/MRawEvtData.cc: 
+      - added 'dec' option to Print
+  
+   * mmc/MHeaderTrig.cxx, mmc/MMcEvt.cxx, mmc/MMcTrig.cxx:
+      - small changes to the Print funtions
+
+
+
+ 2001/02/21: Thomas Bretz
+
+   * MRawEvtData.cc: 
+      - Changed ReadEvt according to the new raw binary format 2001/02/20
+     
+   * Added MLog.[h,cc], MLogManip.[h,cc]
+   
+   * Adde SetStreamer and fLog to the MParContainer base class
+   
+   * Derived MEvtLoop from MParContainer
+
+   * Makefile: 
+      - added 'tar'
+
+   * mbase/BaseIncl.h: 
+      - added fstream.h, TGListBox.h
+ 
+   * mbase/BaseLinkDef.h: 
+      - added pragma for gLog and MLog
+ 
+   * mbase/MAGIC.h: 
+      - added forward definition for gLog
+ 
+   * mbase/MEvtLoop.cc: 
+      - exchanged cout with *fLog
+      - added statements to provide log-facility to all tasks als parameter 
+        containers
+    
+   * mbase/MEvtLoop.h: 
+      - Small changes
+  
+   * mbase/MParContainer.h: 
+      - Added definitions necessary for use of Log-Facility
+  
+   * mbase/MParList.[h,cc]: 
+      - Added SetLogStream
+  
+   * mbase/MTask.h: 
+      - added fLog
+  
+   * mbase/MTaskList.[h,cc]: 
+      - added SetLogStream
+  
+   * mbase/Makefile: 
+      - Added MLog.cc, MLogManip.cc
+
+
+
+ 2001/02/19: Harald Kornmayer	
+
+  *  implemented the Image Cleaning a la CT1 to the class MCerPhotEvt
+  
+  *  changed the readCT1.C file to show the effects of the image cleaning
+     a la CT1
+
+  *  changed 
+	mgui/MCamNeighbor.cc
+	mananlysis/MCerPhotEvt.cc  .h 
+	macros/readCT1.C
+
+
+
+ 2001/02/19: Thomas Bretz
+
+   * MParContainer.h added prototypes for AsciiRead/Write
+
+   * .rootrc added
+
+   * MEvtLoop.[h,cc]: 
+      - split eventloop in its three parts, this should be used for 
+        debugging only.
+
+
+
+ 2001/02/06: Harald Kornmayer
+
+   *  the first running version with a eventdisplay. Now we are able
+      to display an Event on the photo electron level. To do this, run
+      the macro "macros/readCT1.C" after changing the file name. 
+
+      changed: 
+	macros/readCT1.C
+	manalysis/MNphotEvent.cc, manalysis/MNphotEvent.h
+	analysis/MReadCT1Ascii.cc
+	mgui/MCamDisplay.cc, mgui/MCamDisplay.h
+
+
+
+ 2001/01/23: Harald Kornmayer
+
+   *  the integration of the class FadcDisp in the mars enviroment
+      and further developments in the display
+
+      changed: 
+	meventdisp/MGFadcDisp.h
+	meventdisp/MGFadcDisp.cc
+	mgui/GuiIncl.h
+	mgui/GuiLinkDef.h
+	mgui/MGMarsMain.cc
+	mgui/MGPrototyp.cc
+	mgui/MGPrototyp.h
+	mgui/Makefile
+
+      added: 
+	mgui/MGEventDispMain.h
+	mgui/MGEventDispMain.cc
+
+
+
+ 2001/01/22: Harald Kornmayer
+
+   *  started with the development of a EventDisplay Utitliy. 
+      Therefore I added the following files. 
+
+      meventdisp/EvtDispIncl.h
+      meventdisp/EvtDispLinkDef.h
+      meventdisp/MGFadcDisp.cc
+      meventdisp/MGFadcDisp.h
+      meventdisp/Makefile
+
+      Also a few of the older files where slightly changed. 
+      ./Makefile
+      ./Makefile.rules
+      mraw/MRawEvtData.
+      
+
+
+ 2001/01/19: Thomas Bretz
+
+    * mmc/*.hxx:
+       - changed include of MDefineTrigger.h back
+
+
+
+ 2001/01/19: Oscar Blanch
+
+    * mmc/MTriggerDefine.h:
+       - added
+
+
+
+ 2001/01/18: Thomas Bretz
+
+    * Makefile:
+       - mmc-library added
+
+    * Makefile.conf.general:
+       - Added definition of __MARS__
+
+    * Makefile.rules:
+       - Added definitions to rootcint
+
+    * Oscar added the McFormat subdir of the Monte Carlo as mmc
+
+    * mmc/MMcEvt.h:
+       - renamed to MMcEvt.hxx
+
+    * mmc/*.hxx:
+       - added necessary defintions from MDefineTrigger.h
+
+    * mmc/Makefile, mmc/McLinkDef.h, mmc/McIncl.h, mmc/readme.txt:
+       - added
+
+    * mmc/LinkDef.h:
+       - removed
+
+
+
+ 2001/01/17: Thomas Bretz
+
+    * Makefile:
+       - Exchanged explicit rules to make library by implicit ones
+       - The shared object works now. I exchanged the libraries with the object
+         files. But I don't know why the libraries don't work.
+
+    * Makefile.conf.linux-gnu:
+       - replaced CC with gcc (instead of g++)
+
+    * mdatacheck/DataCheckLinkDef.h:
+       - removed unused statements
+
+    * mraw/RawLinkDef.h:
+       - added globals
+
+    * mraw/MerppLinkDef.h:
+       - removed unused file
+
+
+
+ 2001/01/12: Thomas Bretz
+
+    * MLinkDef.h, MIncl.h, marslogo.xpm, magiclogo.xpm:
+       - added
+
+    * LinkDef.h:
+       - removed
+
+    * Makefile:
+       - Added CINT, mrproper
+
+    * mbase/Makefile, mraw/Makefile, mgui/Makefile, mdatacheck/Makefile:
+       - included makefile.general, Makefile.rules,
+       - removes corresponding lines
+
+    * mdatacheck/MDumpEvtHeader.[h,cc], mdatacheck/MFillAdcSpect.[cc,h],
+      mdatacheck/MFillAdcSpect.[h,cc], mdatacheck/MGDisplayAdc.[cc,h],
+      mdatacheck/MHistsosAdc.[h,cc], mdatacheck.MShowSpect.[cc,h]
+       - changed include statements
+
+    * mgui/MGDataCheckMain.[cc,h], mgui/MGMarsMain.[cc,h]
+       - changed include statements
+       - move enum from h to cc
+       - removed comma operator from delete statements (nonsense)
+
+
+
+ 2001/01/11: Harald Kornmayer
+
+    * ./
+      readraw.cc, Makefile, Makefile.rules, LinkDef.h, MParList.cc, MReadTree.cc,
+      MReadTree.h, mbase/Makefile, mraw/Makefile
+       - small changes in this files. Not really critical.
+
+    * mars.cc
+       - added the main file for the gui
+
+    * mgui/
+      GuiIncl.h, MGMarsMain.cc, GuiLinkDef.h, MGMarsMain.h, MGDataCheckMain.cc,
+      Makefile, MGDataCheckMain.h
+       - added the subdir mgui and this files
+
+    * mdatacheck/
+      DataCheckIncl.h, DataCheckLinkDef.h, MHistosAdc.cc, MHistosAdc.h,
+      MDumpEvtHeader.cc, MDumpEvtHeader.h, MShowSpect.cc, MShowSpect.h,
+      MFillAdcSpect.cc, MFillAdcSpect.h, MViewAdcSpectra.cc, MViewAdcSpectra.h,
+      MGDisplayAdc.cc, MGDisplayAdc.h, Makefile
+       - added the subdir mdatacheck and this files
+
+
+
+ 2000/12/28: Thomas Bretz
+
+    * merpp.cc, MArray.cc, MArray.h, MArrayB.cc, MArrayB.h, MArrayS.cc,
+      MArrayS.h, MEvtLoop.cc, MEvtLoop.h, MInputStreamID.cc, MInputStreamID.h,
+      MParContainer.cc, MParContainer.h, MParList.cc, MParList.h, MReadTree.cc,
+      MTask.cc, MTask.h, MTaskList.cc, MTaskList.h, MTime.cc, MTime.h:
+       - Added changes some comments.
+
+    * MLoopEvt.cc, MLoopEvt.h:
+       - Removed
+
+
+
+ 2000/12/22 - Thomas Bretz:
+
+    * readraw.cc:
+       - changed some comments and the Root-Name of the program
+       - added check for the existance of the file
+       - changed name of numbers of entries from iEnt to nent
+
+    * dohtml.C:
+       - changed title of converted macros
+
+    * MRawEvtData.cc:
+       - added a commet in Draw()
+
+    * MRawEvtPixelIter.[h,cc]:
+       - Added the comment header of the file
+       - removed inheritance from TIterator (not needed)
+       - some changes to get it work (the one in the repository was untested
+         and not working)
+       - changed calling style of iterator from do...while to while-loop
+       - changed some comments
+
+    * MRawRunHeader.cc:
+       - added some comments
+
+    * Changelog, News: added
+
+    * test.C: removed

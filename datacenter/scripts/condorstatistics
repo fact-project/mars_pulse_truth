@@ -1,0 +1,89 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  07/2008 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2008
+#
+#
+# ========================================================================
+#
+# This script reads the output of the cronjob
+#  /usr/local/bin/condor_status -state 
+# which is stored in /magic/datacenter/autologs/condor/YYYY/MM/DD
+# and fills it to the database (table CondorStatus). 
+# The output of the cronjob
+#  /usr/local/bin/condor_userprio -all -usage -activefrom 1 1 2000 
+# is not jet filled.
+# After filling the directories are tared. 
+#
+# From the database plots are produced (root, pdf and png files) and 
+# moved to the webdirectory.
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=condorstatistics
+
+set -C
+
+scriptlog=$runlogpath/$program-$datetime.log
+date >> $scriptlog 2>&1
+
+# check if script is already running
+lockfile=$lockpath/lock-$program.txt
+checklock  >> $scriptlog 2>&1
+
+condorpath=$logpath/condor
+dates=`find $condorpath -mindepth 3 -maxdepth 3 -type d -regex "^$condorpath/20[01][0-9]/[01][0-9]/[0-3][0-9]$"`
+
+for date in ${dates[@]}
+do
+   cd $mars
+   
+   echo "filling condor statistics for $date... " >> $scriptlog 2>&1
+   printprocesslog "INFO filling condor statistics for $date"
+   check0=`root -q -b $macrospath/fillcondor.C+\("\"$date\""\,kFALSE\) | tee -a $scriptlog | intgrep`
+   
+   case $check0 in 
+      1)   echo " check0=$check0 -> everything ok -> move files" >> $scriptlog 2>&1
+           printprocesslog "INFO condor statistic filled succesfully"
+           day=`basename $date`
+           cd `dirname $date`
+           if ! tar -czf $day.tar.gz $day/*  >> $scriptlog 2>&1
+           then 
+              printprocesslog "WARN tarring $date failed"
+              echo "tarring $date failed" >> $scriptlog 2>&1
+           else
+              if ! rm -r $day >> $scriptlog 2>&1
+              then 
+                 printprocesslog "WARN removing of $date failed"
+              fi
+           fi
+           cd $mars
+           ;;
+      *)   echo " check0=$check0 -> ERROR -> couldn't fill condor statistic to DB -> exit" >> $scriptlog 2>&1
+           printprocesslog "ERROR filling condor statistic to DB failed"
+           finish >> $scriptlog 2>&1
+           ;;
+   esac
+done
+
+finish >> $scriptlog 2>&1
+

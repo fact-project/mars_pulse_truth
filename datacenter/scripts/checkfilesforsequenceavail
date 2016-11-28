@@ -1,0 +1,87 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2004 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2007
+#
+#
+# ========================================================================
+#
+# This script launches the checking of the availability of the files for 
+# the sequences. 
+#
+# After checking if the script is already running the todolist is written.
+# Then for each sequence the availability of the files (raw, cc, caco) is 
+# checked by using the macro checkfilesavail.C 
+# If this was successful, the status is inserted into the database using 
+# the function setstatus.
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=checkfilesavail
+column=fAllFilesAvail
+
+set -C
+
+# check if script is already running
+lockfile=$lockpath/lock-$program.txt
+checklock 
+
+# get todo list
+gettodo 
+
+cd $mars
+
+for (( s=0 ; s < $num ; s++ ))
+do
+   sequence=${primaries[$s+$s]}
+   telnum=${primaries[$s+$s+1]}
+   printprocesslog "INFO checking files for sequence $sequence"
+   no=`printf %08d $sequence | cut -c 0-4`
+   no2=`printf %08d $sequence`
+   checkfileavailpath=$logpath/$program/$no
+   makedir $checkfileavailpath 
+   checkfileavaillog=$checkfileavailpath/$program-$no2.log
+
+   setstatus "start" 
+
+   check1=`root -q -b $macrospath/checkfileavail.C+\($sequence,$telnum\) | tee $checkfileavaillog | intgrep`
+
+   case $check1 in
+      1)   printprocesslog "INFO files available for sequence $sequence (check1=$check1)"
+           ;;
+      2)   printprocesslog "INFO files not yet available for sequence $sequence (check1=$check1)"
+           check="no"
+           ;;
+      0)   printprocesslog "WARN connection to DB failed (check1=$check1)"
+           check="no"
+           ;;
+      *)   printprocesslog "ERROR $program.C failed for sequence $sequence (check1=$check1)"
+           com=$Ffilesavail
+           check=$check1
+           ;;
+   esac
+
+   setstatus "stop" 
+done
+
+finish 
+

@@ -1,0 +1,99 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2006 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2007
+#
+#
+# ========================================================================
+#
+# This a script, which launches other scripts
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0 $@"
+
+errorlog=$runlogpath/scriptlauncher-error`date +%F`.log
+scriptlog=$runlogpath/scriptlauncher`date +%F`.log
+
+echo `date`": starting $0 $@" >> $scriptlog 2>&1
+
+path=`dirname $0`
+date=`date +%Y-%m-%d`
+
+num=$#
+echo "$num scripts have to be launched" >> $scriptlog 2>&1
+i=1
+
+if echo $@ | grep "allatthesametime" >/dev/null 2>$errorlog
+then
+   all="yes"
+else
+   all="no"
+fi
+
+while [ $i -le $num ]
+do 
+   com=( )
+   prog=
+   if [ "$1" = "allatthesametime" ]
+   then
+      shift
+      i=`expr $i + 1`
+      continue
+   fi
+   com=( $1 )
+   prog=${com[0]}
+   if ! ls $path/${com[0]} >/dev/null 2>&1
+   then
+      echo "script $path/$1 does not exist." >> $scriptlog 2>&1
+      shift
+      i=`expr $i + 1`
+      continue
+   fi
+   if [ `echo $1 | wc -w` -gt 1 ]
+   then
+      unset com[0]
+      arguments="${com[@]}"
+   fi
+   echo " launching $1..." >> $scriptlog 2>&1
+   echo "$condorpath/condor_submit -a path=$path -a prog=$prog -a args=\"$arguments\" -a date=$date -a dir=$runlogpath -a automationsetup=$AUTOMATIONSETUP $path/run.condor 2>> $errorlog | grep 'submitted to cluster' | cut -dr -f2" >> $scriptlog 2>&1
+   pid=`$condorpath/condor_submit -a path=$path -a prog=$prog -a args="$arguments" -a date=$date -a dir=$runlogpath -a automationsetup=$AUTOMATIONSETUP $path/run.condor 2>> $errorlog | grep 'submitted to cluster' | cut -dr -f2`
+   if [ "$pid" = "" ]
+   then 
+      echo `date`" WARN condor is not working " >> $errorlog 2>&1
+      printprocesslog "WARN submitting $1 to condor failed"
+      shift
+      i=`expr $i + 1`
+      continue
+   fi
+   if [ "$all" = "no" ]
+   then
+      echo "  waiting for $1 to be done..." >> $scriptlog 2>&1
+      $condorpath/condor_wait $runlogpath/condor-$date.log $pid >/dev/null 2>$errorlog
+   fi
+   shift
+   i=`expr $i + 1`
+done
+echo `date`": all done/submitted." >> $scriptlog 2>&1
+echo "" >> $scriptlog 2>&1
+
+printprocesslog "INFO finished $0 $@"
+

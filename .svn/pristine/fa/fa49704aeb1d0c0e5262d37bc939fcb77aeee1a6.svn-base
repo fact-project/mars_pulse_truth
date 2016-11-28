@@ -1,0 +1,332 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  05/2006 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2010
+#
+#
+# ========================================================================
+#
+# This a script, which launches other scripts (all scripts, that are run 
+# on primary basis)
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+
+set -C
+
+# function to continue in loop and go to next script
+function sleepawhile()
+{
+   usedsleeptime=$sleeptime
+   case $1 in 
+      "error") if ! [ "$errorsleeptime" = "" ]
+               then 
+                  if [ $errorsleeptime -lt $sleeptimelimit ]
+                  then 
+                     errorsleeptime=`echo " $errorsleeptime + $errorsleeptimedefault " | bc`
+                  fi
+                  usedsleeptime=$errorsleeptime
+               fi
+               ;;
+         "ok") errorsleeptime=$errorsleeptimedefault
+               ;;
+   esac
+   echo `date +%F\ %T`" sleeping "$usedsleeptime" seconds... (status: "$1")" >> $jmscriptlog 2>&1
+   echo "" >> $jmscriptlog 2>&1
+   sleep $usedsleeptime
+   continue
+}
+
+echo "" >> $jmscriptlog 2>&1
+echo "" >> $jmscriptlog 2>&1
+echo -n `date +%F\ %T`" starting jobmanager for setup "$AUTOMATIONSETUP >> $jmscriptlog 2>&1
+
+user=`whoami`
+
+# choose commands according to queueing system (defined in setup)
+case $queuesys in
+      sge)  echo " on queuing system 'sun grid engine'" >> $jmscriptlog 2>&1
+            # (-hard) -l hostname=compute-*
+            #   for qstat this returns the jobs running on that node + all jobs in the queue
+            alias 'queuesubmit'='/opt/gridengine/bin/lx26-amd64/qsub -b y -t 1-`echo $tosubmit` -v AUTOMATIONSETUP=$AUTOMATIONSETUP -e `echo $runlogpath`/error-`echo $date`.log -o `echo $runlogpath`/log-`echo $date`.log `echo $noderequirementsub` `echo $scriptspath`/`echo ${scripts[$i]}` '
+#            alias 'queuesubmit'='/opt/gridengine/bin/lx26-amd64/qsub -b y -v AUTOMATIONSETUP=$AUTOMATIONSETUP -e `echo $runlogpath`/error-`echo $date`.log -o `echo $runlogpath`/log-`echo $date`.log `echo $scriptspath`/`echo ${scripts[$i]}` '
+#            alias 'queuesubmit'='/opt/gridengine/bin/lx26-amd64/qsub -sc runlogpath=`echo $runlogpath` -sc date=`echo $date` -sc scriptspath=`echo $scriptspath` -sc script=`echo ${scripts[$i]}` `echo $scriptspath`/job.sge '
+            # FIXME: get complete scriptname (including command line option), needed for runstereo
+            alias 'checkqueue'="/opt/gridengine/bin/lx26-amd64/qstat \`echo \$noderequirementstat\`  | awk ' { print \"Owner\"\$4\" \" \$3\"Jobstatus\"\$5 } '"
+            break
+            ;;
+      pbs)  echo " on queuing system 'pbs'" >> $jmscriptlog 2>&1
+            alias 'queuesubmit'='$pbspath/qsub -t 1-`echo $tosubmit` -l walltime=`echo $walltime` -l pmem=`echo $pmem` -v AUTOMATIONSETUP=$AUTOMATIONSETUP,SOURCEFILEPATH=$SOURCEFILEPATH,SCRIPTNAME=`echo ${scripts[$i]}` -e `echo $runlogpath`/error-`echo $date`.log -o `echo $runlogpath`/log-`echo $date`.log `echo $noderequirementsub` `echo $scriptspath`/`echo ${scripts[$i]}` '
+            # check queue (restricted to current user only)
+            alias 'checkqueue'="$pbspath/qstat -a -u $user | awk ' { print \"Owner\"\$2\" \" \$4\"Jobstatus\"\$10 } '"
+            break
+            ;;
+   condor)  echo " on queuing system 'condor'" >> $jmscriptlog 2>&1
+            alias 'queuesubmit'='$condorpath/condor_submit -a path=`echo $scriptspath` -a prog=`echo ${scripts[$i]}` -a date=`echo $date` -a dir=`echo $runlogpath` -a num=`echo $tosubmit` -a automationsetup=$AUTOMATIONSETUP `echo $scriptspath`/run.condor'
+            alias 'checkqueue'='$condorpath/condor_q -global -format "Owner%s " Owner -format "%s" CMD -format "Jobstatus%s\n" Jobstatus '
+            break 
+            ;;
+        *)  echo "" >> $jmscriptlog 2>&1
+            finish >> $jmscriptlog 2>&1
+            ;;
+esac
+
+echo "" >> $jmscriptlog 2>&1
+
+# for processing with local storage on different nodes
+currentnode=$minnode
+numevaluated=0
+
+# endless loop
+notcount=0
+errorsleeptime=$errorsleeptimedefault
+while (( $notcount < 100 ))
+do
+   # get and set some information for the processing
+   source `dirname $0`/sourcefile
+   # reset some values
+   tosubmit=0
+   idleratio=0
+   addtoscript=
+   
+   # get processes in queue
+   q=(`checkqueue 2>&1 `)
+   if echo $q | egrep \(Error\|failed\)
+   then 
+      echo `date +%F\ %T`" WARN checking query ($queuesys) failed" >> $jmscriptlog 2>&1
+      printprocesslog "WARN checking query ($queuesys) failed"
+      echo `date +%F\ %T`" WARN checking query ($queuesys) failed" >> $jmerrorlog
+      sleepawhile "error"
+   fi
+
+   # general check whether one should submit something depending on chosen algorithm
+   # algorithm 1: 
+   #   submit new jobs in case there are less than $limitidle idle jobs in the queue
+   # algorithm 2: 
+   #   submit new jobs in case the total number of jobs in the queue has fallen below $totalpno
+   case $algorithm in
+      1) # algorithm 1
+         # get number of idle jobs in the queue
+         q5=( `echo ${q[@]} | egrep -o \(Jobstatus1\|Jobstatusq\|JobstatusQ\)` )
+         idle=${#q5[@]}
+         if [ $idle -gt $limitidle ]
+         then 
+            echo `date +%F\ %T`" more than "$limitidle" jobs waiting ("$idle")" >> $jmscriptlog 2>&1
+            sleepawhile "ok"
+         fi
+         ;;
+      2) # algorithm 2
+         # get processes of user in queue
+         q1=( `echo ${q[@]} | egrep -o "Owner$user"`)
+         queued=${#q1[@]}
+         hour=`date +%k`
+         # choose array of total number of jobs to be done 
+         #   according to the day of the week
+         dayofweek=`date +%u`
+         case $dayofweek in
+            0 | 6)  totalpno=${pnototal[$hour]} ;;
+                *)  totalpno=${pnototalwe[$hour]} ;;
+         esac
+         # get total number of jobs to be submitted
+         if [ $queued -gt $totalpno ]
+         then 
+            echo `date +%F\ %T`" more than "$totalpno" jobs waiting ("$queued")" >> $jmscriptlog 2>&1
+            sleepawhile "ok"
+         else
+            tosubmittotal=`echo "$totalpno - $queued" | bc -l`
+         fi
+         ;;
+      *) echo "Please give an algorithm to calculate the number of allowed jobs."
+         exit
+         ;;
+   esac
+   echo `date +%F\ %T`" Total number of jobs to be submitted: "$tosubmittotal >> $jmscriptlog 2>&1
+
+
+   # first loop to determine 
+   # a) how many jobs of this script have to be done
+   # b) how many jobs of this script are running or queued
+   for (( i=0 ; i < ${#scripts[@]} ; i++ ))
+   do 
+      # set the step to be evaluated
+      step=${scriptscolname[$i]}
+      getstepinfo
+
+      # check if the script is restricted to one node 
+      #   (i.e. where output of previous step(s) is stored)
+      #   this information is taken from the steps.rc file
+      #   currently this is implemented for sge only
+      # then get number of jobs to be done 
+      if [ "$noderestricted" = "yes" ]
+      then
+         # get number of next node 
+         if [ $numevaluated -ge $numrestrictedscripts ]
+         then 
+            currentnode=`echo " $currentnode + 1 " | bc -l`
+            numevaluated=1
+         else
+            numevaluated=`echo " $numevaluated + 1 " | bc -l`
+         fi
+         if [ $currentnode -gt $maxnode ]
+         then 
+            currentnode=$minnode
+         fi
+         # check if node is excluded
+         for excludednode in ${excludednodes[@]}
+         do
+            if [ $currentnode -eq $excludednode ]
+            then
+               echo `date +%F\ %T`" Node compute-0-$currentnode is currently excluded." >> $jmscriptlog 2>&1
+               continue 2
+            fi
+         done
+         # define requirement for submission 
+         # FIXME: currently only for sge at isdc
+         echo `date +%F\ %T`" Checking for node $currentnode. " >> $jmscriptlog 2>&1
+         noderequirementsub=" -hard -l hostname=compute-0-${currentnode}"
+         noderequirementstat=" -l hostname=compute-0-${currentnode}"
+         # get number of jobs to be done from the DB
+         getstatus $currentnode >> $jmscriptlog 2>&1
+      else
+         noderequirementsub=""
+         noderequirementstat=""
+         # get number of jobs to be done from the DB
+         getstatus >> $jmscriptlog 2>&1
+      fi
+      # store the number of processes to be done for this script
+      todo[$i]=$numproc
+      tododb[$i]=$numproc
+      
+      # FIXME: sge cuts scriptname to 8 digits in qstat
+      # number of idle jobs, i.e. jobs waiting in the queue to run
+      #   condor: 1
+      #   sge: q
+      #   pbs: Q
+      q4=( `echo ${q[@]} | egrep -o \("${scripts[$i]}"Jobstatus1\|"${scripts[$i]}"Jobstatusq\|"${scripts[$i]}"JobstatusQ\)` )
+      idlescript[$i]=${#q4[@]}
+
+      q2=( `echo ${q[@]} | egrep -o "${scripts[$i]}"`)
+      queuedscript[$i]=${#q2[@]}
+
+      stillfree[$i]=`echo "${maxjobs[$i]} - ${queuedscript[$i]} " | bc -l`
+
+      if [ $numproc -eq 0 ] || [ ${todo[$i]} -le ${idlescript[$i]} ] || [ ${maxjobs[$i]} -le ${queuedscript[$i]} ]
+      then 
+         # store the fraction of cpus to add it to another process
+         idleratio=`echo " ${ratio[$i]} + $idleratio " | bc -l`
+         ratio[$i]=0
+         todo[$i]=0
+         idlenum=$i
+         continue
+      fi
+   done
+   echo `date +%F\ %T`" Evaluated scripts: "${scripts[@]} >> $jmscriptlog 2>&1
+   echo `date +%F\ %T`" Running scripts: "${queuedscript[@]}" (max: "${maxjobs[@]}")" >> $jmscriptlog 2>&1
+   echo `date +%F\ %T`" Number of jobs to be done (from DB): "${tododb[@]} >> $jmscriptlog 2>&1
+   echo `date +%F\ %T`" Number of jobs to be done (updated): "${todo[@]} >> $jmscriptlog 2>&1
+   echo `date +%F\ %T`" Ratio: "${ratio[@]}" (idle: "$idleratio")" >> $jmscriptlog 2>&1
+   
+   # loop to update the ratio taking into account the ratio of
+   #   a) steps where nothing has to done
+   #   b) steps where already enough jobs are in the queue
+   # sum up this idle ratio
+   # determine for which step still most jobs have to be done
+   if ! [ "$idleratio" = "0" ]
+   then 
+      addtoscript=
+      for (( i=0 ; i < ${#scripts[@]} ; i++ ))
+      do 
+         if [ ${todo[$i]} -gt ${todo[$idlenum]} ] && [ ${todo[$i]} -gt 0 ] 
+         then
+            if ! [ "$addtoscript" = "" ] 
+            then 
+               if [ ${todo[$i]} -lt ${todo[$addtoscript]} ]
+               then
+                  continue
+               fi
+            fi
+            addtoscript=$i
+         fi
+      done
+      
+      # continue in case nothing has to be done for all steps
+      # else: update the ratio for the step where most jobs have to be done
+      #   by adding the idle ratio
+      if [ "$addtoscript" = "" ] 
+      then
+         echo `date +%F\ %T`" No jobs to be done for any step." >> $jmscriptlog 2>&1
+         sleepawhile "ok"
+      else
+         ratio[$addtoscript]=`echo " ${ratio[$addtoscript]} + $idleratio " | bc -l`
+      fi
+   fi
+   echo `date +%F\ %T`" Updated ratio: "${ratio[@]} >> $jmscriptlog 2>&1
+   
+   
+   # loop to submit jobs to queueing system
+   for (( i=0 ; i < ${#scripts[@]} ; i++ ))
+   do 
+      # calculate number of jobs to be submitted
+      tosubmit=`echo "scale=0; $tosubmittotal * ${ratio[$i]} / 1 " | bc -l`
+      if [ ${todo[$i]} -lt $tosubmit ]
+      then
+         echo `date +%F\ %T`" Updating tosubmit for "${scripts[$i]}" from "$tosubmit" to "${todo[$i]} >> $jmscriptlog 2>&1
+         tosubmit=${todo[$i]}
+      fi
+      if [ $tosubmit -eq 0 ]
+      then
+         echo `date +%F\ %T`" No jobs to be submitted for script '"${scripts[$i]}"'" >> $jmscriptlog 2>&1
+         continue
+      fi
+      if [ $tosubmit -gt ${stillfree[$i]} ]
+      then
+         echo `date +%F\ %T`" Updating tosubmit for "${scripts[$i]}" from "$tosubmit" to "${stillfree[$i]} >> $jmscriptlog 2>&1
+         tosubmit=${stillfree[$i]}
+      fi
+      
+      # set the step to be evaluated
+      step=${scriptscolname[$i]}
+      # check if walltime has to be set
+      if [ "$setwalltime" = "yes" ]
+      then
+         walltime=${walltimes[$i]}
+      fi
+      # check if memory has to be set
+      if [ "$setpmem" = "yes" ]
+      then
+         pmem=${pmems[$i]}
+      fi
+
+      # submit $tosubmit scripts to queuing system
+      echo `date +%F\ %T`" Submitting "$tosubmit" jobs for script '"${scripts[$i]}"' to "$queuesys >> $jmscriptlog 2>&1
+      date=`date +%Y-%m-%d`
+      if ! queuesubmit 2>> $jmerrorlog
+      then 
+         echo `date`" WARN submitting job ($queuesys) failed" >> $jmerrorlog
+         echo `date +%F\ %T`" WARN $queuesys is not working -> sleeping $errorsleeptime [\$errorsleeptime]" >> $jmscriptlog 2>&1
+         printprocesslog "WARN submitting ${scripts[$i]} ($queuesys) failed"
+         sleepawhile "error"
+      fi
+   done
+   sleepawhile "ok"
+done
+

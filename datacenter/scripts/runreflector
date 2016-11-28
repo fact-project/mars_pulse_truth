@@ -1,0 +1,127 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  05/2007 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2008
+#
+#
+# ========================================================================
+#
+# This script runs the reflector.
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=reflector
+column=fReflectorFileAvail
+
+set -C
+
+# printing input card to stdout
+function printinputcard()
+{
+   echo $reflectorversion
+   echo "verbose_level 4"
+   echo "seeds "$seeds
+   echo "fixed_target 0. 0. "
+   echo "telescopes_layout 1 1"
+   echo "telescope_position 0.0 0.0"
+   if [ $wobble -eq 2 ]
+   then 
+      echo "wobble_mode 1"
+   else
+      echo "wobble_mode 0"
+   fi
+   echo "ct_file $detectordir/Data/magic.def"
+   echo "reflectivity_file $detectordir/Data/reflectivity.dat"
+   echo "axisdev_file $detectordir/Data/axisdev.dat"
+   echo "output_file "$outfile
+   echo "atm_model ATM_MagicWinter"
+   echo "cer_files "
+   echo $infile
+}
+
+# get sequence # 
+gettodo "1" 
+run=${primaries[0]}
+# get reflector runnumber
+query="SELECT fReflectorRunNumber FROM MCRunData where fMCRunNumber="$run
+reflectorrunno=`sendquery`
+
+# lock sequ
+lockfile=$lockpath/lock-$table-$column-$reflectorrunno.txt
+checklock 
+
+printprocesslog "INFO starting $program for run $run"
+
+setstatus "start" 
+
+printprocesslog "INFO create input card... "
+
+# get values for inputcard
+query="SELECT fReflectorSeed, fReflectorSeed+1 FROM MCReflectorRunData where fReflectorRunNumber="$reflectorrunno
+seeds=`sendquery`
+query="SELECT fObservationModeKEY FROM MCReflectorRunData where fReflectorRunNumber="$reflectorrunno
+wobble=`sendquery`
+query="SELECT DATE_FORMAT(fRunStart, '%Y/%m/%d') FROM MCReflectorRunData where fReflectorRunNumber="$reflectorrunno
+date=`sendquery`
+query="SELECT fParticleTypeName FROM MCCorsikaRunData "
+query=$query" LEFT JOIN ParticleType ON MCCorsikaRunData.fParticleTypeKEY=ParticleType.fParticleTypeKEY "
+query=$query" LEFT JOIN MCReflectorRunData ON MCCorsikaRunData.fCorsikaRunNumber=MCReflectorRunData.fCorsikaRunNumber "
+query=$query" WHERE fReflectorRunNumber="$reflectorrunno
+particle=`sendquery`
+outpath=$mcpath"/"$program"/"$date
+date2=`echo $date | sed -e 's/\///g'`
+outfile=$outpath"/"$date2"_"`printf %06d $reflectorrunno`"_"$particle".rfl"
+query="SELECT fCorsikaRunNumber FROM MCReflectorRunData where fReflectorRunNumber="$reflectorrunno
+infile=$mcpath"/corsika/"$date"/cer"`printf %06d \`sendquery\``
+
+makedir $outpath 
+if ls $outfile >/dev/null 2>&1
+then
+   rm -v $outfile
+fi
+logfile=$outpath/$program"-"`printf %06d $reflectorrunno`".log"
+
+cd $detectordir/ReflectorII
+
+echo "INPUTCARD:" >| $logfile 2>&1
+printinputcard >> $logfile 2>&1
+echo "" >> $logfile 2>&1
+echo "" >> $logfile 2>&1
+printinputcard | ./reflector >> $logfile 2>&1
+
+check1=$?
+
+echo "the reflector returned: "$check1
+
+case $check1 in
+   0)   printprocesslog "INFO $program finished successfully for run $reflectorrunno (check1=$check1)"
+        ;;
+   *)   printprocesslog "ERROR $program failed for run $reflectorrunno (check1=$check1)"
+        com=$Freflector
+        check=$check1
+        ;;
+esac
+
+setstatus "stop" 
+
+finish 
+

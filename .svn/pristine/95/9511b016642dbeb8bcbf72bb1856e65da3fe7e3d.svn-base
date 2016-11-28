@@ -1,0 +1,94 @@
+# -------------------------------------------------------------
+#  THIS RESOURCE FILES IS AN EXAMPLE AND BELONGS TO calendar.C
+# -------------------------------------------------------------
+
+# --------------------------------------------------
+# Use this file to change the holidays to your local
+# holidays with the corresponding names
+# --------------------------------------------------
+#
+# There are sevral kind of holidays:
+#
+#   - Holiday.mm/dd: Name
+#     A holiday at the date defined by mm/dd
+#      eg. Holiday.01/01: New Year
+#
+#   - Holiday.n: Name
+#     A holiday n days after easter (sunday)
+#      eg. Holiday.1: Easter Monday
+#
+#   - Holiday.-n: Name
+#     A holiday n days before easter (sunday)
+#      eg. Holiday.-2: Good Friday
+#
+# If it is not a holiday (as "Good Friday" might be) replace
+# Holiday by DayName which is used for days which have a name
+# but which are no holidays, eg.
+#
+#      DayName.-2: Good Friday
+#
+# For Birthdays use:
+#  
+#    - Birthday.mm/dd: Name
+#      eg. Birthday.09/09: Thomas
+#
+# ----------------- Fixed holidays -----------------
+Holiday.01/01: Neujahr
+Holiday.01/06: Hl. drei Könige
+#Holiday.05/01: #splitline{Tag der}{ Arbeit}
+Holiday.05/01: Maifeiertag
+Holiday.08/15: #splitline{      Mariä}{Himmelfahrt}
+Holiday.10/03: #splitline{  Tag der}{dt. Einheit}
+Holiday.11/01: Allerheiligen
+Holiday.12/25: 1.Weihnachtstag
+Holiday.12/26: 2.Weihnachtstag
+Holiday.12/31: Silvester
+
+# --------- Days with a name w.r.t. Easter ---------
+DayName.-48: Rosenmontag
+DayName.-47: #splitline{Faschings-}{  dienstag}
+DayName.-46: #splitline{ Ascher-}{mittwoch}
+DayName.-7: Palmsonntag
+DayName.-3: Gründonnerstag
+DayName.-2: Karfreitag
+DayName.7: Weißer Sonntag
+DayName.02/14: Valentinstag
+DayName.05/05: Europatag
+DayName.06/27: Siebenschläfer
+DayName.10/31: Reformationstag
+DayName.11/02: Allerseelen
+DayName.11/11: Martin
+DayName.12/06: Nikolaus
+DayName.12/24: Heiligabend
+
+DayName.03/20: Frühlingsanfang
+DayName.06/21: Sommeranfang
+DayName.09/22: Herbstanfang
+DayName.12/21: Winteranfang
+
+# ------------------- Birthdays -------------------
+Birthday.09/09: Thomas
+Birthday.07/16: Daniela
+
+# -------------- Holidays wrt. easter -------------
+Holiday.0: Ostersonntag
+Holiday.1: Ostermontag
+Holiday.39: #splitline{    Christi}{Himmelfahrt}
+Holiday.49: Pfingstsonntag
+Holiday.50: Pfingstmontag
+Holiday.60: Fronleichnam
+
+# ------------ Last Sunday before -----------------
+DayName.05/14-0: Muttertag
+DayName.11/19-0: Volkstrauertag
+DayName.11/26-4: Buß- und Bettag
+DayName.11/11-0: Totensonntag
+DayName.12/03-0: 1.Advent
+DayName.12/10-0: 2.Advent
+DayName.12/17-0: 3.Advent
+DayName.12/24-0: 4.Advent
+
+# "T+" and "T-" are used to display the symbols
+# to show the change between summer and winter time
+DayName.03/31-0: T+
+DayName.10/31-0: T-

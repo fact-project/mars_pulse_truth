@@ -1,0 +1,249 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  10/2006 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2006
+#
+#
+# ========================================================================
+#
+##############################################################################
+#
+# This script runs callisto with the -movie option and the corresponding 
+# rc files for a given sequence. 
+# The following movies are produced:
+# - movieSequenceNumber[mc]-withoutcut.mpg (all events)
+# - movieSequenceNumber[mc]-qualcut.mpg    (events after quality cuts)
+# - movieSequenceNumber[mc]-areacut.mpg    (events after area cut)
+# - movieSequenceNumber[mc]-thetacut.mpg   (events after theta^2 cut)
+# 
+# If no outpath is given, the movies are stored in the directory movies.
+# 
+# The script has to be executed in the Mars directory. 
+# 
+##############################################################################
+
+#to be set by the user (if you don't use the command-line options)
+#give either sequence number or sequence file (including path)
+sequence=
+sequfile=""
+
+#path of your output directory
+outpath=movies
+#define values for callisto.rc files
+TargetLength=5
+NumEvents=500
+Threshold=3
+
+function usage()
+{
+   echo "Usage: $0 [options]"
+   echo "options:"
+   echo -n "  --sequ sequence#        "
+   echo " giving number of sequence which shall be processed "
+   echo -n "  --out outpath           "
+   echo " giving the path where all outputfiles are stored "
+   echo -n "  --target-length seconds "
+   echo " giving the length of one event in seconds "
+   echo -n "  --num-events #events    "
+   echo " giving the number of events in the movie "
+   echo -n "  -wobble                 "
+   echo " give this option for processing a wobble sequence "
+   echo -n "  -mc                     "
+   echo " give this option for processing a montecarlo sequence "
+   echo ""
+   echo "Remarks: "
+   echo    " - you can set the needed variables also in the script "
+   echo    " - you have to set the outpath and either the sequence number or the sequence file"
+   echo    "    (if both is set, the sequence given by the sequencefile is processed)"
+   echo    " - you have to execute the script from your mars directory"
+   echo    " - some options for the movie can be set in the script"
+   echo    " - if you don't set the outpath, the default 'movies' is used"
+   echo "" 
+   exit
+}
+
+alias mymysql='mysql -u MAGIC --password=d99swMT! --host=vela MyMagic -s -e'
+
+
+while [ "$1" ]
+do 
+   case $1 in 
+               --sequ)  shift
+                        sequence=$1
+                        ;;
+                --out)  shift
+                        outpath=$1
+                        ;;
+      --target-length)  shift
+                        TargetLength=$1
+                        ;;
+         --num-events)  shift
+                        NumEvents=$1
+                        ;;
+              -wobble)  wobble='yes'
+                        ;;
+                  -mc)  mc='mc'
+                        ;;
+                   -h)  usage
+                        ;;
+                *)      echo "unknown option $1 "
+                        usage
+                        exit
+                        ;;
+   esac
+   shift
+done
+
+if [ "$sequence" = "" ] 
+then
+   echo "WARNING sequ has not been set"
+   echo ""
+   usage
+fi
+
+# get variables
+if ! n8=`printf %08d $sequence`
+then
+   echo "your sequence number is not valid"
+   usage
+fi
+no=`echo $n8 | cut -c 1-4`
+if [ "$mc" == "mc" ]
+then 
+   sequfile="/magic/montecarlo/sequences/"$no"/sequence$n8.txt"
+   calpath="/magic/montecarlo/callisto/"$no"/"$n8
+else
+   sequfile="/magic/sequences/"$no"/sequence$n8.txt"
+   calpath="/magic/data/callisto/"$no"/"$n8
+fi
+outpath2=$outpath"/temp"
+datasetfile=$outpath2"/dataset"$n8".txt"
+ganymedfile=$outpath2"/ganymed"$n8".root"
+ganymedsumfile=$outpath2"/ganymed"$n8"-summary.root"
+mkdir -pv $outpath2
+
+if ! ls $sequfile >/dev/null
+then
+   echo $sequfile" doesn't exist."
+   usage
+fi
+
+echo ""
+echo "Variables and paths from your input: "
+echo " outpath:      "$outpath
+echo " sequence:     "$sequence
+echo " sequfile:     "$sequfile
+echo " datasetfile:  "$datasetfile
+echo " ganymedfiles: "$ganymedfile", "$ganymedsumfile
+echo " inputpaths:   "$calpath
+echo ""
+
+
+# write datasetfile
+echo "AnalysisNumber: "$sequence > $datasetfile
+echo "" >> $datasetfile
+echo "SequencesOn: "$sequence >> $datasetfile
+echo "" >> $datasetfile
+if [ "$mc" == "mc" ]
+then 
+   echo "MonteCarlo: Yes " >> $datasetfile
+else
+   # get source name 
+   query="SELECT fSourceName FROM Source LEFT JOIN Sequences ON Sequences.fSourceKEY=Source.fSourceKEY WHERE fSequenceFirst="$sequence
+   source=`mymysql "$query"`
+   echo "SourceName: "$source >> $datasetfile
+   echo "Catalog: /magic/datacenter/setup/magic_favorites_dc.edb" >> $datasetfile
+fi
+if [ "$wobble" == "yes" ]
+then 
+   echo "WobbleMode: On " >> $datasetfile
+fi
+echo "" >> $datasetfile
+
+
+# choose callisto.rc
+if [ $sequence -gt 200000 ]
+then
+   rc="callisto_mux.rc"
+else
+   rc="callisto.rc"
+fi
+
+# write callisto.rc files
+names=( "withoutcut" "qualcut" "areacut" "thetacut" )
+for (( i=0 ; i < 4 ; i++ )) 
+do
+   calrc=$outpath2"/callisto_"$n8$mc"-"${names[$i]}".rc"
+   echo "creating "$calrc
+   grep -v MMoveWrite $rc > $calrc
+   echo "MMovieWrite.FileName: "$outpath"/movie"$n8$mc"-"${names[$i]}".mpg" >> $calrc
+   echo "MMovieWrite.TargetLength: "$TargetLength >> $calrc
+   echo "MMovieWrite.NumEvents: "$NumEvents >> $calrc
+   echo "MMovieWrite.Threshold: "$Threshold >> $calrc
+   if [ $i -eq 1 ]
+   then
+      echo "MFEvtNumber.FileName: "$ganymedsumfile >> $calrc
+   fi
+   if [ $i -gt 1 ]
+   then
+      echo "MFEvtNumber.FileName: "$ganymedfile >> $calrc
+   fi
+   if [ $i -gt 2 ]
+   then
+      echo "MFEvtNumber.Selector: ThetaSquared.fVal<0.04 && DataType.fVal>0.5" >> $calrc
+   fi
+done 
+
+# define options for callisto
+opts=" -f -v5 -b --movie "
+if [ "$mc" == "mc" ]
+then
+   opts=$opts" -mc "
+fi
+opts=$opts" -y --iny=$calpath $sequence "
+
+# produce movie without cuts
+command="./callisto $opts --config=$outpath2/callisto_$n8$mc-${names[0]}.rc "
+echo "submitting: "$command 
+condor_run $command &
+
+# run ganymed and produce summary file
+gopts="-v5 -f -b "
+if [ "$wobble" == "yes" ]
+then
+   gopts=$gopts" --config=ganymed_wobble.rc "
+fi
+command="./ganymed $gopts --sum --out=$outpath2 $datasetfile"
+echo "executing: "$command
+if ! $command
+then
+   echo "execution failed."
+   exit
+fi
+
+# produce movies with cuts
+for (( i=1 ; i < 4 ; i++ )) 
+do
+   command="./callisto $opts --config=$outpath2/callisto_$n8$mc-${names[$i]}.rc "
+   echo "submitting: "$command 
+   condor_run $command &
+done
+

@@ -1,0 +1,219 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  10/2006 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2007
+#
+#
+# ========================================================================
+#
+# This script checks from the DB which new starfiles have been produced 
+# and sends it to the person in charge for building datasets
+#
+
+#source `dirname $0`/sourcefile
+#printprocesslog "INFO starting $0"
+function usage()
+{
+   echo "Usage: $0 [options]"
+   echo "options:"
+   echo -n "  -a               "
+   echo " all runs are considered  "
+   echo -n "  -c               "
+   echo " only calibration runs are considered  "
+   echo -n "  -d               "
+   echo " only data runs are considered  "
+   echo -n "  -p               "
+   echo " only pedestal runs are considered  "
+   echo -n "  --notexcl        "
+   echo " only not excluded runs are considered  "
+   echo -n "  --printruns      "
+   echo " print all runs "
+   echo -n "  --run run#       "
+   echo " runs > run# are considered  "
+   echo -n "  --runmin run#    "
+   echo " runs > run# are considered (use together with --runmax)"
+   echo -n "  --runmax run#    "
+   echo " runs < run# are considered (use together with --runmin)"
+   echo -n "  --source source  "
+   echo " only runs of which the sourcename contains 'source' are considered"
+   echo ""
+   exit
+}
+
+
+while [ "$1" ]
+do 
+   case $1 in 
+         --run)  shift
+                 run=$1
+                 echo "Only runs starting from run # $run are considered"
+                 ;;
+      --runmin)  shift
+                 runmin=$1
+                 echo "Only runs with run # > $runmin are considered"
+                 ;;
+      --runmax)  shift
+                 runmax=$1
+                 echo "Only runs with run # < $runmax are considered"
+                 ;;
+      --source)  shift
+                 source=$1
+                 echo "Only runs of which the sourcename contains $source are considered"
+                 ;;
+     --notexcl)  notexcl="yes"
+                 echo "Only not excluded runs are considered"
+                 ;;
+   --printruns)  printruns="yes"
+                 ;;
+            -a)  all="yes"
+                 echo "All runs are considered"
+                 ;;
+            -c)  cal="yes"
+                 echo "Only calibration runs are considered"
+                 ;;
+            -d)  dat="yes"
+                 echo "Only data runs are considered"
+                 ;;
+            -p)  ped="yes"
+                 echo "Only ped runs are considered"
+                 ;;
+            -h)  usage
+                 ;;
+             *)  echo "unknown option $1 "
+                 usage
+                 exit
+                 ;;
+   esac
+   shift
+done
+
+alias mymysql='mysql -u MAGIC --password=d99swMT! --host=vela MyMagic -s -e'
+
+if [ "$dat" = "" ] && [ "$cal" = "" ] && [ "$ped" = "" ] && ! [ "$all" = "yes" ]
+then
+   echo "You have to select at least one of the options -a -c -d -p "
+   usage
+fi
+
+if [ "$all" = "yes" ]
+then
+   cal=
+   dat=
+   ped=
+fi
+
+query="SELECT fRunNumber FROM RunData "
+if ! [ "$source" = "" ]
+then
+   query=$query" LEFT JOIN Source ON Source.fSourceKEY=RunData.fSourceKEY "
+fi
+query=$query" WHERE fSequenceFirst='0' "
+
+cond=""
+if ! [ "$source" = "" ]
+then
+   subquery="SELECT fSourceKEY FROM Source WHERE fSourceName LIKE '%$source%'"
+   sourcekeys=`mymysql "$subquery"`
+   if [ "$sourcekeys" = "" ]
+   then
+      echo "No source found containing $source"
+      exit
+   fi
+   sourcekeys2=`echo $sourcekeys | sed -e 's/ /,/g'`
+   cond=$cond" AND Source.fSourceKEY IN ($sourcekeys2)"
+fi
+if ! [ "$run" = "" ]
+then 
+   cond=$cond" AND RunData.fRunNumber > $run " 
+fi
+if ! [ "$runmin" = "" ] && ! [ "$runmax" = "" ]
+then 
+   cond=$cond" AND RunData.fRunNumber BETWEEN $runmin AND $runmax " 
+fi
+if [ "$cal" = "yes" ] &&  [ "$dat" = "yes" ]
+then 
+   cond=$cond" AND (fRunTypeKEY=4 OR fRunTypeKEY=2) "
+fi
+if [ "$cal" = "yes" ] &&  [ "$ped" = "yes" ]
+then 
+   cond=$cond" AND (fRunTypeKEY=4 OR fRunTypeKEY=3) "
+fi
+if [ "$dat" = "yes" ] && [ "$ped" = "yes" ]
+then 
+   cond=$cond" AND (fRunTypeKEY=2 OR fRunTypeKEY=3)"
+fi
+if [ "$cal" = "yes" ]
+then 
+   cond=$cond" AND fRunTypeKEY=4 "
+fi
+if [ "$dat" = "yes" ]
+then 
+   cond=$cond" AND fRunTypeKEY=2 "
+fi
+if [ "$ped" = "yes" ]
+then 
+   cond=$cond" AND fRunTypeKEY=3 "
+fi
+if [ "$notexcl" = "yes" ]
+then 
+   cond=$cond" AND fExcludedFDAKEY=1 "
+fi
+query=$query$cond
+
+runs=(`mymysql " $query "`)
+echo "found ${#runs[@]} not sequenced runs "
+if [ ${#runs[@]} -eq 0 ]
+then 
+   exit
+fi 
+if [ ${#runs[@]} -gt 1000 ]
+then 
+   echo "> 1000 runs found, please restrict the range with the options --runmin and --runmax " 
+   exit
+fi 
+runs2=`echo ${runs[@]} | sed -e 's/ /,/g'`
+query="SELECT fSourceKEY FROM RunData WHERE fRunNumber IN ($runs2) GROUP BY fSourceKEY"
+sources=`mymysql " $query "`
+sources2=`echo $sources | sed -e 's/ /,/g'`
+query="SELECT fSourceName FROM Source WHERE fSourceKEY IN ($sources2)"
+sourcenames=`mymysql " $query "`
+
+for sourcename in $sourcenames
+do 
+   query="SELECT fRunNumber FROM RunData "
+   query=$query" LEFT JOIN Source ON Source.fSourceKEY=RunData.fSourceKEY "
+   query=$query"WHERE fSourceName='$sourcename' AND fSequenceFirst='0' "
+   query=$query$cond
+   runspersource=(`mymysql " $query "`)
+   if [ "$printruns" = "yes" ]
+   then 
+      runsps=`echo ${runspersource[@]} | sed -e 's/ /,/g'`
+      printf "for %12s the following runs are not sequenced: %s \n" $sourcename $runsps
+   else
+      printf "for %12s the %04d runs are not sequenced \n" $sourcename ${#runspersource[@]}
+   fi
+      
+done
+
+#nail -s 'found warnings in '$oldprocesslog $erradrs
+
+#printprocesslog "INFO finished $0"
+

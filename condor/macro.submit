@@ -1,0 +1,13 @@
+Executable    = $ENV(ROOTSYS)/bin/root
+Arguments     = -b -q $(macro).C(\"$(args)\")
+
+Output        = $(out).log
+Error         = $(err).err
+
+Universe      = vanilla
+copy_to_spool = false
+getenv        = True
+Log           = /tmp/delme.log
+notification  = Error
+
+Queue

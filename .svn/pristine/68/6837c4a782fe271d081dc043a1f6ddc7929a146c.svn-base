@@ -1,0 +1,12 @@
+copy_to_spool = false
+Executable    = ./sponde
+Arguments     = -b -f -v5 --config=$(rc) --log=$(out)/sponde$(spondenum).log $(out)/ganymed$(num).root $(mcds) $(out)/sponde$(spondenum).root 
+Universe      = vanilla
+Log           = /tmp/condor.log
+Error         = $(path)/logs/condor-sponde.error
+Output        = $(path)/logs/condor-sponde.out
+notification  = Error
+getenv = True
+
+Queue 
+

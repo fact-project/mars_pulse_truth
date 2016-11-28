@@ -1,0 +1,389 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Thomas Bretz">
+   <title>MARS: Magic Analysis and Reconstruction Software</title>
+   <link rel="stylesheet" type="text/css" href="mars.css">
+</head>
+
+<body background="background.gif" text="#000000" bgcolor="#000099" link="#1122FF" vlink="#8888FF" alink="#FF0000">
+&nbsp;
+
+<center>
+<table class="Main" CELLPADDING=0>
+
+<tr>
+<td class="Edge"><img SRC="ecke.gif" ALT=""></td>
+<td class="Header">
+<B>M A R S</B><BR><B>M</B>agic <B>A</B>nalysis and <B>R</B>econstruction <B>S</B>oftware
+</td>
+</tr>
+
+<tr>
+<td COLSPAN=2 BGCOLOR="#FFFFFF">
+<hr SIZE=1 NOSHADE WIDTH="80%">
+<center><table class="Inner" CELLPADDING=15>
+
+<tr class="Block">
+<td><b><u><A NAME="OVERVIEW">MySQL Regular Expressions</A>:</u></b>
+<P>
+A <B>regular expression (regex)</B> is a powerful way of specifying a complex search. <P>
+
+  MySQL uses Henry Spencer's implementation of regular expressions, which is aimed at conformance with POSIX 
+  1003.2. MySQL uses the extended version. <P>
+
+  This is a simplistic reference that skips the details. To get more exact information, see 
+  Henry Spencer's <A HREF="#REGEX">regex(7)</A><P>
+
+  A regular expression describes a set of strings. The simplest regexp is one that has no special characters in it. For 
+  example, the regexp <b>hello</B> matches <B>hello</B> and nothing else. <P>
+
+  Non-trivial regular expressions use certain special constructs so that they can match more than one string. For 
+  example, the regexp hello|word matches either the string hello or the string word. <P>
+
+  As a more complex example, the regexp B[an]*s matches any of the strings Bananas, Baaaaas, Bs, and any 
+  other string starting with a B, ending with an s, and containing any number of a or n characters in between. <P>
+
+  A regular expression may use any of the following special characters/constructs:   <P>
+<pre>
+  ^         Match the beginning of a string. 
+            mysql> SELECT "fo\nfo" REGEXP "^fo$";           -> 0 
+            mysql> SELECT "fofo"   REGEXP "^fo";            -> 1 
+
+  $         Match the end of a string. 
+            mysql> SELECT "fo\no" REGEXP "^fo\no$";         -> 1 
+            mysql> SELECT "fo\no" REGEXP "^fo$";            -> 0 
+
+  .         Match any character (including newline). 
+            mysql> SELECT "fofo"  REGEXP "^f.*";            -> 1 
+            mysql> SELECT "fo\nfo" REGEXP "^f.*";           -> 1 
+
+  a*        Match any sequence of zero or more a characters. 
+            mysql> SELECT "Ban"   REGEXP "^Ba*n";           -> 1 
+            mysql> SELECT "Baaan" REGEXP "^Ba*n";           -> 1 
+            mysql> SELECT "Bn"    REGEXP "^Ba*n";           -> 1 
+
+  a+        Match any sequence of one or more a characters. 
+            mysql> SELECT "Ban" REGEXP "^Ba+n";             -> 1 
+            mysql> SELECT "Bn"  REGEXP "^Ba+n";             -> 0 
+
+  a?        Match either zero or one a character. 
+            mysql> SELECT "Bn"   REGEXP "^Ba?n";            -> 1 
+            mysql> SELECT "Ban"  REGEXP "^Ba?n";            -> 1 
+            mysql> SELECT "Baan" REGEXP "^Ba?n";            -> 0 
+
+  de|abc    Match either of the sequences de or abc. 
+            mysql> SELECT "pi"  REGEXP "pi|apa";            -> 1 
+            mysql> SELECT "axe" REGEXP "pi|apa";            -> 0 
+            mysql> SELECT "apa" REGEXP "pi|apa";            -> 1 
+            mysql> SELECT "apa" REGEXP "^(pi|apa)$";        -> 1 
+            mysql> SELECT "pi"  REGEXP "^(pi|apa)$";        -> 1 
+            mysql> SELECT "pix" REGEXP "^(pi|apa)$";        -> 0 
+
+  (abc)*    Match zero or more instances of the sequence abc. 
+            mysql> SELECT "pi"   REGEXP "^(pi)*$";          -> 1 
+            mysql> SELECT "pip"  REGEXP "^(pi)*$";          -> 0 
+            mysql> SELECT "pipi" REGEXP "^(pi)*$";          -> 1 
+
+  {1}       The is a more general way of writing regexps that match many
+  {2,3}     occurrences of the previous atom.   
+              a*          Can be written as a{0,}. 
+              a+          Can be written as a{1,}. 
+              a?          Can be written as a{0,1}.   
+
+              To be more precise, an atom followed by a bound containing one 
+              integer i and no comma matches a sequence of exactly i matches 
+              of the atom. An atom followed by a bound containing one integer i 
+              and a comma matches a sequence of i or more matches of the atom. 
+              An atom followed by a bound containing two integers i and j matches 
+              a sequence of i through j (inclusive) matches of the atom. 
+
+              Both arguments must be in the range from 0 to RE_DUP_MAX (default 255), 
+              inclusive.  If there are two arguments, the second must be greater
+              than or equal to the first. 
+
+  [a-dX]    Matches any character which is (or is not, if ^ is used) either a, b, c, 
+  [^a-dX]   d or X. To include a literal ] character, it must immediately follow 
+            the opening bracket [.  To include a literal - character, it must be 
+            written first or last. So [0-9] matches any decimal digit. Any character 
+            that does not have a defined meaning inside a [] pair has no special 
+            meaning and matches only itself. 
+               mysql> SELECT "aXbc"   REGEXP "[a-dXYZ]";               -> 1 
+               mysql> SELECT "aXbc"   REGEXP "^[a-dXYZ]$";             -> 0 
+               mysql> SELECT "aXbc"   REGEXP "^[a-dXYZ]+$";            -> 1 
+               mysql> SELECT "aXbc"   REGEXP "^[^a-dXYZ]+$";           -> 0 
+               mysql> SELECT "gheis"  REGEXP "^[^a-dXYZ]+$";           -> 1 
+               mysql> SELECT "gheisa" REGEXP "^[^a-dXYZ]+$";           -> 0 
+
+  [[.characters.]] 
+            The sequence of characters of that collating element. characters is 
+            either a single character or a character name like newline. You can 
+            find the full list of character names in 'regexp/cname.h'. 
+
+  [ =character_class=] 
+            An equivalence class, standing for the sequences of characters of all 
+            collating elements equivalent to that one, including itself. 
+
+            For example, if o and (+) are the members of an equivalence class, 
+            then [[=o=]], [[=(+)=]], and [o(+)] are all synonymous. An equivalence 
+            class may not be an endpoint of a range. 
+
+  [:character_class:] 
+            Within a bracket expression, the name of a character class enclosed 
+            in [: and :] stands for the list of all characters belonging to that 
+            class. Standard character class names are: 
+
+            These stand for the character classes defined in the ctype(3) manual 
+            page. A locale may provide others. A character class may not be used 
+            as an endpoint of a range. 
+               mysql> SELECT "justalnums" REGEXP "[[:alnum:]]+";       -> 1 
+               mysql> SELECT "!!" REGEXP "[[:alnum:]]+";               -> 0 
+                        
+  [[:<:]]   These match the null string at the beginning and end of a word 
+  [[:>:]]   respectively.  A word is defined as a sequence of word characters 
+            which is neither preceded nor followed by word characters. A word 
+            character is an alnum character (as defined by ctype(3)) or an 
+            underscore (_). 
+               mysql> SELECT "a word a" REGEXP "[[:<:]]word[[:>:]]";   -> 1 
+               mysql> SELECT "a xword a" REGEXP "[[:<:]]word[[:>:]]";  -> 0 
+                          
+            mysql> SELECT "weeknights" REGEXP "^(wee|week)(knights|nights)$"; -> 1 
+</pre>
+</td></tr>
+<tr class="Block">
+<td>
+<center><h3>--- <A NAME="REGEX"><U>REGEX</U></A>(7) ---</h3></center>
+<B>NAME</B><BR>
+       regex - POSIX 1003.2 regular expressions<P>
+
+<B>DESCRIPTION</B><BR>
+       Regular expressions (``RE''s), as defined in POSIX 1003.2,
+       come in two forms: modern REs  (roughly  those  of  egrep;
+       1003.2  calls  these  ``extended''  REs)  and obsolete REs
+       (roughly those of ed; 1003.2 ``basic'' REs).  Obsolete REs
+       mostly  exist  for backward compatibility in some old pro-
+       grams; they will be discussed at the end.   1003.2  leaves
+       some  aspects  of  RE  syntax and semantics open; `' marks
+       decisions on these aspects that may not be fully  portable
+       to other 1003.2 implementations.<P>
+
+       A (modern) RE is one or more non-empty branches, separated
+       by `|'.  It matches  anything  that  matches  one  of  the
+       branches.<P>
+
+       A  branch is one or more pieces, concatenated.  It matches
+       a match for the first, followed by a match for the second,
+       etc.<P>
+
+       A piece is an atom possibly followed by a single `*', `+',
+       `?', or bound.  An atom followed by `*' matches a sequence
+       of 0 or more matches of the atom.  An atom followed by `+'
+       matches a sequence of 1 or more matches of the  atom.   An
+       atom  followed by `?' matches a sequence of 0 or 1 matches
+       of the atom.<P>
+
+       A bound is `{' followed by an  unsigned  decimal  integer,
+       possibly  followed  by  `,'  possibly  followed by another
+       unsigned decimal integer, always  followed  by  `}'.   The
+       integers  must  lie  between 0 and RE_DUP_MAX (255) inclu-
+       sive, and if there are two of  them,  the  first  may  not
+       exceed the second.  An atom followed by a bound containing
+       one integer i and no comma matches a sequence of exactly i
+       matches of the atom.  An atom followed by a bound contain-
+       ing one integer i and a comma matches a sequence of  i  or
+       more  matches  of  the  atom.  An atom followed by a bound
+       containing two integers i and j matches a  sequence  of  i
+       through j (inclusive) matches of the atom.<P>
+
+       An atom is a regular expression enclosed in `()' (matching
+       a match for the regular expression), an empty set of  `()'
+       (matching  the  null  string),  a  bracket expression (see
+       below), `.'  (matching any single character), `^'  (match-
+       ing  the  null  string  at  the  beginning of a line), `$'
+       (matching the null string at the end of  a  line),  a  `\'
+       followed by one of the characters `^.[$()|*+?{\' (matching
+       that character taken as an ordinary character), a `\' fol-
+       lowed  by  any  other  character  (matching that character
+       taken as an ordinary character, as if the `\' had not been
+       present), or a single character with no other significance
+       (matching that character).  A `{' followed by a  character
+       other  than  a  digit  is  an  ordinary character, not the
+       beginning of a bound.  It is illegal to  end  an  RE  with
+       `\'.<P>
+
+       A  bracket  expression is a list of characters enclosed in
+       `[]'.  It normally matches any single character  from  the
+       list  (but  see  below).   If the list begins with `^', it
+       matches any single character (but see below) not from  the
+       rest of the list.  If two characters in the list are sepa-
+       rated by `-', this is shorthand  for  the  full  range  of
+       characters  between those two (inclusive) in the collating
+       sequence, e.g. `[0-9]' in ASCII matches any decimal digit.
+       It  is  illegal  for two ranges to share an endpoint, e.g.
+       `a-c-e'.  Ranges  are  very  collating-sequence-dependent,
+       and portable programs should avoid relying on them.<P>
+
+       To  include  a  literal `]' in the list, make it the first
+       character (following a possible `^').  To include  a  lit-
+       eral `-', make it the first or last character, or the sec-
+       ond endpoint of a range.  To use  a  literal  `-'  as  the
+       first  endpoint of a range, enclose it in `[.' and `.]' to
+       make it a collating element (see below).  With the  excep-
+       tion  of  these  and some combinations using `[' (see next
+       paragraphs), all other special characters, including  `\',
+       lose  their  special significance within a bracket expres-
+       sion.<P>
+
+       Within a bracket expression, a collating element (a  char-
+       acter,  a  multi-character sequence that collates as if it
+       were a single character, or a collating-sequence name  for
+       either)  enclosed in `[.' and `.]' stands for the sequence
+       of characters of that collating element.  The sequence  is
+       a  single  element  of  the  bracket expression's list.  A
+       bracket expression containing a multi-character  collating
+       element  can  thus  match more than one character, e.g. if
+       the collating sequence includes a `ch' collating  element,
+       then the RE `[[.ch.]]*c' matches the first five characters
+       of `chchcc'.<P>
+
+       Within a bracket expression, a collating element  enclosed
+       in `[=' and `=]' is an equivalence class, standing for the
+       sequences of characters of all collating elements  equiva-
+       lent  to  that  one,  including  itself.  (If there are no
+       other equivalent collating elements, the treatment  is  as
+       if  the  enclosing  delimiters  were  `[.' and `.]'.)  For
+       example, if o and ^ are  the  members  of  an  equivalence
+       class,  then `[[=o=]]', `[[=^=]]', and `[o^]' are all syn-
+       onymous.  An equivalence class may not be an endpoint of a
+       range.<P>
+
+       Within a bracket expression, the name of a character class
+       enclosed in `[:' and `:]' stands for the list of all char-
+       acters  belonging to that class.  Standard character class
+       names are:<P>
+<table>
+<tr><td>alnum</TD><td>digit</td><td>punct</td></tr>
+<tr><td>alpha</TD><td>graph</TD><td>space</td></tr>
+<tr><td>blank</TD><td>lower</TD><td>upper</td></tr>
+<tr><td>cntrl</TD><td>print</TD><td>xdigit</td></tr>
+</table>
+<P>
+       These stand for the character classes defined in ctype(3).
+       A locale may provide others.  A character class may not be
+       used as an endpoint of a range.<P>
+
+       There are two special cases of  bracket  expressions:  the
+       bracket expressions `[[:&lt;:]]' and `[[:&gt;:]]' match the null
+       string at the beginning and end of a word respectively.  A
+       word  is defined as a sequence of word characters which is
+       neither preceded nor followed by word characters.  A  word
+       character  is  an alnum character (as defined by ctype(3))
+       or an underscore.  This is an extension,  compatible  with
+       but not specified by POSIX 1003.2, and should be used with
+       caution in software intended to be portable to other  sys-
+       tems.<P>
+
+       In  the  event  that  an RE could match more than one sub-
+       string of a given string, the RE matches the one  starting
+       earliest  in  the string.  If the RE could match more than
+       one substring starting  at  that  point,  it  matches  the
+       longest.   Subexpressions  also match the longest possible
+       substrings, subject to the constraint that the whole match
+       be  as long as possible, with subexpressions starting ear-
+       lier in the RE taking priority over ones  starting  later.
+       Note  that  higher-level subexpressions thus take priority
+       over their lower-level component subexpressions.<P>
+
+       Match lengths are measured in  characters,  not  collating
+       elements.   A  null  string  is  considered longer than no
+       match at all.  For example, `bb*' matches the three middle
+       characters    of   `abbbc',   `(wee|week)(knights|nights)'
+       matches all ten characters of `weeknights', when  `(.*).*'
+       is  matched  against `abc' the parenthesized subexpression
+       matches all three characters, and when `(a*)*' is  matched
+       against  `bc'  both  the  whole  RE  and the parenthesized
+       subexpression match the null string.<P>
+
+       If case-independent matching is specified, the  effect  is
+       much  as  if  all  case distinctions had vanished from the
+       alphabet.  When an  alphabetic  that  exists  in  multiple
+       cases  appears  as an ordinary character outside a bracket
+       expression, it is effectively transformed into  a  bracket
+       expression containing both cases, e.g. `x' becomes `[xX]'.
+       When it appears inside  a  bracket  expression,  all  case
+       counterparts of it are added to the bracket expression, so
+       that  (e.g.)  `[x]'  becomes  `[xX]'  and  `[^x]'  becomes
+       `[^xX]'.<P>
+
+       No particular limit is imposed on the length of REs.  Pro-
+       grams intended to be portable should not employ REs longer
+       than  256 bytes, as an implementation can refuse to accept
+       such REs and remain POSIX-compliant.<P>
+
+       Obsolete (``basic'') regular expressions differ in several
+       respects.   `|',  `+', and `?' are ordinary characters and
+       there is  no  equivalent  for  their  functionality.   The
+       delimiters  for bounds are `\{' and `\}', with `{' and `}'
+       by themselves ordinary characters.   The  parentheses  for
+       nested  subexpressions are `\(' and `\)', with `(' and `)'
+       by themselves ordinary characters.   `^'  is  an  ordinary
+       character  except at the beginning of the RE or the begin-
+       ning of a parenthesized subexpression, `$' is an  ordinary
+       character  except  at  the  end  of the RE or the end of a
+       parenthesized subexpression, and `*' is an ordinary  char-
+       acter  if  it  appears  at  the beginning of the RE or the
+       beginning of a parenthesized subexpression (after a possi-
+       ble leading `^').  Finally, there is one new type of atom,
+       a back reference: `\' followed by a non-zero decimal digit
+       d  matches  the same sequence of characters matched by the
+       dth parenthesized subexpression (numbering  subexpressions
+       by  the  positions  of  their opening parentheses, left to
+       right), so that (e.g.) `\([bc]\)\1' matches `bb'  or  `cc'
+       but not `bc'.<P>
+
+<B>SEE ALSO</B><BR>
+       POSIX 1003.2, section 2.8 (Regular Expression Notation).<P>
+
+<B>BUGS</B><BR>
+       Having two kinds of REs is a botch.<P>
+
+       The current 1003.2 spec says that `)' is an ordinary char-
+       acter in the absence of an  unmatched  `(';  this  was  an
+       unintentional  result  of  a  wording error, and change is
+       likely.  Avoid relying on it.<P>
+
+       Back references are a dreadful botch, posing  major  prob-
+       lems  for  efficient implementations.  They are also some-
+       what  vaguely  defined   (does   `a\(\(b\)*\2\)*d'   match
+       `abbbd'?).  Avoid using them.<P>
+
+       1003.2's  specification  of  case-independent  matching is
+       vague.  The ``one  case  implies  all  cases''  definition
+       given  above is current consensus among implementors as to
+       the right interpretation.<P>
+
+       The syntax for word boundaries is incredibly ugly.<P>
+
+<B>AUTHOR</B><BR>
+       This page was taken from Henry Spencer's regex package.
+</td>
+</tr>
+
+</table></center>
+
+<center>
+<hr NOSHADE WIDTH="80%"><i><font color="#000099"><font size=-1>This Web Site is 
+hosted by Apache for OS/2 and done by <a href="mailto:tbretz@astro.uni-wuerzburg.de">Thomas&nbsp;Bretz</a>.</font></font></i><BR>
+&nbsp;<BR>
+<a href="http://validator.w3.org/check/referer"><img border="0"
+   src="../../valid-html40.png" alt="Valid HTML 4.0!" height="20" width="66"></a>
+</center>&nbsp;
+</tr>
+</table>
+
+</center>
+
+</body>
+</html>

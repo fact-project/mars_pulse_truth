@@ -1,0 +1,132 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  05/2007 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2007
+#
+#
+# ========================================================================
+#
+#
+#
+##############################################################################
+#
+# This script can be used to do the merppupdate for already calibrated data.
+#
+# You have to set the path, where your calibrated files are stored.
+# 
+##############################################################################
+
+# to be set by the user: 
+# the directory, where the *_Y_*-files of your calibration are stored
+outpath=
+
+#regular expression for the filename
+name2=
+
+if ! [ "$1" = "" ]
+then
+   outpath=$1
+   if ! [ "$2" = "" ]
+   then
+      name2=$2
+   else
+      name2="20*_Y_*_E.root" 
+   fi
+   
+   if ! [ "$3" = "" ]
+   then
+      echo "You gave too many arguments."
+      exit
+   fi
+fi
+
+if [ "$outpath" = "" ]
+then 
+   echo "You have to give an outpath."
+   exit
+fi
+
+if ! ls $outpath >/dev/null 2>&1
+then 
+   echo "Your outpath is not valid."
+   exit
+fi
+   
+calfiles=`find $outpath -name "$name2"`
+
+echo "calfiles: "$calfiles
+
+for calfile in ${calfiles[@]}
+do 
+   echo "updating $calfile..."
+   
+   merpplogpath=$outpath"/merpplogs"
+   if [ ! -d $merpplogpath ]
+   then
+      mkdir -pv $merpplogpath 
+      if [ ! -d $merpplogpath ]
+      then
+         echo "could not make merpplogpath "$merpplogpath 
+         exit
+      fi
+   fi
+   
+   runno=`echo $calfile | cut -d_ -f2 | sed -e 's/^0//' | sed -e 's/^0//' | sed -e 's/^0//' `
+   date=`date --date \`basename $calfile | cut -d_ -f1\` +%Y/%m/%d`
+   ccfile=`find /magic/subsystemdata/cc/$date -name 20[0-2][0-9][01][0-9][0-3][0-9]_*${runno}_[PDCS]_*_S.rep`
+   cacofile=`find /magic/subsystemdata/caco/$date -name dc_20[0-2][0-9]_[01][0-9]_[0-3][0-9]_*${runno}_*.txt`
+   echo "runno: "$runno 
+   echo "ccfile: "$ccfile 
+   if [ "$ccfile" = "" ]
+   then
+      echo "no ccfile found for run "$runno 
+      break
+   fi
+   if [ "$cacofile" = "" ]
+   then 
+      echo "cacofile with no $runno not found" 
+      echo "finding cacofile..." 
+      for (( i = 0; i <= 10; i++ ))
+      do 
+         newrun=`echo $runno - $i | bc`
+         cacofile=`find $cacopath -name *$newrun*`
+         if [ "$cacofile" = "" ]
+         then
+            if [ $i -eq 9 ]
+            then
+               echo "no cacofile found for runno $newrun in $cacopath" 
+               break 2
+            fi   
+            continue
+         else
+            break
+         fi
+      done
+   fi
+   echo "cacofile: "$cacofile 
+   ./merpp -u --log=$merpplogpath/merppccupdate$runno.log --runfile=$runno $ccfile $calfile 
+   echo "./merpp -u --log=$merpplogpath/merppccupdate$runno.log --runfile=$runno $ccfile $calfile "
+
+   ./merpp -u --log=$merpplogpath/merppcacoupdate$runno.log --auto-time $cacofile $calfile 
+   echo "./merpp -u --log=$merpplogpath/merppcacoupdate$runno.log --auto-time $cacofile $calfile "
+   
+done
+

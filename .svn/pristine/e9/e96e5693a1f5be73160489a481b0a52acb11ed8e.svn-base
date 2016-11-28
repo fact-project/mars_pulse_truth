@@ -1,0 +1,57 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2004 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2007
+#
+#
+# ========================================================================
+#
+# This script is moving the subsystemfiles from the directory 
+# /magic/datacenter/fromtape to the structure 
+# /magic/subsystemdata/subsystem/YYYY/MM/DD
+# 
+
+umask 0002
+
+# change permission for files 
+# perhaps needed as the tapes are read by the user tape 
+ssh tape@dc07 chmod -R g+w /magic/datacenter/fromtape/{ccdata,cacodata,amc,daqlog}/* 
+
+# find subsystem files
+subsysfiles=`find /magic/datacenter/fromtape/ccdata/ -name '*.*'`
+subsysfiles=("${subsysfiles[@]}" `find /magic/datacenter/fromtape/daqlog/ -name '*.*'`)
+subsysfiles=("${subsysfiles[@]}" `find /magic/datacenter/fromtape/cacodata/ -name '*.*'`)
+subsysfiles=("${subsysfiles[@]}" `find /magic/datacenter/fromtape/amc/ -name '*.*'`)
+
+# moving subsystem files
+for subsysfile in ${subsysfiles[@]}
+do 
+   newsubsysfile=`echo $subsysfile | sed -e 's/datacenter\/fromtape/subsystemdata/g' -e 's/daqlog/daq__/g' -e 's/ccdata/cc/g' -e 's/cacodata/caco/g' -e 's/_/\//1' -e 's/_/\//1' -e 's/\/\///g'`
+   newdir=`dirname $newsubsysfile`
+   if [ ! -d $newdir ]
+   then
+      echo "make dir "$newdir
+      mkdir -p $newdir
+   fi
+
+   mv -v $subsysfile $newsubsysfile
+done
+

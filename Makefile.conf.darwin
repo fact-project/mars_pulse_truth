@@ -1,0 +1,48 @@
+##################################################################
+#
+# config.mk
+#
+# @file        config.mk
+# 
+##################################################################
+# @maintitle
+
+# @code
+
+# compilers
+
+CC       = gcc
+CXX      = g++
+F77      = f77
+AR       = ar -src
+
+#
+#  ----->>>   settings for compilation
+#
+OPTIM    = -O -Wall -Wpointer-arith -Wcast-align -Wconversion -Woverloaded-virtual
+# ggc 3.2: removed -fnonnull-objects -Wtraditional -Wnested-externs
+DEBUG    = 
+ARCHDEF  = -D__LINUX__
+
+# For Mac OSX we need to kind of shared objects. One which can be plugged
+# into root (bundle) and one which can be linked to the executables (dynlib)
+SOFLAG   = -bundle -flat_namespace -Xlinker -bind_at_load
+DYFLAG   = -dynamiclib -single_module -flat_namespace
+
+DYLIB    = $(SOLIB:.so=.dylib)
+
+# For debugging information use '-g'
+# For producing gmon.out use    '-pg'
+
+#MARS_LIB = -Llib $(SUBDIRS:%=-l%) $(MARSLIBS)
+MARS_LIB = -Llib $(MARSLIBS)
+INCLUDES = -I. $(SUBDIRS:%=-I%)
+
+# uncomment this for quiet compilation
+
+.SILENT:
+
+# @endcode
+##EOF
+
+

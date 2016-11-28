@@ -1,0 +1,338 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2008 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2008
+#
+#
+# ========================================================================
+#
+# This script produces the plots from all root-files in the web directory
+# 
+# After checking, if the script is already running, the plots are produced:
+# With the programm showplot a ps-file is written, from which the png 
+# files are produced. 
+#
+# The files from which plots are created can be devided into two categories:
+# general: plots needed only once per telescope
+# individual: plots done for each sequence / dataset
+#
+# For 'general' first the rootfiles are created with a macro from the 
+# database, then from this the ps via showplot, from this the pdf and the 
+# png files. 
+# For 'individual' running the macro is only needed for the plotdb for 
+# ganymed. The other steps are done accordingly. 
+#
+# Via command line options the plots can be selected. For more information
+# execute the script with the -h option. 
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=dowebplots
+
+set -C
+
+
+scriptlog=$runlogpath/$program-$datetime.log
+date >> $scriptlog 2>&1
+
+echo $@  >> $scriptlog 2>&1
+
+# definition of the plots to be created
+generals=( plotdb optical condor status )
+individuals=( calib signal star ganymed gplotdb )
+# definition of the variables needed and varying for the plots
+names=(     plotdb     optical    condor   status     calib     signal     star     ganymed           gplotdb )
+pathnames=( plotdb     optical    condor   status  callisto   callisto     star     ganymed           ganymed )
+macros=(    plotdb plotoptical plotusage plotstat        no         no       no          no                no )
+filenames=( plotdb plotoptical plotusage plotstat     calib     signal     star     ganymed            plotdb )
+columns=(       no          no        no       no fWebCalib fWebSignal fWebStar fWebGanymed fWebPlotDBGanymed )
+digits=( 0 0 0 0 4 4 4 5 5 )
+
+# function to print the usage of the script
+function usage()
+{
+   echo "Usage: $0 [options]"
+   echo "options:"
+   echo -n "  --general    name  "
+   echo " where 'name' can be 'all' or one of the following: ${generals[@]} "
+   echo -n "  --individual name  "
+   echo " where 'name' can be 'all' or one of the following: ${individuals[@]} "
+   echo -n "  -h                 "
+   echo " print this usage "
+   echo "" 
+   echo "Remark: if no commandline option is given the plots are produced for everything." 
+   echo "" 
+   exit
+}
+
+# reading in the command line options
+general=( )
+individual=( )
+while [ "$1" ]
+do 
+   case $1 in 
+        --general) shift
+                   if [ "$1" = "all" ]
+                   then
+                      general=( ${generals[@]} )
+                   else 
+                      general=( ${general[@]} $1 )
+                   fi
+                   ;;
+     --individual) shift
+                   if [ "$1" = "all" ]
+                   then
+                      individual=( ${individuals[@]} )
+                   else 
+                      individual=( ${individual[@]} $1 )
+                   fi
+                   ;;
+              -h)  usage 
+                   exit
+                   ;;
+               *)  echo "unknown option $1 " >> $scriptlog 2>&1
+                   usage  >> $scriptlog 2>&1
+                   exit
+                   ;;
+   esac
+   shift
+done
+
+if [ ${#general[@]} -eq 0 ] && [ ${#individual[@]} -eq 0 ]
+then
+   all=( ${names[@]} )
+else
+   all=( ${general[@]} ${individual[@]} ) 
+fi
+
+echo "For the following plots will be produced: "${all[@]} >> $scriptlog 2>&1
+
+# using hour for lock => after 24 no new script is 
+#  started in case the previous is still running
+hour=`date +%H`
+lockfile=$lockpath/${program}-${hour}h.txt
+checklock  >> $scriptlog 2>&1
+
+# make sure that ./showplot is executed from the right directory
+cd $mars 
+
+count=0
+# loop over all scripts in $names
+while [ 1 -gt 0 ]
+do
+   check="ok"
+   # get needed variables from the arrays
+   name=${names[$count]}
+   macro=${macros[$count]}
+   pathname=${pathnames[$count]}
+   filename=${filenames[$count]}
+   column=${columns[$count]}
+   digit=${digits[$count]}
+   
+   count=`expr $count + 1`
+   if [ $count -gt ${#names[@]} ]
+   then
+      count=0
+      continue
+   fi
+   # find out if these plots have to be created
+   #  by looping over the complete array $all and comparing the entries to those of the array $names
+   for (( a=0 ; a <= ${#all[@]} ; a++ ))
+   do 
+      # exit the loop if the entries agree
+      #  i.e. produce plots for this entry
+      if [ "${all[$a]}" = "$name" ]
+      then
+         break
+      fi
+      # continue if the end of array is not yet reached
+      if [ $a -lt ${#all[@]} ]
+      then
+         continue
+      fi
+      # exit both loops if no entry in the array is left
+      #  i.e. there is nothing to do anymore
+      if [ ${#all[@]} -eq 0 ]
+      then
+         break 2
+      fi
+      # continue with the next entry in the array $names
+      #  in case the end of the array $all is reached without agreement
+      continue 2
+   done
+
+   # do things specific to 'general' and 'individual'
+   if [ "$macro" = "no" ]
+   then 
+      # 'individual'
+      # remove name from list in case there is nothing left to do
+      getstatus >> $scriptlog 2>&1
+      if [ "$numproc" = "0" ]
+      then 
+         unset all[$a]
+         all=( ${all[@]} )
+         continue
+      fi
+      # get one sequence or dataset from the database for which plots have to be produced
+      gettodo "1" >> $scriptlog 2>&1
+      num=${primaries[0]}
+      echo "executing $name for number "$num  >> $scriptlog 2>&1
+      # lock the process
+      lockfile=$lockpath/$program-$name-$num.txt
+      checklock continue  >> $scriptlog 2>&1
+      setstatus "start" >> $scriptlog 2>&1
+      # set needed file and path names
+      pathpart=$pathname/`printf %08d $num | cut -c 0-${digit}`/`printf %08d $num`
+      inpath=$datapath/$pathpart
+      outpath=$webpath/$pathpart
+      tmppath=/tmp/pstoimg$pathpart
+      rootfile=$inpath/$filename`printf %08d $num`.root
+      psfile=$inpath/$filename`printf %08d $num`.ps
+      csvfile=$outpath/$filename.csv
+      pdffile=$outpath/$filename`printf %08d $num`.pdf
+      # rsync
+      makedir $outpath >> $scriptlog 2>&1
+      rsync -aLv --exclude=20[01][0-9]*_[YI]_*[.]root $inpath/ $outpath >> $scriptlog 2>&1
+
+      # for ganymed not only the ganymed*.root is processed but also a plotdb.root for the 
+      #  dataset. therefore the macro plotdb.C has to be run in this case
+      if [ "$name" = "gplotdb" ]
+      then
+         # overwrite needed file and path names
+         rootfile=$inpath/$filename.root
+         psfile=$inpath/$filename.ps
+         csvfile=$outpath/$filename.csv
+         pdffile=$outpath/$filename.pdf
+         datasetfile=$datasetpath/`printf %08d $num | cut -c 0-${digit}`/dataset`printf %08d $num`.txt
+         
+         echo "check1=root -q -b $macrospath/plotdb.C+\(\"$datasetfile\"\,\"$inpath/\"\) 2>|/dev/null | tee -a $scriptlog | intgrep" >> $scriptlog 2>&1
+         check1=`root -q -b $macrospath/plotdb.C+\("\"$datasetfile\""\,"\"$inpath/\""\) 2>|/dev/null | tee -a $scriptlog | intgrep`
+         case $check1 in 
+            1)   echo " check1=$check1 -> everything ok" >> $scriptlog 2>&1
+                 printprocesslog "INFO rootfile $rootfile successfully produced"
+                 ;;
+            *)   echo " check1=$check1 -> ERROR -> couldn't create plots -> exit" >> $scriptlog 2>&1
+                 printprocesslog "ERROR producing rootfile $rootfile failed"
+                 com=$Fdowebplots
+                 check=$check1
+                 ;;
+         esac
+      fi
+   else
+      # 'general'
+      echo "executing $name "  >> $scriptlog 2>&1
+      # remove 'general' from list as they need to be executed only once
+      unset all[$a]
+      all=( ${all[@]} )
+      # lock process
+      lockfile=$lockpath/$program-$name.txt
+      checklock continue >> $scriptlog 2>&1
+      # set needed file and path names
+      outpath=$webpath/$pathname
+      tmppath=/tmp/$pathname
+      rootfile=$outpath/$filename.root
+      psfile=$outpath/$filename.ps
+      csvfile=$outpath/$filename.csv
+      pdffile=$outpath/$filename.pdf
+      txtfile=$outpath/$filename.txt
+      
+      echo "check2=root -q -b $macrospath/$macro.C+\(\"$outpath/\"\) 2>| $txtfile | tee -a $scriptlog | intgrep" >> $scriptlog 2>&1
+      check2=`root -q -b $macrospath/$macro.C+\("\"$outpath/\""\) 2>| $txtfile | tee -a $scriptlog | intgrep`
+      case $check2 in 
+         1)   echo " check2=$check2 -> everything ok" >> $scriptlog 2>&1
+              printprocesslog "INFO rootfile $rootfile successfully produced"
+              ;;
+         *)   echo " check2=$check2 -> ERROR -> couldn't produce root file $rootfile  -> exit" >> $scriptlog 2>&1
+              printprocesslog "ERROR producing rootfile $rootfile failed"
+              com=$Fdowebplots
+              check=$check2
+              ;;
+      esac
+   fi
+   
+   # in case no error occured, the plots are produced from the rootfile
+   if [ "$check" = "ok" ]
+   then
+      printprocesslog "INFO producing plots (psfile and png) for $rootfile"
+      if ! ls $rootfile >/dev/null 2>&1
+      then
+         echo "rootfile $rootfile does not exist" >> $scriptlog 2>&1
+         printprocesslog "ERROR rootfile $rootfile does not exist"
+         com=$Fdowebplots
+         check=3
+      else
+         echo "producing psfile and csvfile..." >> $scriptlog 2>&1
+         if ! ./showplot -b --save-as-ps=$psfile --save-as-csv=$csvfile $rootfile >> $scriptlog 2>&1
+         then
+            com=$Fdowebplots
+            check=4
+         else
+            echo "creating temporary directory for pstoimg..." >> $scriptlog 2>&1
+            makedir $tmppath >> $scriptlog 2>&1
+            
+            echo "converting plots to png..." >> $scriptlog 2>&1
+            if ! pstoimg -antialias -aaliastext -interlaced -flip r270 -density 100 -tmp $tmppath -out=$outpath/$name -type png -multipage $psfile >> $scriptlog 2>&1
+            then 
+               printprocesslog "WARN could not create png files for $psfile "
+               com=$Fdowebplots
+               check=5
+            fi
+            
+            echo "removing temporary directory..." >> $scriptlog 2>&1
+            rmdir -pv $tmppath >> $scriptlog 2>&1
+            
+            echo "converting $psfile to pdf..." >> $scriptlog 2>&1
+         fi
+         
+         if ps2pdf $psfile $pdffile >> $scriptlog 2>&1
+         then 
+            rm -v $psfile  >> $scriptlog 2>&1
+         else
+            printprocesslog "WARN could not convert $psfile to $pdffile"
+            com=$Fdowebplots
+            check=6
+         fi
+      fi
+   fi
+   
+   setstatus "stop" >> $scriptlog 2>&1
+   
+   rm -v $lockfile >> $scriptlog 2>&1
+
+   sleep 2
+done
+
+# rsync subsystemdata, sequence and dataset files
+echo "do rsync for subsystem files" >> $scriptlog 2>&1
+rsync -av --delete $subsystempath/ $webpath/subsystemdata >> $scriptlog 2>&1
+
+echo "do rsync for sequence files" >> $scriptlog 2>&1
+rsync -av --delete $sequpath/ $webpath/sequences >> $scriptlog 2>&1
+
+echo "do rsync for dataset files" >> $scriptlog 2>&1
+rsync -av --delete $datasetpath/ $webpath/datasets >> $scriptlog 2>&1
+
+
+lockfile=$lockpath/${program}-${hour}h.txt
+finish >> $scriptlog 2>&1
+
+

@@ -1,0 +1,95 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2004 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2007
+#
+#
+# ========================================================================
+#
+# This script links a special callisto.rc for data, for which the 
+# calibration with the standard callisto.rc failes. 
+# 
+# The sequences with failing calibration are searched by searching for the 
+# reason of failure in the callisto.log Then the special callisto.rc is 
+# linked to the directory of the sequence. 
+#
+
+source `dirname $0`/sourcefile
+printprocesslog "INFO starting $0"
+program=makecallistolinks
+column=fCallisto
+table=SequenceProcessStatus
+
+set -C
+
+# check if script is already running
+lockfile=$lockpath/lock-$program.txt
+checklock 
+
+callistorcseq=callisto.rc
+callistorcnew=callisto_Dec04Jan05.rc
+
+# query failed callistos (returncode 13) from DB
+query="SELECT fSequenceFirst, fTelescopeNumber from SequenceProcessStatus where fReturnCode=13 and fProgramId=14 and fSequenceFirst<200000"
+primaries=( `sendquery` )
+if [ ${#primaries[@]} -eq 0 ]
+then 
+   printprocesslog "INFO nothing to do -> exit" 
+   finish 
+fi
+num=`expr ${#primaries[@]} / 2 `
+
+cd $mars
+
+printprocesslog "INFO linking callisto.rc files"
+for (( s=0 ; s < $num ; s++ ))
+do
+   sequence=${primaries[$s+$s]}
+   telnum=${primaries[$s+$s+1]}
+   callistorc=$datapath/callisto/`printf %08d $sequence | cut -c 0-4`/`printf %08d $sequence`/$callistorcseq
+   if ! ls -l $callistorc 2>/dev/null | grep $callistorcnew >/dev/null
+   then 
+      printprocesslog "INFO linking $callistorcnew to $callistorc for sequ $sequence"
+      # resetting the calibration
+      printprocesslog "INFO resetting the callisto for sequence $sequence" 
+
+      query="UPDATE SequenceProcessStatus set fStartTime=NULL, fFailedTime=NULL, fProgramId=NULL, fReturnCode=NULL where fSequenceFirst=$sequence and fTelescopeNumber=$telnum"
+      if ! sendquery 
+      then 
+         printprocesslog "ERROR resetting calibration failed for sequence $sequence"
+         continue
+      else 
+         printprocesslog "INFO resetted calibration successfully for sequence $sequence"
+      fi
+      
+      #linking callisto.rc
+      if ln -fs $setuppath/callisto/$callistorcnew $callistorc
+      then 
+         printprocesslog "INFO link callisto.rc successfully for sequence $sequence"
+      else 
+         printprocesslog "ERROR linking callisto.rc failed for sequence $sequence"
+      fi
+      
+   fi
+done
+
+finish 
+

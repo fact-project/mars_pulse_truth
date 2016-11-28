@@ -1,0 +1,145 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  08/2008 <mailto:dorner@astro.uni-wuerzburg.de>
+#
+#   Copyright: MAGIC Software Development, 2000-2008
+#
+#
+# ========================================================================
+#
+# This script resets the priorities for the tables RunProcessStatus
+# SequenceProcessStatus and DataSetProcessStatus
+#
+
+alias mymysql='mysql -u $user --password=$pw --host=vela $db -e'
+
+
+function usage()
+{
+   echo "Usage: $0 [options]"
+   echo "options:"
+   echo -n "  --db          "
+   echo " name of the db for which you want to reset the priorities"
+   echo "                   if no db is given, MyMagic is resetted"
+   echo -n "  --user        "
+   echo " db user "
+   echo -n "  --pw          "
+   echo " pw of the db user "
+   echo ""
+   echo -n "  -d            "
+   echo " reset only priorities of datasets"
+   echo -n "  -r            "
+   echo " reset only priorities of runs"
+   echo -n "  -s            "
+   echo " reset only priorities of sequences"
+   echo ""
+   echo "  If none of the last three option is chosen, all of them are resetted."
+   echo ""
+   exit
+}
+
+
+all="yes"
+while [ "$1" ]
+do 
+   case $1 in 
+        --db) shift
+              db=$1
+              ;;
+        --pw) shift
+              pw=$1
+              ;;
+      --user) shift
+              user=$1
+              ;;
+          -h) usage
+              ;;
+          -d) ds="yes"
+              all="no"
+              ;;
+          -r) rn="yes"
+              all="no"
+              ;;
+          -s) sq="yes"
+              all="no"
+              ;;
+           *) echo "unknown option $1 "
+              usage
+              exit
+              ;;
+   esac
+   shift
+done
+
+
+if [ "$pw" = "" ] || [ "$user" = "" ]
+then 
+   echo "Please give user and password for the DB $db."
+   usage
+fi
+
+if [ "$db" = "" ]
+then 
+   echo "You didn't give a database. The priorities for MyMagic will be resetted in 5 seconds..."
+   db="MyMagic"
+   sleep 5
+fi
+
+if [ "$all" = "yes" ]
+then 
+   ds="yes"
+   rn="yes"
+   sq="yes"
+fi
+
+
+if [ "$rn" = "yes" ]
+then
+   query1="update RunProcessStatus set fPriority=fRunNumber"
+   if ! mymysql "$query1"
+   then
+      echo "ERROR: could not reset priorities for RunProcessStatus"
+   else
+      echo "The priorities for RunProcessStatus have been resetted successfully."
+   fi
+fi
+
+if [ "$sq" = "yes" ]
+then
+   query2="update SequenceProcessStatus set fPriority=fSequenceFirst"
+   if ! mymysql "$query2"
+   then
+      echo "ERROR: could not reset priorities for SequenceProcessStatus"
+   else
+      echo "The priorities for SequenceProcessStatus have been resetted successfully."
+   fi
+fi
+
+if [ "$ds" = "yes" ]
+then
+   query3="update DataSetProcessStatus set fPriority=fDataSetNumber"
+   if ! mymysql "$query3"
+   then
+      echo "ERROR: could not reset priorities for DataSetProcessStatus"
+   else
+      echo "The priorities for DataSetProcessStatus have been resetted successfully."
+   fi
+fi
+

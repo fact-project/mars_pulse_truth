@@ -1,0 +1,32 @@
+#!/bin/sh
+
+file=SPS.2006.10.17.cp.sql
+while read LINE
+do 
+   if [ "$LINE" = "" ]
+   then
+      continue
+   fi
+   cal=`echo $LINE | cut -d, -f4`
+   if [ "$cal" = "NULL" ]
+   then
+      continue
+   fi
+   query="UPDATE SequenceProcessStatus set fCallisto=$cal"
+   star=`echo $LINE | cut -d, -f5`
+   if ! [ "$star" = "NULL" ]
+   then
+      query=$query", fStar=$star"
+   fi
+#   echo $LINE
+   seq=`echo $LINE | cut -d\( -f2 | cut -d, -f1`
+#   query=$query", fFillCallisto=NULL, fFillStar=NULL"
+#   query=$query", fStartTime=NULL, fFailedCode=NULL, fReturnCode=NULL"
+#   query=$query", fFailedTime=NULL, fFailedCodeAdd=NULL"
+   query=$query", fAllFilesAvail=Now() where fSequenceFirst=$seq;"
+#   echo "LINE: "$LINE
+   echo $query
+#   sleep 1
+done < $file
+
+

@@ -1,0 +1,112 @@
+#!/bin/sh
+#
+# ========================================================================
+#
+# *
+# * This file is part of MARS, the MAGIC Analysis and Reconstruction
+# * Software. It is distributed to you in the hope that it can be a useful
+# * and timesaving tool in analysing Data of imaging Cerenkov telescopes.
+# * It is distributed WITHOUT ANY WARRANTY.
+# *
+# * Permission to use, copy, modify and distribute this software and its
+# * documentation for any purpose is hereby granted without fee,
+# * provided that the above copyright notice appear in all copies and
+# * that both that copyright notice and this permission notice appear
+# * in supporting documentation. It is provided "as is" without express
+# * or implied warranty.
+# *
+#
+#
+#   Author(s): Daniela Dorner  10/2010 <mailto:daniela.dorner@unige.ch>
+#
+#   Copyright: MAGIC Software Development, 2000-2010
+#
+#
+# ========================================================================
+#
+# script copy processing output from one site to the other
+# 
+# FIXME: solve problem how to know which files have to be copied for which 
+# step (alias/function for file-definitions?)
+
+if [ "$SOURCEFILEPATH" = "" ]
+then 
+   source `dirname $0`/sourcefile
+else
+   source $SOURCEFILEPATH/sourcefile
+fi
+printprocesslog "INFO starting $0"
+program="corsika"
+
+function copyandcheckfile()
+{ 
+   # do rsync of file
+   command="rsync -aR -u "$extension"/"$1" "$remotemachine":"$todir
+   printprocesslog "DEBUG executing: "$command
+   if ! $command
+   then
+      printprocesslog "ERROR could not rsync file "$1
+      continue
+   fi
+   # get local checksum
+   if ! checksum1=`md5sum $fromdir/$1`
+   then
+      printprocesslog "ERROR could not get md5sum file "$1
+      continue
+   else
+      checksum1=`echo $checksum1 | awk ' { print \$1 } '`
+   fi
+   # get remote checksum
+   if ! checksum2=`ssh $remotemachine " md5sum $todir/$extension/$1 " `
+   then
+      printprocesslog "ERROR could not get remote md5sum file "$1" from "$remotemachine
+      continue
+   else
+      checksum2=`echo $checksum2 | awk ' { print \$1 } '`
+   fi
+   # compare checksums
+   if ! [ "$checksum1" = "$checksum2" ]
+   then
+      printprocesslog "ERROR local and remote md5sum for file "$1" do not match"
+      continue
+   fi
+}
+
+for step in ${tocopy[@]}
+do
+   printprocesslog "INFO copying output of step "$step 
+   getstepinfo
+   
+   # get primaries for which output has to be copied
+   query="SELECT "${prims[@]}" FROM "$step"Status WHERE NOT ISNULL(fStartTime) AND NOT ISNULL(fStopTime) AND ISNULL(fAvailable) AND ISNULL(fReturnCode) AND fProcessingSiteKEY="$sitekey
+   primstocopy=( `sendquery` )
+   num=`expr ${#primstocopy[@]} / ${#prims[@]} `
+   if [ ${#primstocopy[@]} -eq 0 ]
+   then 
+      printprocesslog "INFO no files to copy for step "$step
+      continue
+   fi
+   # BE CAREFUL: 
+   # this only works for corsika so far
+   for (( s=0 ; s < $num ; s++ ))
+   do
+      runnum=${primstocopy[$s+$s]}
+      filenum=${primstocopy[$s+$s+1]}
+      printprocesslog "INFO copying corsika files for run "$runnum" file "$filenum
+      extension=`printf %08d $runnum | cut -c 1-4`/`printf %08d $runnum | cut -c 5-8`
+      cd $mcpath/$program
+      fromdir=$mcpath/$program/$extension
+      todir=$remotedir"/simulated/"$program
+      # copy files and check md5sums
+      corsikafile=cer000`printf %06d $filenum | cut -c 4-6`
+      copyandcheckfile $corsikafile
+      corsikalogfile=cer000`printf %06d $filenum | cut -c 4-6`".log"
+      copyandcheckfile $corsikalogfile
+      
+      # in case all copying succeeded and the checksums are ok
+      # continue and update the DB
+      query="UPDATE "$step"Status SET fAvailable=Now() WHERE fFileNumber="$filenum" AND fRunNumber="$runnum
+      sendquery >/dev/null
+   done   
+done
+
