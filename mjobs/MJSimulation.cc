@@ -80,6 +80,7 @@
 #include "MImgCleanStd.h"
 #include "MWriteRootFile.h"
 #include "MWriteFitsFile.h"
+#include "MCollectSimulationTruth.h"
 
 #include "MSimMMCS.h"
 #include "MSimAbsorption.h"
@@ -687,6 +688,7 @@ Bool_t MJSimulation::Process(const MArgs &args, const MSequence &seq)
     MSimTrigger       simtrig;
     MContinue conttrig("TriggerPos.fVal<0", "ContTrigger");
     MSimReadout       simdaq;
+    MCollectSimulationTruth collectSimTruth;
 
     // --------------------------------------------------------------------------------
     // Standard analysis with hillas parameters for the true cherenkov photons
@@ -979,6 +981,7 @@ Bool_t MJSimulation::Process(const MArgs &args, const MSequence &seq)
             tasks.AddToList(&simtrig);  // simulate trigger
         tasks.AddToList(&conttrig);  // continue if trigger pos is valid
         tasks.AddToList(&simdaq);  // simulate data aquisition
+        task.AddToList(&collectSimTruth); //collect the simulation truth from the simulation of sipm pulses
     }
     tasks.AddToList(&simsignal);  // What do we do if signal<0?  // fill MSimSignal container
     if (!fPathOut.IsNull() && !HasNullOut())
