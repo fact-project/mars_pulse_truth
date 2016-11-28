@@ -33,7 +33,8 @@ SRCFILES = MSimPSF.cc \
 	   MSimTrigger.cc \
 	   MSimReadout.cc \
            MSimSignalCam.cc \
-           MTruePhotonsPerPixelCont.cc
+           MTruePhotonsPerPixelCont.cc \
+           MPulse.cc
 
 ############################################################
 
