@@ -11,3 +11,4 @@ showplot
 mirrorSimulation
 readcorsika
 *.o
+*.so
