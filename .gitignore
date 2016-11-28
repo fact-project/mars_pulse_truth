@@ -14,3 +14,5 @@ readcorsika
 *.so
 *.d
 *Cint.cc
+*Cint.h
+*Dep.d
