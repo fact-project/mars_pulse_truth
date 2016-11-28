@@ -12,3 +12,5 @@ mirrorSimulation
 readcorsika
 *.o
 *.so
+*.d
+*Cint.cc
