@@ -96,24 +96,10 @@ using namespace std;
 //  Default Constructor.
 //
 MCollectSimulationTruth::MCollectSimulationTruth(const char *name, const char *title)
-    : fCamera(0),
-      fPulsePos(0),
+    : fPulsePos(0),
       fTrigger(0),
-      fRunHeader(0),
-      fEvtHeader(0),
-      fElectronicNoise(0),
-      fGain(0),
-      fDiscriminatorThreshold(-1),
-      fDigitalSignalLength(8),
-      fCoincidenceTime(0.5),
-      fShiftBaseline(kTRUE),
-      fUngainSignal(kTRUE),
-      fSimulateElectronics(kTRUE),
-      fMinMultiplicity(-1),
-      fCableDelay(21),
-      fCableDamping(0.)     // default Damping Set to zero, so users, who do not set
-                            // the CableDamoing in the ceres.rc do not see a difference.
-
+      fEvt(0),
+      fStat(0)
 {
     fName  = name  ? name  : "MCollectSimulationTruth";
     fTitle = title ? title : "Task to collect some simulation truth";
@@ -136,6 +122,21 @@ Int_t MCollectSimulationTruth::PreProcess(MParList *pList)
         return kFALSE;
     }
 
+    fEvt = (MPhotonEvent*)pList->FindObject("MPhotonEvent");
+    if (!fEvt)
+    {
+        *fLog << err << "MPhotonEvent not found... aborting." << endl;
+        return kFALSE;
+    }
+
+    fStat = (MPhotonStatistics*)pList->FindObject("MPhotonStatistics");
+    if (!fStat)
+    {
+        *fLog << err << "MPhotonStatistics not found... aborting." << endl;
+        return kFALSE;
+    }
+
+
     return kTRUE;
 }
 
@@ -145,9 +146,32 @@ Int_t MCollectSimulationTruth::Process()
 {
     const Float_t  pulspos = fPulsePos->GetVal()/freq;
 
-    // Valid range in units of bins
-    const Float_t min = fCamera->GetValidRangeMin()+pulspos;
-    const Float_t max = fCamera->GetValidRangeMax()-(nsamp-pulspos);
+    // Get number of pixels/channels
+    const UInt_t numberOfPixels = fStat->GetMaxIndex()+1;
+    std::vector<std::vector<MPulse>> eventTruth(numberOfPixels);
+
+    // Get trigger position and correct for intended pulse position
+    const Int_t start_slice = TMath::CeilNint(fTrigger->GetVal()-pulpos);
+
+    // Get number of samples to be digitized
+    const Int_t length_of_roi = fData->GetNumSamples();
+
+    const Int_t end_slice = start_slice + length_of_roi
+
+    const Int_t numberOfPulses = fEvt->GetNumPhotons();
+
+      // loop over all pulses
+    for (Int_t i=0; i<numberOfPulses; i++)
+    {
+      const MPhotonData &pulse = (*fEvt)[i];
+
+      MPulse true_pulse;
+      true_pulse.amplitude = pulse.GetWeight();
+      true_pulse.time      = pulse.GetTime();
+      true_pulse.origin    = pulse.GetPrimary();
+
+
+    }
 
     return kTRUE;
 }
