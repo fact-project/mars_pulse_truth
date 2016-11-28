@@ -10,6 +10,8 @@ showlog
 showplot
 mirrorSimulation
 readcorsika
+callisto
+readraw
 *.o
 *.so
 *.d
