@@ -20,7 +20,7 @@ CINT  = PulseTruth
 #
 INCLUDES =  -I.
 
-SRCFILES = MExtractedSignalCam.cc \
+SRCFILES = MPulseTruth.cc \
 
 
 ############################################################
