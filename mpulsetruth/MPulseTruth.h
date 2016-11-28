@@ -1,10 +1,10 @@
-#ifndef MARS_SimulationTruth
-#define MARS_SimulationTruth
+#ifndef MARS_PulseTruth
+#define MARS_PulseTruth
 
 #include <vector>
 #include <string>
 
-namespace SimulationTruth {
+namespace PulseTruth {
 
     struct Pulse {
         float amplitude;
@@ -25,5 +25,5 @@ namespace SimulationTruth {
         std::vector<std::vector<Pulse>> pulses_in_pixels;
         std::string get_json()const;
     };
-}// SimulationTruth
+}// PulseTruth
 #endif

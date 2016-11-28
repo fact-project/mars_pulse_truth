@@ -1,7 +1,7 @@
-#include "SimulationTruth.h"
+#include "MPulseTruth.h"
 #include <sstream>
 
-namespace SimulationTruth {
+namespace PulseTruth {
 
     Pulse::Pulse():
         amplitude(0.0), 
@@ -42,4 +42,4 @@ namespace SimulationTruth {
         out << "}";
         return out.str();
     }
-}// SimulationTruth
+}// PulseTruth
