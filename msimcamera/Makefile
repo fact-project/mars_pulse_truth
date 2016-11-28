@@ -34,7 +34,8 @@ SRCFILES = MSimPSF.cc \
 	   MSimReadout.cc \
            MSimSignalCam.cc \
            MTruePhotonsPerPixelCont.cc \
-           MPulse.cc
+           MPulse.cc \
+					 MCollectSimulationTruth.cc
 
 ############################################################
 
