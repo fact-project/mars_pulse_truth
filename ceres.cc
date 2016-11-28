@@ -77,6 +77,9 @@ static void Usage()
     gLog << "   --mode=data               process data files [default]" << endl << endl;
     gLog << "   --run-number=#            Optionally set the run number of the run to simulate" << endl;
     gLog << "   --fits                    Write FITS output files instead of root files." << endl << endl;
+    gLog << "   --pulse_truth             Writes a json file parallel to the usual output " << endl;
+    gLog << "                              containing information on the origin and amplitutdes " << endl;
+    gLog << "                              of each single pulse on time series of a pixel." << endl << endl;
     gLog << endl;
 //    gLog << "     -f:  force reading of runheader" << endl;
     gLog << "   --version, -V             Show startup message with version number" << endl;
@@ -176,6 +179,7 @@ int main(int argc, char **argv)
 
     const TString kOpMode     = arg.GetStringAndRemove("--mode=", "data");
     const Bool_t  kFitsFile   = arg.HasOnlyAndRemove("--fits");
+    const Bool_t  kPulseTruth = arg.HasOnlyAndRemove("--pulse_truth");
 
     Int_t opmode = -1;
     if (TString("data").BeginsWith(kOpMode, TString::kIgnoreCase))
@@ -351,6 +355,7 @@ int main(int argc, char **argv)
         job.SetNullOut(kNullOut);
         job.SetForceMode(kForce);
         job.SetWriteFitsFile(kFitsFile);
+        job.SetWritePulseTruth(kPulseTruth);
         job.SetMode(opmode);
         job.SetCommandLine(MArgs::GetCommandLine(argc, argv));
         job.SetRunNumber(kRunNumber);

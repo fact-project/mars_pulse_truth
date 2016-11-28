@@ -129,7 +129,8 @@ using namespace std;
 //
 MJSimulation::MJSimulation(const char *name, const char *title)
     : fForceMode(kFALSE), fCamera(kTRUE), fForceTrigger(kFALSE),
-    fWriteFitsFile(kFALSE), fOperationMode(kModeData), fRunNumber(-1)
+    fWriteFitsFile(kFALSE), fWritePulseTruth(kFALSE), fOperationMode(kModeData),
+    fRunNumber(-1)
 {
     fName  = name  ? name  : "MJSimulation";
     fTitle = title ? title : "Standard analysis and reconstruction";

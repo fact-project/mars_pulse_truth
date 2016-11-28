@@ -24,6 +24,7 @@ private:
     Bool_t fCamera;         // Switch on/off camera (for fast reflector processing)
     Bool_t fForceTrigger;   // Force the use of the trigger "electronics"
     Bool_t fWriteFitsFile;
+    Bool_t fWritePulseTruth;
 
     Int_t  fOperationMode;  // Operation mode (data, ped, cal, pointrun)
     Int_t  fRunNumber;      // 8 digits run number to be used for the file names
@@ -48,6 +49,7 @@ public:
     void SetForceMode(Bool_t force=kTRUE) { fForceMode = force; }
     void SetMode(Int_t mode) { fOperationMode = mode; }
     void SetWriteFitsFile(Bool_t fits) { fWriteFitsFile = fits; }
+    void SetWritePulseTruth(Bool_t pulse_truth) { fWritePulseTruth = pulse_truth; }
     void SetFileOut(const char *file="") { fFileOut = file; }
 
     void SetRunNumber(Int_t n=-1) { fRunNumber = n%100000000; }
