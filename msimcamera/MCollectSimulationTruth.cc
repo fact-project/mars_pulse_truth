@@ -85,7 +85,8 @@
 
 #include "MTriggerPattern.h"
 
-#include "MPhotonData.h" 
+#include "MPhotonData.h"
+#include "MPhotonEvent.h"
 #include "MPedestalCam.h"
 #include "MPedestalPix.h"
 
