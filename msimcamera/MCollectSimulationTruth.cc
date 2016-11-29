@@ -77,6 +77,7 @@
 
 #include "MRawEvtHeader.h"
 #include "MRawRunHeader.h"
+#include "MRawEvtData.h"
 
 #include "MAnalogSignal.h"
 #include "MAnalogChannels.h"
@@ -84,6 +85,7 @@
 
 #include "MTriggerPattern.h"
 
+#include "MPhotonData.h" 
 #include "MPedestalCam.h"
 #include "MPedestalPix.h"
 
