@@ -10,9 +10,9 @@
 
 class MParList;
 class MParameterD;
-class MRawEvtData;
+class MPhotonStatistics;
 class MRawRunHeader;
-class MRawEvtHeader;
+class MRawEvtData;
 class MAnalogChannels;
 
 class MCollectSimulationTruth : public MTask
@@ -22,6 +22,9 @@ private:
     MParameterD      *fTrigger;    //! Position of trigger in the analog signal
     MPhotonEvent     *fEvt;
     MPhotonStatistics *fStat;
+    MRawRunHeader   *fRunHeader;        //! The run header storing infos about the digitization
+    MRawEvtData      *fData;       //! Digitized FADC signal
+    MAnalogChannels  *fCamera;     //! Analog channes to be read out
 
     // MTask
     Int_t  PreProcess(MParList *pList);
