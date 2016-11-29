@@ -190,10 +190,10 @@ Int_t MCollectSimulationTruth::Process()
     {
       const MPhotonData &pulse = (*fEvt)[i];
 
-      MPulse true_pulse;
-      true_pulse.amplitude = pulse.GetWeight();
-      true_pulse.time      = pulse.GetTime();
-      true_pulse.origin    = pulse.GetPrimary();
+  //    MPulse true_pulse;
+      /* true_pulse.amplitude = pulse.GetWeight(); */
+      /* true_pulse.time      = pulse.GetTime(); */
+      /* true_pulse.origin    = pulse.GetPrimary(); */
 
 
     }
