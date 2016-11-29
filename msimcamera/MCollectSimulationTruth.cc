@@ -99,13 +99,13 @@ using namespace std;
 //  Default Constructor.
 //
 MCollectSimulationTruth::MCollectSimulationTruth(const char *name, const char *title)
-    : fCamera(0),
-      fPulsePos(0),
+    : fPulsePos(0),
       fTrigger(0),
       fEvt(0),
       fStat(0),
+      fRunHeader(0),
       fData(0),
-      fRunHeader(0)
+      fCamera(0)
 {
     fName  = name  ? name  : "MCollectSimulationTruth";
     fTitle = title ? title : "Task to collect some simulation truth";
