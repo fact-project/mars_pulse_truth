@@ -167,6 +167,8 @@ Int_t MCollectSimulationTruth::PreProcess(MParList *pList)
 //
 Int_t MCollectSimulationTruth::Process()
 {
+    const Double_t freq    = fRunHeader->GetFreqSampling()/1000.;
+
     const Float_t  pulspos = fPulsePos->GetVal()/freq;
 
     // Get number of pixels/channels
