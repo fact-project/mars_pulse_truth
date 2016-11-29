@@ -176,12 +176,12 @@ Int_t MCollectSimulationTruth::Process()
 //    std::vector<std::vector<MPulse>> eventTruth(numberOfPixels);
 
     // Get trigger position and correct for intended pulse position
-    const Int_t start_slice = TMath::CeilNint(fTrigger->GetVal()-pulpos);
+    const Int_t start_slice = TMath::CeilNint(fTrigger->GetVal()-pulspos);
 
     // Get number of samples to be digitized
     const Int_t length_of_roi = fData->GetNumSamples();
 
-    const Int_t end_slice = start_slice + length_of_roi
+    const Int_t end_slice = start_slice + length_of_roi;
 
     const Int_t numberOfPulses = fEvt->GetNumPhotons();
 
