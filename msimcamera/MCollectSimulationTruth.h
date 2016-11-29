@@ -5,6 +5,9 @@
 #include "MTask.h"
 #endif
 
+#include "MArrayF.h"
+#include "MMatrix.h"
+
 class MParList;
 class MParameterD;
 class MRawEvtData;
