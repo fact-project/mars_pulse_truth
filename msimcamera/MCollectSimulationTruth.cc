@@ -116,6 +116,13 @@ MCollectSimulationTruth::MCollectSimulationTruth(const char *name, const char *t
 //
 Int_t MCollectSimulationTruth::PreProcess(MParList *pList)
 {
+    fCamera = (MAnalogChannels*)pList->FindObject("MAnalogChannels");
+    if (!fCamera)
+    {
+    	*fLog << err << "MAnalogChannels not found... aborting." << endl;
+	return kFALSE;
+    }
+
     fTrigger = (MParameterD*)pList->FindCreateObj("MParameterD", "TriggerPos");
     if (!fTrigger)
         return kFALSE;
@@ -152,8 +159,8 @@ Int_t MCollectSimulationTruth::Process()
     const Float_t  pulspos = fPulsePos->GetVal()/freq;
 
     // Get number of pixels/channels
-    const UInt_t numberOfPixels = fStat->GetMaxIndex()+1;
-    std::vector<std::vector<MPulse>> eventTruth(numberOfPixels);
+    const UInt_t numberOfPixels = fCamera->GetNumChannels();
+//    std::vector<std::vector<MPulse>> eventTruth(numberOfPixels);
 
     // Get trigger position and correct for intended pulse position
     const Int_t start_slice = TMath::CeilNint(fTrigger->GetVal()-pulpos);
