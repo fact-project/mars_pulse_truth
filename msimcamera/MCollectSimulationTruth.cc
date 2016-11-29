@@ -148,6 +148,17 @@ Int_t MCollectSimulationTruth::PreProcess(MParList *pList)
         return kFALSE;
     }
 
+    fRunHeader = (MRawRunHeader*)pList->FindObject("MRawRunHeader");
+    if (!fRunHeader)
+    {
+	*fLog << err << "MRawRunHeader not found... aborting." << endl;
+	return kFALSE;
+    }
+
+    fData = (MRawEvtData*)pList->FindCreateObj("MRawEvtData");
+    if (!fData)
+        return kFALSE;
+
 
     return kTRUE;
 }
