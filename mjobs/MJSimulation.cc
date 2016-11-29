@@ -981,7 +981,7 @@ Bool_t MJSimulation::Process(const MArgs &args, const MSequence &seq)
             tasks.AddToList(&simtrig);  // simulate trigger
         tasks.AddToList(&conttrig);  // continue if trigger pos is valid
         tasks.AddToList(&simdaq);  // simulate data aquisition
-        task.AddToList(&collectSimTruth); //collect the simulation truth from the simulation of sipm pulses
+        tasks.AddToList(&collectSimTruth); //collect the simulation truth from the simulation of sipm pulses
     }
     tasks.AddToList(&simsignal);  // What do we do if signal<0?  // fill MSimSignal container
     if (!fPathOut.IsNull() && !HasNullOut())
