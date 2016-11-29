@@ -9,6 +9,7 @@
 #include "MMatrix.h"
 
 class MParList;
+class MPhotonEvent;
 class MParameterD;
 class MPhotonStatistics;
 class MRawRunHeader;
